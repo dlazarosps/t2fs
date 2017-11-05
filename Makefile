@@ -83,6 +83,11 @@ avaliacao: all $(TST_DIR)/avaliacao.c
 	$(CC) $(CFLAGS) -o $(BIN_DIR)/avaliacao $(TST_DIR)/avaliacao.c -L$(LIB_DIR) -lt2fs -I$(INC_DIR)
 	$(BIN_DIR)/avaliacao
 
+## teste de setores simplificado
+main: $(TST_DIR)/main.c
+	$(CC) -o $(BIN_DIR)/main $(TST_DIR)/main.c lib/apidisk.o $(CFLAGS)
+	$(BIN_DIR)/main
+
 ## arquivos de teste
 ifeq (teste,$(firstword $(MAKECMDGOALS)))
   RUN_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
