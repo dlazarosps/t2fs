@@ -1,9 +1,11 @@
 /*
   INF01142 - Sistemas Operacionais I
-  T2FS - 2017/1
+  Prof: Sergio Cechin
+  T2FS - 2017/2
 
   Douglas Lazaro
-  Francisco Knebel
+  Henrique la Porta
+  Rodrigo Okido
 */
 
 #ifndef __types__
@@ -21,30 +23,30 @@
   };
 
   struct Constants {
-    unsigned int SECTOR_PER_BLOCK;
-    unsigned int BLOCK_SIZE;
+    unsigned int SECTORS_PER_CLUSTER;
+    unsigned int CLUSTER_SIZE;
 
     unsigned int DISK_SECTORS;
-    unsigned int DISK_BLOCKS;
+    unsigned int DISK_CLUSTERS;
 
     /* Partições do disco */
-    unsigned int BOOT_BLOCK_SIZE;
-    unsigned int BOOT_SECTOR_SIZE;
+    unsigned int SUPERBLOCK_CLUSTER_SIZE;
+    unsigned int SUPERBLOCK_SECTOR_SIZE;
 
-    unsigned int MFT_BLOCK_SIZE;
-    unsigned int MFT_SECTOR_SIZE;
+    unsigned int FAT_CLUSTER_SIZE;
+    unsigned int FAT_SECTOR_SIZE;
 
-    unsigned int DATA_BLOCK_SIZE;
+    unsigned int DATA_CLUSTER_SIZE;
     unsigned int DATA_SECTOR_SIZE;
 
-    /* Blocos do disco */
-    unsigned int BOOT_BLOCK;
-    unsigned int MFT_BLOCK;
-    unsigned int DATA_BLOCK;
+    /* Cluster (Blocos) do disco */
+    unsigned int SUPERBLOCK_CLUSTER;
+    unsigned int FAT_CLUSTER;
+    unsigned int DATA_CLUSTER;
 
-    /* Blocos do disco */
-    unsigned int BOOT_SECTOR;
-    unsigned int MFT_SECTOR;
+    /* Setores de início do disco */
+    unsigned int SUPERBLOCK_SECTOR;
+    unsigned int FAT_SECTOR;
     unsigned int DATA_SECTOR;
 
     /* Registro */
@@ -69,7 +71,7 @@
   struct Configuration {
     int initiated;
 
-    struct BootBlock bootBlock;
+    struct t2fs_superbloco superbloco;
 
     BYTE* indexMFT;
 

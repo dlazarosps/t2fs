@@ -1,16 +1,21 @@
 /*
   INF01142 - Sistemas Operacionais I
-  T2FS - 2017/1
+  Prof: Sergio Cechin
+  T2FS - 2017/2
 
   Douglas Lazaro
-  Francisco Knebel
+  Henrique la Porta
+  Rodrigo Okido
 */
 
 #include "libs.h"
 
 /*-----------------------------------------------------------------------------
-Função: parseDiskSectorSize, parseMFTBlocksSize, parseBlockSize, parseVersion
-  Parsing de buffer do bloco de boot para encontrar valores para estrutura
+Funcoes: parseDiskSectorSize, parseTwoBytesStructure, parseFourBytesStructure, parseVersion
+  
+  Parsing de buffer do superbloco para encontrar valores de cada estrutura
+  no t2fs_disk.dat. Os dados no superbloco estão armazenados na t2fs_disk 
+  em LITTLE_ENDIAN. Estas funções convertem os valores lidos para HIGH_ENDIAN.
 
 Entrada:
   Buffer com valor respectivo lido do bloco de boot.
@@ -18,7 +23,7 @@ Entrada:
 Saida:
   Retorna valor numeral convertido do elemento.
 
-Responsável: Francisco Knebel
+Responsável: Rodrigo Okido
 -----------------------------------------------------------------------------*/
 DWORD parseDiskSectorSize(unsigned char* DiskSectorSize) {
   /* 00 80 00 00 => 0x00008000 => 32768 */
@@ -31,18 +36,18 @@ DWORD parseDiskSectorSize(unsigned char* DiskSectorSize) {
   return num;
 }
 
-WORD parseMFTBlocksSize(unsigned char* MFTBlocksSize) {
-  /* 00 08 => 0x0800 => 2048 */
-  char temp[2] = "";
+WORD parseFourBytesStructure(unsigned char* structure) {
+  /* 00 00 00 08 => 0x08000000 => 134217728 */
+  char temp[4] = "";
 
-  return convertTwoBytes(MFTBlocksSize, 0, temp);
+  return convertFourBytes(structure, 0, temp);
 }
 
-WORD parseBlockSize(unsigned char* blockSize) {
-  /* 04 00 => 0x0004 => 4 */
+WORD parseTwoBytesStructure(unsigned char* structure) {
+  /* 01 00 => 0x0001 => 1 */
   char temp[2] = "";
 
-  return convertTwoBytes(blockSize, 0, temp);
+  return convertTwoBytes(structure, 0, temp);
 }
 
 void parseVersion(char* version, char* str) {
@@ -57,36 +62,59 @@ void parseVersion(char* version, char* str) {
   return;
 }
 
-struct BootBlock parseBootBlock(unsigned char* bootBlock) {
-  struct BootBlock config;
+struct t2fs_superbloco parseSuperBlock(unsigned char* superbloco) {
+  struct t2fs_superbloco config;
 
   char version[2] = "";
-  unsigned char blockSize[2] = "";
-  unsigned char MFTBlocksSize[2] = "";
-  unsigned char diskSectorSize[4] = "";
+  unsigned char superBlockSize[2] = "";
+  unsigned char diskSize[4] = "";
+  unsigned char nofSectors[4] = "";
+  unsigned char sectorsPerCluster[4] = "";
+  unsigned char pFatSectorStart[4] = "";
+  unsigned char rootDirCluster[4] = "";
+  unsigned char dataSectorStart[4] = "";
 
   // ID
-  memcpy(config.id, bootBlock, 4 * sizeof(BYTE));
+  memcpy(config.id, superbloco, 4 * sizeof(BYTE));
   config.id[4] = '\0';
 
   // VERSION
-  memcpy(version, bootBlock + 4, 2 * sizeof(BYTE));
+  memcpy(version, superbloco + 4, 2 * sizeof(BYTE));
   parseVersion(version, config.version);
 
-  // BLOCK SIZE
-  memcpy(blockSize, bootBlock + 6, 2 * sizeof(BYTE));
-  config.blockSize = parseBlockSize(blockSize);
+  // SUPER BLOCK SIZE
+  memcpy(superBlockSize, superbloco + 6, 2 * sizeof(BYTE));
+  config.SuperBlockSize = parseTwoBytesStructure(superBlockSize);
 
-  // MFT BLOCK SIZE
-  memcpy(MFTBlocksSize, bootBlock + 8, 2 * sizeof(BYTE));
-  config.MFTBlocksSize = parseMFTBlocksSize(MFTBlocksSize);
+  // DISK SIZE
+  memcpy(diskSize, superbloco + 8, 4 * sizeof(BYTE));
+  config.DiskSize = parseFourBytesStructure(diskSize);
 
-  // DISK SECTOR SIZE
-  memcpy(diskSectorSize, bootBlock + 10, 4 * sizeof(BYTE));
-  config.diskSectorSize = parseDiskSectorSize(diskSectorSize);
+  // NOF SECTORS
+  memcpy(nofSectors, superbloco + 12, 4 * sizeof(BYTE));
+  config.NofSectors = parseFourBytesStructure(nofSectors);
+  
+  // SECTORS PER CLUSTER
+  memcpy(sectorsPerCluster, superbloco + 16, 4 * sizeof(BYTE));
+  config.SectorsPerCluster = parseFourBytesStructure(sectorsPerCluster);
+  
+  // PFAT SECTOR START
+  memcpy(pFatSectorStart, superbloco + 20, 4 * sizeof(BYTE));
+  config.pFATSectorStart = parseFourBytesStructure(pFatSectorStart);
+  
+  // ROOT DIR CLUSTER
+  memcpy(rootDirCluster, superbloco + 24, 4 * sizeof(BYTE));
+  config.RootDirCluster = parseFourBytesStructure(rootDirCluster);
+  
+  // DATA SECTOR START
+  memcpy(dataSectorStart, superbloco + 28, 4 * sizeof(BYTE));
+  config.DataSectorStart = parseFourBytesStructure(dataSectorStart);
 
   return config;
 }
+
+
+
 
 struct t2fs_4tupla parseRegister_tupla(unsigned char* buffer, int tuplaIndex) {
   struct t2fs_4tupla tupla;
@@ -111,6 +139,8 @@ int parseRegister(unsigned char* buffer, struct t2fs_4tupla * tuplas) {
 
   return TRUE;
 }
+
+
 
 int parseRecord(BLOCK_T blockBuffer, struct t2fs_record * record, int offset) {
   char str[2];

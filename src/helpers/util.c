@@ -1,40 +1,47 @@
 /*
   INF01142 - Sistemas Operacionais I
-  T2FS - 2017/1
+  Prof: Sergio Cechin
+  T2FS - 2017/2
 
   Douglas Lazaro
-  Francisco Knebel
+  Henrique la Porta
+  Rodrigo Okido
 */
 
 #include "libs.h"
 
-struct Constants initConstants(struct BootBlock bootBlock) {
+struct Constants initConstants(struct t2fs_superbloco superblock) {
   struct Constants k;
 
   /* Disco */
-  k.SECTOR_PER_BLOCK = bootBlock.blockSize;
-  k.BLOCK_SIZE = k.SECTOR_PER_BLOCK * SECTOR_SIZE; // SECTOR_SIZE IS A DEFINED CONSTANT
+  k.SECTORS_PER_CLUSTER = superblock.SectorsPerCluster;
+  k.CLUSTER_SIZE = k.SECTORS_PER_CLUSTER * SECTOR_SIZE; // SECTOR_SIZE IS A DEFINED CONSTANT
 
-  k.DISK_SECTORS = bootBlock.diskSectorSize;
-  k.DISK_BLOCKS = k.DISK_SECTORS / k.SECTOR_PER_BLOCK;
+  k.DISK_SECTORS = superblock.NofSectors;
+  k.DISK_CLUSTERS = k.DISK_SECTORS / k.SECTORS_PER_CLUSTER;
 
-  k.BOOT_BLOCK_SIZE = 1;
-  k.BOOT_SECTOR_SIZE = k.BOOT_BLOCK_SIZE * k.SECTOR_PER_BLOCK;
+  
+  /* Partições do disco (Quantidade total de Cluster de cada partição) */
+  k.SUPERBLOCK_CLUSTER_SIZE = 1;
+  k.SUPERBLOCK_SECTOR_SIZE = SECTOR_SIZE;
 
-  k.MFT_BLOCK_SIZE = bootBlock.MFTBlocksSize;
-  k.MFT_SECTOR_SIZE = k.MFT_BLOCK_SIZE * k.SECTOR_PER_BLOCK;
+  k.FAT_CLUSTER_SIZE = (superblock.DataSectorStart - superblock.pFATSectorStart)/SECTORS_PER_CLUSTER;
+  k.FAT_SECTOR_SIZE = k.FAT_CLUSTER_SIZE * k.SECTORS_PER_CLUSTER;
 
-  k.DATA_BLOCK_SIZE = k.DISK_BLOCKS - (k.BOOT_BLOCK_SIZE + k.MFT_BLOCK_SIZE);
-  k.DATA_SECTOR_SIZE = k.DISK_SECTORS - (k.BOOT_SECTOR_SIZE + k.MFT_SECTOR_SIZE);
+  k.DATA_CLUSTER_SIZE = k.DISK_CLUSTERS - (k.SUPERBLOCK_CLUSTER_SIZE + k.FAT_CLUSTER_SIZE);
+  k.DATA_SECTOR_SIZE = k.DISK_SECTORS - (k.SUPERBLOCK_SECTOR_SIZE + k.FAT_SECTOR_SIZE);
 
-  k.BOOT_SECTOR = 0;
-  k.MFT_SECTOR = k.BOOT_SECTOR + k.SECTOR_PER_BLOCK;
-  k.DATA_SECTOR = k.MFT_SECTOR_SIZE + k.SECTOR_PER_BLOCK;
+  /* Cluster (Blocos) de inicio do disco */
+  k.SUPERBLOCK_CLUSTER = 0;
+  k.FAT_CLUSTER = k.SUPERBLOCK_CLUSTER + 1;
+  k.DATA_CLUSTER = k.FAT_CLUSTER_SIZE + 1;
+  
+  /* Setores de inicio do disco */
+  k.SUPERBLOCK_SECTOR = 0;
+  k.FAT_SECTOR = superblock.pFATSectorStart
+  k.DATA_SECTOR = superblock.DataSectorStart;
 
-  k.BOOT_BLOCK = 0;
-  k.MFT_BLOCK = k.BOOT_BLOCK + 1;
-  k.DATA_BLOCK = k.MFT_BLOCK_SIZE + 1;
-
+  
   /* Registros */
   k.REGISTER_SIZE = 512;
   k.REGISTER_PER_BLOCK = k.BLOCK_SIZE / k.REGISTER_SIZE;
@@ -55,15 +62,16 @@ struct Constants initConstants(struct BootBlock bootBlock) {
 int initConfig() {
   printf("Inicializando file system..."); fflush(stdout);
 
-  SECTOR_T bootBlock;
+  SECTOR_T superBlock;
 
-  if(readBootBlock(&bootBlock) == FALSE) {
+  if(readBootBlock(&superBlock) == FALSE) {
     return FALSE;
   };
 
-  struct BootBlock boot = parseBootBlock(bootBlock.at);
+  struct t2fs_superbloco boot = parseSuperBlock(superBlock.at);
   constants = initConstants(boot);
 
+  //Não é mais MFT...
   BYTE * MFT = malloc(sizeof(BYTE) * constants.MAX_REGISTERS);
   config.indexMFT = MFT;
   initMFT();
