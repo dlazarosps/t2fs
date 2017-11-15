@@ -59,8 +59,12 @@ int initConfig() {
 
   struct t2fs_superbloco boot = parseSuperBlock(superBlock.at);
   constants = initConstants(boot);
-
+  
   /*FAT*/
+  // criando o espaçõ para o FAT - Verificar se é realmente MAX_REGISTERS ou DISK_CLUSTERS
+  unsigned int * FAT = malloc(sizeof(unsigned int) * constants.DISK_CLUSTERS);	
+  config.indexFAT = FAT;
+  initFAT();
 
   initLDAA();
 

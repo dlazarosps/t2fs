@@ -18,7 +18,7 @@ int identify2 (char *name, int size) {
     return 0;
   }
 
-  char info[] = "\n Douglas Lazaro S P Silva \t- 207305 \n Francisco Paiva Knebel \t- 243688";
+  char info[] = "\n Douglas Lazaro S P Silva \t- 207305 \n Henrique de Souza La Porta \t- 273112 \n Rodrigo Okido \t 252745 \n";
   int length = strlen(info);
 
   if(size < length) {

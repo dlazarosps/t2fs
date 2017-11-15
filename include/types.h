@@ -42,6 +42,8 @@
     unsigned int FAT_SECTOR;
     unsigned int DATA_SECTOR;
 
+    /*FAT*/
+
     /* Records */
     unsigned int RECORD_PER_CLUSTER;
   };
@@ -56,7 +58,8 @@
 
     struct t2fs_superbloco superbloco;
 
-    //vetor fat
+    //Lista de clusters representados na FAT
+    unsigned int* indexFAT;
 
     struct descritor LDAA[MAX_FILES_OPEN];
   };
