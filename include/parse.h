@@ -25,29 +25,6 @@
   -----------------------------------------------------------------------------*/
   struct t2fs_superbloco parseSuperBlock(unsigned char* superbloco);
 
-  /*-----------------------------------------------------------------------------
-  Função: parseRegister
-    Parsing de um buffer de registro e conversão para lista de t2fs_4tuplas.
-  Entrada:
-    buffer: valor lido diretamente do registro.
-    tuplas: endereço de memória onde será armazenado a lista de MAX_TUPLAS_REGISTER-1 tuplas.
-  Saida:
-    Retorna o registro convertido em múltiplas t2fs_4tupla.
-  Responsável: Francisco Knebel
-  -----------------------------------------------------------------------------*/
-  int parseRegister(unsigned char* buffer, struct t2fs_4tupla * tuplas);
-
-  /*-----------------------------------------------------------------------------
-  Função: parseRegister_tupla
-    Parsing de um buffer de registro e conversão para t2fs_4tupla
-  Entrada:
-    buffer: valor lido diretamente do registro.
-    tuplaIndex: qual tupla, de 0 até MAX_TUPLAS_REGISTER-1, será convertida.
-  Saida:
-    Retorna estrutura convertida t2fs_4tupla.
-  Responsável: Francisco Knebel
-  -----------------------------------------------------------------------------*/
-  struct t2fs_4tupla parseRegister_tupla(unsigned char* buffer, int tuplaIndex);
 
   /*-----------------------------------------------------------------------------
   Função: parseRecord

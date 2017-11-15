@@ -18,9 +18,7 @@ struct descritor resetDescritor() {
 
   temp.record.TypeVal = 0;
   strcpy(temp.record.name, "");
-  temp.record.blocksFileSize = 0;
   temp.record.bytesFileSize = 0;
-  temp.record.MFTNumber = 0;
 
   return temp;
 }

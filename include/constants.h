@@ -15,13 +15,11 @@
   #define TRUE 1
 
   /* Disco */
-  #define SECTOR_SIZE 256
+  // #define SECTOR_SIZE 256 //t2fs.h
+  #define SUPERBLOCK 0
+  #define FAT_ROOT 1
 
-  /* Registro */
-  #define REGISTER_BOOT_BLOCK 0
-  #define REGISTER_ROOT 1
-  #define REGISTER_REGULAR 4
-
+  // MUDAR PARA VALORES DA FAT (xEFF , xFFF)
   #define REGISTER_FIM 0
   #define REGISTER_MAP 1
   #define REGISTER_ADITIONAL 2
@@ -33,12 +31,11 @@
   #define RECORD_SIZE 64
   #define RECORD_TYPE 0
   #define RECORD_NAME 1
-  #define RECORD_BLOCK_FILE_SIZE 52
   #define RECORD_BYTES_FILE_SIZE 56
-  #define RECORD_MFT_NUMBER 60
+  #define RECORD_FIRST_CLUSTER 60
 
   /* Arquivo */
-  #define MAX_FILE_NAME_SIZE 51
+  // #define MAX_FILE_NAME_SIZE 55 //t2fs.h
 
   /* Lookup */
   #define FIND_REGISTER_NOTFOUND -1
@@ -51,16 +48,6 @@
   #define MAX_FILES_OPEN 40
   #define NOT_FOUND_LDAA -1
   #define ERRO_REMOVE_LDAA -2
-
-  /* Bitmap */
-  #define BM_LIVRE 0
-  #define BM_OCUPADO 1
-  #define BM_ERROR -100
-
-  /* MFT Bitmap */
-  #define MFT_BM_LIVRE 0
-  #define MFT_BM_OCUPADO 1
-  #define MFT_BM_ERROR -100
 
   /* API */
   #define FOUND_FILE_ERROR -1

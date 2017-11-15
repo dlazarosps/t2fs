@@ -22,7 +22,7 @@ void test_readSector() {
 void test_readBlock() {
   printf("-- READ BLOCK --\n");
   BLOCK_T blockBuffer;
-  blockBuffer.at = malloc(sizeof(unsigned char) * constants.BLOCK_SIZE);
+  blockBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
 
   readBlock(1, &blockBuffer);
   printBlock(blockBuffer.at);
@@ -35,11 +35,11 @@ void test_showBlock() {
 
   /* Mostrar blocos de importância */
   printf("-- BOOT BLOCK --\n");
-  showBlock(constants.BOOT_BLOCK);
+  showBlock(constants.SUPERBLOCK_CLUSTER);
   printf("-- MFT BLOCK --\n");
-  showBlock(constants.MFT_BLOCK);
+  showBlock(constants.FAT_CLUSTER);
   printf("-- DATA BLOCK --\n");
-  showBlock(constants.DATA_BLOCK);
+  showBlock(constants.DATA_CLUSTER);
 
   printf("-- ENCERROU SHOW BLOCK --\n");
 }
@@ -69,8 +69,8 @@ void test_writeBlock() {
   printf("-- WRITE BLOCK --\n");
 
   BLOCK_T blockBuffer, blockBufferBackup;
-  blockBuffer.at = malloc(sizeof(unsigned char) * constants.BLOCK_SIZE);
-  blockBufferBackup.at = malloc(sizeof(unsigned char) * constants.BLOCK_SIZE);
+  blockBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
+  blockBufferBackup.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
 
   readBlock(0, &blockBuffer);
   readBlock(1, &blockBufferBackup);
@@ -182,20 +182,20 @@ void test_executeWriteRecord(int block, int index, struct t2fs_record record) {
   if (writeRecord(block, index, record) == FALSE) {
     printf("Erro no write record: ");
 
-    if(index >= constants.RECORD_PER_BLOCK) {
-      printf("Index passado maior do que %d. ", constants.RECORD_PER_BLOCK);
+    if(index >= constants.RECORD_PER_CLUSTER) {
+      printf("Index passado maior do que %d. ", constants.RECORD_PER_CLUSTER);
     }
 
     if(index < 0) {
       printf("Index passado menor do que %d. ", 0);
     }
 
-    if(block >= constants.DISK_BLOCKS) {
-      printf("Número de bloco maior do que %d (acima do limite do disco). ", constants.DISK_BLOCKS -1);
+    if(block >= constants.DISK_CLUSTERS) {
+      printf("Número de bloco maior do que %d (acima do limite do disco). ", constants.DISK_CLUSTERS -1);
     }
 
-    if(block < constants.DATA_BLOCK) {
-      printf("Número de bloco menor do que %d (antes do bloco de dados). ", constants.DATA_BLOCK);
+    if(block < constants.DATA_CLUSTER) {
+      printf("Número de bloco menor do que %d (antes do bloco de dados). ", constants.DATA_CLUSTER);
     }
 
     printf("\n");
@@ -233,13 +233,13 @@ void test_writeRecord() {
   /* Erros */
   test_executeWriteRecord(3000, 16, record2);
   test_executeWriteRecord(3000, -1, record2);
-  test_executeWriteRecord(constants.DATA_BLOCK -1, 15, record2);
-  test_executeWriteRecord(constants.DISK_BLOCKS, 15, record2);
+  test_executeWriteRecord(constants.DATA_CLUSTER -1, 15, record2);
+  test_executeWriteRecord(constants.DISK_CLUSTERS, 15, record2);
 
   printf("\nImprimindo diretório alterado...\n");
   BLOCK_T blockBuffer;
-  blockBuffer.at = malloc(sizeof(unsigned char) * constants.BLOCK_SIZE);
-  struct t2fs_record records[constants.RECORD_PER_BLOCK];
+  blockBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
+  struct t2fs_record records[constants.RECORD_PER_CLUSTER];
 
   if(readBlock(3000, &blockBuffer) == FALSE) {
     return;
@@ -247,7 +247,7 @@ void test_writeRecord() {
   parseDirectory(blockBuffer, records);
 
   int i;
-  for (i = 0; i < constants.RECORD_PER_BLOCK; i++) {
+  for (i = 0; i < constants.RECORD_PER_CLUSTER; i++) {
     printRecord(records[i]);
     printf("\n");
   }
@@ -264,13 +264,13 @@ void test_freeRegister() {
   printf("-- FREE REGISTER --\n");
 
   REGISTER_T reg;
-  readRegister(REGISTER_ROOT, &reg);
+  readRegister(FAT_ROOT, &reg);
   printRegister(reg.at, 0);
 
   getchar();
 
-  freeRegister(REGISTER_ROOT);
-  readRegister(REGISTER_ROOT, &reg);
+  freeRegister(FAT_ROOT);
+  readRegister(FAT_ROOT, &reg);
   printRegister(reg.at, 0);
 
   printf("-- ENCERROU FREE REGISTER --\n");

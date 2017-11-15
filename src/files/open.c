@@ -12,7 +12,7 @@ int openRoot(char* filename) {
   int return_value;
   struct t2fs_record root;
 
-  root = initRecord(TYPEVAL_DIRETORIO, filename, -1, -1, REGISTER_ROOT);
+  root = initRecord(TYPEVAL_DIRETORIO, filename, -1, -1, FAT_ROOT);
   if (isFreeLDAA() == TRUE) {
     return_value = insertLDAA(root, "/");
   } else {
@@ -29,7 +29,9 @@ int openFile(char* filename) {
 
   struct t2fs_record file;
   int return_value = lookup(filename, &file);
-
+  
+/* FAT */
+/*
   switch (return_value) {
     case REGISTER_READ_ERROR:
       printf("Erro crítico na leitura de um registro no lookup.\n");
@@ -51,6 +53,6 @@ int openFile(char* filename) {
         return_value = FILE_NOT_FOUND;
       }
   }
-
+*/
   return return_value;
 }

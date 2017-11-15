@@ -110,11 +110,13 @@ int parsePath(char* path, char ** elements) {
   return i -1;
 }
 
-int findRecord(struct t2fs_4tupla tupla, char* name, struct t2fs_record * record) {
+int findRecord(int FATvector, char* name, struct t2fs_record * record) {
+  /*FAT find*/
+  /*
   BLOCK_T blockBuffer;
-  blockBuffer.at = malloc(sizeof(unsigned char) * constants.BLOCK_SIZE);
+  blockBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
 
-  struct t2fs_record records[constants.RECORD_PER_BLOCK];
+  struct t2fs_record records[constants.RECORD_PER_CLUSTER];
   int returnValue = TRUE;
   int foundFile = FALSE;
   unsigned int amountOfBlocksRead = 0;
@@ -132,7 +134,7 @@ int findRecord(struct t2fs_4tupla tupla, char* name, struct t2fs_record * record
 
         parseDirectory(blockBuffer, records);
 
-        for (i = 0; i < constants.RECORD_PER_BLOCK && foundFile != TRUE; i++) {
+        for (i = 0; i < constants.RECORD_PER_CLUSTER && foundFile != TRUE; i++) {
           if(strcmp(records[i].name, name) == 0 && (records[i].TypeVal == TYPEVAL_REGULAR || records[i].TypeVal == TYPEVAL_DIRETORIO)) { // FILE NAME FOUND
             memcpy((void*) record, (void*) &records[i], RECORD_SIZE);
 
@@ -141,7 +143,7 @@ int findRecord(struct t2fs_4tupla tupla, char* name, struct t2fs_record * record
         }
       }
 
-      returnValue = foundFile == TRUE ? (int) i-1 : FIND_REGISTER_NOTFOUND; // 0 to RECORD_PER_BLOCK-1
+      returnValue = foundFile == TRUE ? (int) i-1 : FIND_REGISTER_NOTFOUND; // 0 to RECORD_PER_CLUSTER-1
 
       break;
     case REGISTER_FIM:
@@ -157,25 +159,28 @@ int findRecord(struct t2fs_4tupla tupla, char* name, struct t2fs_record * record
   }
 
   return returnValue;
+  */
+  return -1;
 }
 
 int lookup(char* pathname, struct t2fs_record * fileRecord) {
+  /* FAT */
+/*
   char ** parsedPath = malloc(sizeof(char) * MAX_FILE_NAME_SIZE);
   unsigned int parseCount = parsePath(pathname, parsedPath);
 
   if(parseCount == FALSE) {
     return PARSED_PATH_ERROR;
   }
-
   REGISTER_T root;
   struct t2fs_4tupla * tuplas = malloc(constants.MAX_TUPLAS_REGISTER * sizeof(struct t2fs_4tupla));
 
-  if(readRegister(REGISTER_ROOT, &root) != TRUE) {
+  if(readRegister(FAT_ROOT, &root) != TRUE) {
     return FALSE;
   }
   parseRegister(root.at, tuplas);
 
-  /* ITERAR NA ÁRVORE ATÉ ACHAR FOLHA */
+  // ITERAR NA ÁRVORE ATÉ ACHAR FOLHA
   unsigned int i = 0, j = 1;
   int found = FALSE, endReached = FALSE;
 
@@ -242,8 +247,9 @@ int lookup(char* pathname, struct t2fs_record * fileRecord) {
 
   free(tuplas);
   tuplas = NULL;
-
   return found;
+*/
+  return -1;
 }
 
 struct t2fs_record initRecord(BYTE typeVal, char* name, DWORD blocksFileSize, DWORD bytesFileSize, DWORD MFTNumber) {
@@ -253,45 +259,11 @@ struct t2fs_record initRecord(BYTE typeVal, char* name, DWORD blocksFileSize, DW
 
   record.TypeVal = typeVal;
   strcpy(record.name, name); // name é o último elemento parseado: /directory/directory/file1 -> name = file1
-  record.blocksFileSize = blocksFileSize;
   record.bytesFileSize = bytesFileSize;
-  record.MFTNumber = MFTNumber;
 
   return record;
 }
 
-struct t2fs_4tupla initTupla(DWORD atributeType, DWORD VBN, DWORD LBN, DWORD numberOfContiguosBlocks) {
-  struct t2fs_4tupla tupla;
-
-  tupla.atributeType = atributeType;
-  tupla.virtualBlockNumber = VBN;
-  tupla.logicalBlockNumber = LBN;
-  tupla.numberOfContiguosBlocks = numberOfContiguosBlocks;
-
-  return tupla;
-}
-
-int initNewRegister(int registerIndex, int VBN, int LBN) {
-  struct t2fs_4tupla tupla, tuplaFim;
-
-  tupla     = initTupla(REGISTER_MAP, VBN, LBN, 1);
-  tuplaFim  = initTupla(REGISTER_FIM, 0, 0, 0);
-
-  REGISTER_T reg;
-  memset(reg.at, 0, sizeof(reg.at));
-  //readRegister(registerIndex, &reg);
-
-  writeTupla(reg.at, &tupla,    0);
-  writeTupla(reg.at, &tuplaFim, 1);
-
-  writeRegister(registerIndex, &reg);
-
-  return 1;
-}
-
-int initFileRegister(int registerIndex, int LBN) {
-  return initNewRegister(registerIndex, 0, LBN);
-}
 
 DIRENT2 initDentry(struct t2fs_record record) {
   DIRENT2 dentry;
@@ -303,40 +275,3 @@ DIRENT2 initDentry(struct t2fs_record record) {
   return dentry;
 }
 
-int findOffsetTupla(struct t2fs_4tupla * tuplas, unsigned int initialBlock, REGISTER_T* reg) {
-  unsigned int i = 0, foundStart = FALSE, amountOfBlocksRead = 0;
-
-  while (i < constants.MAX_TUPLAS_REGISTER && foundStart != TRUE) {
-    switch(tuplas[i].atributeType) {
-      case REGISTER_MAP:
-        amountOfBlocksRead += tuplas[i].numberOfContiguosBlocks;
-
-        if(initialBlock < amountOfBlocksRead) {
-          foundStart = TRUE;
-        } else {
-          i++;
-        }
-
-        break;
-      case REGISTER_ADITIONAL:
-        // Ler novo registro e recomeçar a leitura.
-        if(readRegister(tuplas[i].virtualBlockNumber, reg) != TRUE) {
-          return FALSE;
-        }
-        free(tuplas);
-        tuplas = malloc(constants.MAX_TUPLAS_REGISTER * sizeof(struct t2fs_4tupla));
-
-        parseRegister(reg->at, tuplas);
-        i = 0; // reset i para 0, começar a ler tuplas novamente
-
-        break;
-        case REGISTER_FIM:
-        default:
-          // Current pointer está depois do final do arquivo
-          return 0;
-          break;
-    }
-  }
-
-  return i;
-}

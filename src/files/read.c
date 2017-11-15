@@ -14,8 +14,10 @@ int readFile(int handle, struct descritor descritor, char * buffer, unsigned int
     return 0;
   }
 
+  
   int return_value = -1;
-  int registerIndex = descritor.record.MFTNumber;
+ /*FAT*/
+ /* int registerIndex = descritor.record.MFTNumber;
   char * tempBuffer;
 
   REGISTER_T reg;
@@ -27,7 +29,7 @@ int readFile(int handle, struct descritor descritor, char * buffer, unsigned int
   parseRegister(reg.at, tuplas);
 
   BLOCK_T blockBuffer;
-  blockBuffer.at = malloc(sizeof(unsigned char) * constants.BLOCK_SIZE);
+  blockBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
 
   unsigned int i = 0, bytesRead = 0, block;
   unsigned int bytesLeft, cpySize;
@@ -43,8 +45,8 @@ int readFile(int handle, struct descritor descritor, char * buffer, unsigned int
 
   // Achar tupla, bloco e offset inicial, de acordo com currentPointer.
   unsigned int bytesReadFromBlock = 0;
-  unsigned int initialBlock = descritor.currentPointer / constants.BLOCK_SIZE;
-  unsigned int initialOffset = descritor.currentPointer % constants.BLOCK_SIZE;
+  unsigned int initialBlock = descritor.currentPointer / constants.CLUSTER_SIZE;
+  unsigned int initialOffset = descritor.currentPointer % constants.CLUSTER_SIZE;
   i = findOffsetTupla(tuplas, initialBlock, &reg);
 
   while (i < constants.MAX_TUPLAS_REGISTER && bytesLeft > (unsigned int) 0) {
@@ -63,7 +65,7 @@ int readFile(int handle, struct descritor descritor, char * buffer, unsigned int
 
           //printf("CP: %d, IB: %d, IO: %d\n", descritor.currentPointer, initialBlock, initialOffset);
           //printf("BR: %d, Block: %d, BFS: %d\n", bytesRead, block, descritor.record.bytesFileSize); getchar();
-          if(bytesLeft <= constants.BLOCK_SIZE) {
+          if(bytesLeft <= constants.CLUSTER_SIZE) {
             int bytes = bytesLeft;
              // Caso de borda, se leitura vai estrapolar tamanho do arquivo.
              // Se sim, bytes lidos apenas até o final do arquivo.
@@ -80,9 +82,9 @@ int readFile(int handle, struct descritor descritor, char * buffer, unsigned int
             bytesLeft = 0;
             return_value = bytesRead;
           } else {
-            memcpy(&tempBuffer[bytesRead], &blockBuffer.at[initialOffset], constants.BLOCK_SIZE);
-            bytesRead += constants.BLOCK_SIZE;
-            bytesLeft -= constants.BLOCK_SIZE;
+            memcpy(&tempBuffer[bytesRead], &blockBuffer.at[initialOffset], constants.CLUSTER_SIZE);
+            bytesRead += constants.CLUSTER_SIZE;
+            bytesLeft -= constants.CLUSTER_SIZE;
 
             if(tuplas[i+1].atributeType == REGISTER_FIM) {
               descritor.currentPointer += bytesRead;
@@ -97,7 +99,7 @@ int readFile(int handle, struct descritor descritor, char * buffer, unsigned int
 
           // Verificação se leu até o final do bloco. Se sim, incrementa o contador.
           bytesReadFromBlock += bytesRead;
-          if(bytesReadFromBlock >= constants.BLOCK_SIZE ) {
+          if(bytesReadFromBlock >= constants.CLUSTER_SIZE ) {
             bytesReadFromBlock = 0;
             amountOfBlocksRead++;
           }
@@ -131,7 +133,7 @@ int readFile(int handle, struct descritor descritor, char * buffer, unsigned int
         return_value = bytesRead;
         break;
     }
-  }
+  }*/
 
   return return_value;
 }

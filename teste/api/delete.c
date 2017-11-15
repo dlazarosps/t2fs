@@ -50,8 +50,8 @@ FILE2 test_executeCreate2(char * filename) {
 
 void test_create2_showfiles_parseandprint(int block) {
   BLOCK_T blockBuffer;
-  blockBuffer.at = malloc(sizeof(unsigned char) * constants.BLOCK_SIZE);
-  struct t2fs_record records[constants.RECORD_PER_BLOCK];
+  blockBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
+  struct t2fs_record records[constants.RECORD_PER_CLUSTER];
   unsigned int i;
 
   if(readBlock(block, &blockBuffer) == FALSE) {
@@ -59,7 +59,7 @@ void test_create2_showfiles_parseandprint(int block) {
   };
   parseDirectory(blockBuffer, records);
 
-  for (i = 0; i < constants.RECORD_PER_BLOCK; i++) {
+  for (i = 0; i < constants.RECORD_PER_CLUSTER; i++) {
     printRecord(records[i]);
     printf("\n");
   }

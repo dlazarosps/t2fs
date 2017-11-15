@@ -92,28 +92,8 @@
   -----------------------------------------------------------------------------*/
   struct t2fs_record initRecord(BYTE typeVal, char* name, DWORD blocksFileSize, DWORD bytesFileSize, DWORD MFTNumber);
 
-  struct t2fs_4tupla initTupla(DWORD atributeType, DWORD VBN, DWORD LBN, DWORD numberOfContiguosBlocks);
-
-  int initNewRegister(int registerIndex, int VBN, int LBN);
-
-  int initFileRegister(int registerIndex, int LBN);
 
   DIRENT2 initDentry(struct t2fs_record record);
 
-  /*-----------------------------------------------------------------------------
-  Funções: findOffsetTupla
-    Encontra em qual tupla deverá ser inicializado as operações, de acordo com um bloco inicial.
-
-  Entra:
-    struct t2fs_4tupla * tuplas: tuplas que devem ser iteradas.
-    unsigned int initialBlock: bloco in
-    REGISTER_T* reg: buffer do registro atual. Utilizado no caso de REGISTER_ADITIONAL
-
-  Saída:
-    Retorna o índice procurado.
-
-  Responsável: Francisco Knebel
-  -----------------------------------------------------------------------------*/
-  int findOffsetTupla(struct t2fs_4tupla * tuplas, unsigned int initialBlock, REGISTER_T* reg);
 
 #endif

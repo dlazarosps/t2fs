@@ -14,19 +14,19 @@ struct Constants initConstants(struct t2fs_superbloco superblock) {
   struct Constants k;
 
   /* Disco */
-  k.SECTORS_PER_CLUSTER = superblock.SectorsPerCluster;
-  k.CLUSTER_SIZE = k.SECTORS_PER_CLUSTER * SECTOR_SIZE; // SECTOR_SIZE IS A DEFINED CONSTANT
+  k.SECTOR_PER_CLUSTER = superblock.SectorsPerCluster;
+  k.CLUSTER_SIZE = k.SECTOR_PER_CLUSTER * SECTOR_SIZE; // SECTOR_SIZE IS A DEFINED CONSTANT
 
   k.DISK_SECTORS = superblock.NofSectors;
-  k.DISK_CLUSTERS = k.DISK_SECTORS / k.SECTORS_PER_CLUSTER;
+  k.DISK_CLUSTERS = k.DISK_SECTORS / k.SECTOR_PER_CLUSTER;
 
   
   /* Partições do disco (Quantidade total de Cluster de cada partição) */
   k.SUPERBLOCK_CLUSTER_SIZE = 1;
   k.SUPERBLOCK_SECTOR_SIZE = SECTOR_SIZE;
 
-  k.FAT_CLUSTER_SIZE = (superblock.DataSectorStart - superblock.pFATSectorStart)/SECTORS_PER_CLUSTER;
-  k.FAT_SECTOR_SIZE = k.FAT_CLUSTER_SIZE * k.SECTORS_PER_CLUSTER;
+  k.FAT_CLUSTER_SIZE = (superblock.DataSectorStart - superblock.pFATSectorStart)/ k.SECTOR_PER_CLUSTER;
+  k.FAT_SECTOR_SIZE = k.FAT_CLUSTER_SIZE * k.SECTOR_PER_CLUSTER;
 
   k.DATA_CLUSTER_SIZE = k.DISK_CLUSTERS - (k.SUPERBLOCK_CLUSTER_SIZE + k.FAT_CLUSTER_SIZE);
   k.DATA_SECTOR_SIZE = k.DISK_SECTORS - (k.SUPERBLOCK_SECTOR_SIZE + k.FAT_SECTOR_SIZE);
@@ -38,22 +38,11 @@ struct Constants initConstants(struct t2fs_superbloco superblock) {
   
   /* Setores de inicio do disco */
   k.SUPERBLOCK_SECTOR = 0;
-  k.FAT_SECTOR = superblock.pFATSectorStart
+  k.FAT_SECTOR = superblock.pFATSectorStart;
   k.DATA_SECTOR = superblock.DataSectorStart;
 
-  
-  /* Registros */
-  k.REGISTER_SIZE = 512;
-  k.REGISTER_PER_BLOCK = k.BLOCK_SIZE / k.REGISTER_SIZE;
-  k.MAX_REGISTERS = (k.MFT_SECTOR_SIZE / k.REGISTER_PER_BLOCK);
-  k.MAX_SECTORS_REGISTER = k.MAX_REGISTERS * 2;
-
-  /* Tuplas */
-  k.MAX_TUPLAS_REGISTER = 32;
-  k.TUPLA_SIZE = k.REGISTER_SIZE / k.MAX_TUPLAS_REGISTER;
-
   /* Records */
-  k.RECORD_PER_BLOCK = k.BLOCK_SIZE / RECORD_SIZE;
+  k.RECORD_PER_CLUSTER = k.CLUSTER_SIZE / RECORD_SIZE;
 
   return k;
 }
@@ -71,10 +60,7 @@ int initConfig() {
   struct t2fs_superbloco boot = parseSuperBlock(superBlock.at);
   constants = initConstants(boot);
 
-  //Não é mais MFT...
-  BYTE * MFT = malloc(sizeof(BYTE) * constants.MAX_REGISTERS);
-  config.indexMFT = MFT;
-  initMFT();
+  /*FAT*/
 
   initLDAA();
 

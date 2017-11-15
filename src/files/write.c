@@ -10,7 +10,7 @@
 
 int writeFile(int handle, struct descritor descritor, char * buffer, unsigned int size) {
   int return_value = -1;
-  int registerIndex = descritor.record.MFTNumber;
+/*  int registerIndex = descritor.record.MFTNumber;
 
   REGISTER_T reg;
   if(readRegister(registerIndex, &reg) != TRUE) {
@@ -21,7 +21,7 @@ int writeFile(int handle, struct descritor descritor, char * buffer, unsigned in
   parseRegister(reg.at, tuplas);
 
   BLOCK_T blockBuffer;
-  blockBuffer.at = malloc(sizeof(unsigned char) * constants.BLOCK_SIZE);
+  blockBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
 
   int allocated, fileBlocksCounter = 0;
   unsigned int i = 0, block;
@@ -30,8 +30,8 @@ int writeFile(int handle, struct descritor descritor, char * buffer, unsigned in
 
   // Achar tupla, bloco e offset inicial, de acordo com currentPointer.
   unsigned int bytesWrittenToBlock = 0;
-  unsigned int initialBlock = descritor.currentPointer / constants.BLOCK_SIZE;
-  unsigned int initialOffset = descritor.currentPointer % constants.BLOCK_SIZE;
+  unsigned int initialBlock = descritor.currentPointer / constants.CLUSTER_SIZE;
+  unsigned int initialOffset = descritor.currentPointer % constants.CLUSTER_SIZE;
   i = findOffsetTupla(tuplas, initialBlock, &reg);
 
   while (i < constants.MAX_TUPLAS_REGISTER && bytesLeft > (unsigned int) 0) {
@@ -48,7 +48,7 @@ int writeFile(int handle, struct descritor descritor, char * buffer, unsigned in
             return FALSE;
           };
 
-          if(bytesLeft <= constants.BLOCK_SIZE) {
+          if(bytesLeft <= constants.CLUSTER_SIZE) {
             // Escreve dados no buffer do bloco, e depois escreve no disco.
             memcpy(&blockBuffer.at[initialOffset], &buffer[bytesWritten], bytesLeft);
             writeBlock(block, &blockBuffer);
@@ -69,7 +69,7 @@ int writeFile(int handle, struct descritor descritor, char * buffer, unsigned in
               descritor.record.bytesFileSize += bytesWritten;
             }
             descritor.currentPointer += bytesWritten;
-            descritor.record.blocksFileSize = (descritor.record.bytesFileSize / constants.BLOCK_SIZE) + 1;
+            descritor.record.blocksFileSize = (descritor.record.bytesFileSize / constants.CLUSTER_SIZE) + 1;
             updateLDAA(handle, TYPEVAL_REGULAR, descritor);
 
             // Atualiza record no diretório
@@ -78,16 +78,16 @@ int writeFile(int handle, struct descritor descritor, char * buffer, unsigned in
             return_value = bytesWritten;
           } else {
             // Escreve dados no buffer do bloco, e depois escreve no disco.
-            memcpy(&blockBuffer.at[initialOffset], &buffer[bytesWritten], constants.BLOCK_SIZE);
+            memcpy(&blockBuffer.at[initialOffset], &buffer[bytesWritten], constants.CLUSTER_SIZE);
             writeBlock(block, &blockBuffer);
 
-            bytesWritten += constants.BLOCK_SIZE;
-            bytesLeft -= constants.BLOCK_SIZE;
+            bytesWritten += constants.CLUSTER_SIZE;
+            bytesLeft -= constants.CLUSTER_SIZE;
           }
 
           // Verificação se escreveu até o final do bloco. Se sim, incrementa o contador.
           bytesWrittenToBlock += bytesWritten;
-          if(bytesWrittenToBlock >= constants.BLOCK_SIZE) {
+          if(bytesWrittenToBlock >= constants.CLUSTER_SIZE) {
             bytesWrittenToBlock = 0;
             amountOfBlocksRead++;
           }
@@ -124,7 +124,7 @@ int writeFile(int handle, struct descritor descritor, char * buffer, unsigned in
               if(i+1 == constants.MAX_TUPLAS_REGISTER - 1) {
                 //próxima tupla vira uma REGISTER_ADITIONAL
 
-                /* Encontra indice para o novo registro. */
+                // Encontra indice para o novo registro. 
                 int novoRegisterIndex = searchMFT(MFT_BM_LIVRE);
                 int check = setMFT(novoRegisterIndex, MFT_BM_OCUPADO);
                 if (check < 0) {
@@ -135,7 +135,7 @@ int writeFile(int handle, struct descritor descritor, char * buffer, unsigned in
                 writeTupla(reg.at, &tuplas[i+1], i+1);
                 writeRegister(registerIndex, &reg);
 
-                /* Operações no novo registro */
+                // Operações no novo registro
                 int fileLBN;
 
                 fileLBN = searchBitmap2(BM_LIVRE); // Encontra bloco de dados para o arquivo
@@ -162,7 +162,7 @@ int writeFile(int handle, struct descritor descritor, char * buffer, unsigned in
                 }
                 resetBlock(newLBN);
 
-                /* ATUALIZAÇÃO DO REGISTRO */
+                // ATUALIZAÇÃO DO REGISTRO 
                 readRegister(registerIndex, &reg);
 
                 tuplas[i+1] = initTupla(REGISTER_MAP, fileBlocksCounter, newLBN, 1);
@@ -206,6 +206,6 @@ int writeFile(int handle, struct descritor descritor, char * buffer, unsigned in
         break;
     }
   }
-
+*/
   return return_value;
 }

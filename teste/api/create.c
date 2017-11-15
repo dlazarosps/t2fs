@@ -85,8 +85,8 @@ void test_create2_root() {
 
 void test_create2_showfiles_parseandprint(int block) {
   BLOCK_T blockBuffer;
-  blockBuffer.at = malloc(sizeof(unsigned char) * constants.BLOCK_SIZE);
-  struct t2fs_record records[constants.RECORD_PER_BLOCK];
+  blockBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
+  struct t2fs_record records[constants.RECORD_PER_CLUSTER];
   int i;
 
   if(readBlock(block, &blockBuffer) == FALSE) {
@@ -94,7 +94,7 @@ void test_create2_showfiles_parseandprint(int block) {
   };
   parseDirectory(blockBuffer, records);
 
-  for (i = 0; i < constants.RECORD_PER_BLOCK; i++) {
+  for (i = 0; i < constants.RECORD_PER_CLUSTER; i++) {
     printRecord(records[i]);
     printf("\n");
   }
@@ -102,7 +102,7 @@ void test_create2_showfiles_parseandprint(int block) {
 
 void test_create2_newmap_showfiles() {
   REGISTER_T reg;
-  readRegister(REGISTER_ROOT, &reg);
+  readRegister(FAT_ROOT, &reg);
 
   struct t2fs_4tupla *tuplas = malloc(constants.MAX_TUPLAS_REGISTER * sizeof(struct t2fs_4tupla));
   parseRegister(reg.at, tuplas);
@@ -127,7 +127,7 @@ void test_create2_newmap() {
   char path[50] = "/test_";
 
   int i = 0;
-  for (i = 0; i <= constants.RECORD_PER_BLOCK; i++) {
+  for (i = 0; i <= constants.RECORD_PER_CLUSTER; i++) {
     char aux[50];
 
     sprintf(aux, "%s%d", path, i);
@@ -139,7 +139,7 @@ void test_create2_newmap() {
 
 void test_create2_aditional_show() {
   REGISTER_T reg;
-  readRegister(REGISTER_ROOT, &reg);
+  readRegister(FAT_ROOT, &reg);
 
   struct t2fs_4tupla *tuplas = malloc(constants.MAX_TUPLAS_REGISTER * sizeof(struct t2fs_4tupla));
   parseRegister(reg.at, tuplas);
@@ -168,7 +168,7 @@ void test_create2_aditional() {
   char path[50] = "/test_";
 
   int i = 0;
-  for (i = 0; i < (constants.RECORD_PER_BLOCK * constants.MAX_TUPLAS_REGISTER); i++) {
+  for (i = 0; i < (constants.RECORD_PER_CLUSTER * constants.MAX_TUPLAS_REGISTER); i++) {
     char aux[50];
 
     sprintf(aux, "%s%d", path, i);

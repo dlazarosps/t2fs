@@ -12,8 +12,10 @@ int readDirectory(DIR2 handle, struct descritor descritor, DIRENT2 *dentry) {
   int return_value = -1;
 
   BLOCK_T blockBuffer;
-  blockBuffer.at = malloc(sizeof(unsigned char) * constants.BLOCK_SIZE);
+  blockBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
 
+/*FAT*/
+/*
   REGISTER_T reg;
   if(readRegister(descritor.record.MFTNumber, &reg) != TRUE) {
     return REGISTER_READ_ERROR;
@@ -22,12 +24,12 @@ int readDirectory(DIR2 handle, struct descritor descritor, DIRENT2 *dentry) {
   struct t2fs_4tupla *tuplas = malloc(constants.MAX_TUPLAS_REGISTER * sizeof(struct t2fs_4tupla));
   parseRegister(reg.at, tuplas);
 
-  unsigned int initialBlock = descritor.currentPointer / constants.BLOCK_SIZE;
-  unsigned int recordIndex = (descritor.currentPointer % constants.BLOCK_SIZE) / RECORD_SIZE;
+  unsigned int initialBlock = descritor.currentPointer / constants.CLUSTER_SIZE;
+  unsigned int recordIndex = (descritor.currentPointer % constants.CLUSTER_SIZE) / RECORD_SIZE;
   unsigned int i = findOffsetTupla(tuplas, initialBlock, &reg);
 
   unsigned int currentBlock = tuplas[i].logicalBlockNumber + initialBlock;
-  struct t2fs_record records[constants.RECORD_PER_BLOCK];
+  struct t2fs_record records[constants.RECORD_PER_CLUSTER];
   //printf("CP: %d, IB: %d, RI: %d, i: %d, CB: %d\n", descritor.currentPointer, initialBlock, recordIndex, i, currentBlock);
 
   if(readBlock(currentBlock, &blockBuffer) == FALSE) {
@@ -43,7 +45,7 @@ int readDirectory(DIR2 handle, struct descritor descritor, DIRENT2 *dentry) {
   int k = 0, foundFile = FALSE;
   if(records[recordIndex].TypeVal != TYPEVAL_DIRETORIO && records[recordIndex].TypeVal != TYPEVAL_REGULAR) {
     // Verifica no restante do bloco se há mais arquivos
-    for(k = recordIndex+1; k < constants.RECORD_PER_BLOCK && foundFile != TRUE; k++) {
+    for(k = recordIndex+1; k < constants.RECORD_PER_CLUSTER && foundFile != TRUE; k++) {
       if(records[k].TypeVal == TYPEVAL_DIRETORIO || records[k].TypeVal == TYPEVAL_REGULAR) {
         strcpy(dirEntry_temp.name, file.name);
         dirEntry_temp.fileType = file.TypeVal;
@@ -63,11 +65,11 @@ int readDirectory(DIR2 handle, struct descritor descritor, DIRENT2 *dentry) {
         };
 
         parseDirectory(blockBuffer, records);
-        recordIndex = (descritor.currentPointer % constants.BLOCK_SIZE) / RECORD_SIZE;
+        recordIndex = (descritor.currentPointer % constants.CLUSTER_SIZE) / RECORD_SIZE;
 
         if(records[recordIndex].TypeVal != TYPEVAL_DIRETORIO && records[recordIndex].TypeVal != TYPEVAL_REGULAR) {
           // Verifica no restante do bloco se há mais arquivos
-          for(k = recordIndex+1; k < constants.RECORD_PER_BLOCK && foundFile != TRUE; k++) {
+          for(k = recordIndex+1; k < constants.RECORD_PER_CLUSTER && foundFile != TRUE; k++) {
             if(records[k].TypeVal == TYPEVAL_DIRETORIO || records[k].TypeVal == TYPEVAL_REGULAR) {
               strcpy(dirEntry_temp.name, file.name);
               dirEntry_temp.fileType = file.TypeVal;
@@ -117,11 +119,11 @@ int readDirectory(DIR2 handle, struct descritor descritor, DIRENT2 *dentry) {
                };
 
                parseDirectory(blockBuffer, records);
-               recordIndex = (descritor.currentPointer % constants.BLOCK_SIZE) / RECORD_SIZE;
+               recordIndex = (descritor.currentPointer % constants.CLUSTER_SIZE) / RECORD_SIZE;
 
                if(records[recordIndex].TypeVal != TYPEVAL_DIRETORIO && records[recordIndex].TypeVal != TYPEVAL_REGULAR) {
                  // Verifica no restante do bloco se há mais arquivos
-                 for(k = recordIndex+1; k < constants.RECORD_PER_BLOCK && foundFile != TRUE; k++) {
+                 for(k = recordIndex+1; k < constants.RECORD_PER_CLUSTER && foundFile != TRUE; k++) {
                    if(records[k].TypeVal == TYPEVAL_DIRETORIO || records[k].TypeVal == TYPEVAL_REGULAR) {
                      strcpy(dirEntry_temp.name, file.name);
                      dirEntry_temp.fileType = file.TypeVal;
@@ -172,6 +174,6 @@ int readDirectory(DIR2 handle, struct descritor descritor, DIRENT2 *dentry) {
   // Atualiza currentPointer na LDAA, para próximo arquivo.
   descritor.currentPointer += RECORD_SIZE;
   updateLDAA(handle, TYPEVAL_DIRETORIO, descritor);
-
+*/
   return return_value;
 }

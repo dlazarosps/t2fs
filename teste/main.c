@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
 				printf ("Erro no comando.\n");
 				continue;
 			}
-			int sector = atoi(pl);
+			int sector = atoi(p1);
 			int error = read_sector (sector, buffer);
 			if (error) {
 				printf ("read_sector (%d) error = %d\n", sector, error);

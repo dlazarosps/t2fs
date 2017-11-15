@@ -56,8 +56,8 @@ void test_parseDirectory() {
   printf("\n--- Teste de parsing de diretório ---\n\n");
 
   BLOCK_T blockBuffer;
-  blockBuffer.at = malloc(sizeof(unsigned char) * constants.BLOCK_SIZE);
-  struct t2fs_record records[constants.RECORD_PER_BLOCK];
+  blockBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
+  struct t2fs_record records[constants.RECORD_PER_CLUSTER];
 
   if(readBlock(2050, &blockBuffer) == FALSE) {
     return;
@@ -65,7 +65,7 @@ void test_parseDirectory() {
 
   parseDirectory(blockBuffer, records);
   int i;
-  for (i = 0; i < constants.RECORD_PER_BLOCK; i++) {
+  for (i = 0; i < constants.RECORD_PER_CLUSTER; i++) {
     printRecord(records[i]);
     printf("\n");
   }

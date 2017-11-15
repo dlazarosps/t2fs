@@ -129,7 +129,7 @@ void test_writeBlock(char* path) {
 
   printf("\n\n");
   BLOCK_T block;
-  block.at = malloc(sizeof(char) * constants.BLOCK_SIZE);
+  block.at = malloc(sizeof(char) * constants.CLUSTER_SIZE);
 
   readBlock(2052, &block);
   printBlock(block.at);
@@ -150,9 +150,9 @@ void test_contiguousBlocks(char* path) {
 
   printf("\n\n");
   BLOCK_T block1, block2, block3;
-  block1.at = malloc(sizeof(unsigned char) * constants.BLOCK_SIZE);
-  block2.at = malloc(sizeof(unsigned char) * constants.BLOCK_SIZE);
-  block3.at = malloc(sizeof(unsigned char) * constants.BLOCK_SIZE);
+  block1.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
+  block2.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
+  block3.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
 
   /*
   readBlock(2052, &block1);
@@ -194,12 +194,12 @@ void test_contiguousBlocksThenMap(char* path, char* newFileName) {
 
   printf("\n\n");
   BLOCK_T block1, block2, block3, block4, block5, block6;
-  block1.at = malloc(sizeof(unsigned char) * constants.BLOCK_SIZE);
-  block2.at = malloc(sizeof(unsigned char) * constants.BLOCK_SIZE);
-  block3.at = malloc(sizeof(unsigned char) * constants.BLOCK_SIZE);
-  block4.at = malloc(sizeof(unsigned char) * constants.BLOCK_SIZE);
-  block5.at = malloc(sizeof(unsigned char) * constants.BLOCK_SIZE);
-  block6.at = malloc(sizeof(unsigned char) * constants.BLOCK_SIZE);
+  block1.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
+  block2.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
+  block3.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
+  block4.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
+  block5.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
+  block6.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
 
   /*
   readBlock(2052, &block1);

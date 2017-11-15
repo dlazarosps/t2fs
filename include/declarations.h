@@ -1,9 +1,8 @@
 /*
   INF01142 - Sistemas Operacionais I
-  T2FS - 2017/1
+  T2FS - 2017/2
 
   Douglas Lazaro
-  Francisco Knebel
 
   Declarações usadas nos outros arquivos de header para incluir estruturas e constantes.
 */

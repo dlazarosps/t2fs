@@ -61,29 +61,13 @@
   -----------------------------------------------------------------------------*/
   int readBootBlock(SECTOR_T* buffer);
 
-  /*-----------------------------------------------------------------------------
-  Função: readRegister
-    Leitura de um registro do MFT.
-
-  Entrada:
-    registerIndex: indice, de 0 até MAX_REGISTERS, do registro procurado.
-    reg: endereço onde o buffer do registro será armazenado.
-
-  Saida:
-    Retorna TRUE se o registro foi lido corretamente.
-    Retorna FALSE se houve um problema de leitura.
-    Retorna -1 se registerIndex é inválido.
-
-  Responsável: Francisco Knebel
-  -----------------------------------------------------------------------------*/
-  int readRegister(int registerIndex, REGISTER_T* reg);
-
+  
   /*-----------------------------------------------------------------------------
   Função: readRecord
     Leitura de um descritor de arquivo.
 
   Entrada:
-    block: bloco, de DATA_BLOCK até DISK_BLOCKS, que será lido.
+    block: bloco, de DATA_CLUSTER até DISK_CLUSTERS, que será lido.
     index: indice do descritor dentro do bloco de diretório.
     record: endereço onde será armazenado o descritor lido.
 
@@ -128,29 +112,13 @@
   -----------------------------------------------------------------------------*/
   int writeBlock(int block, BLOCK_T* buffer);
 
-  /*-----------------------------------------------------------------------------
-  Função: writeRegister
-    Escrita de um registro do MFT.
-
-  Entrada:
-    registerIndex: indice, de 0 até MAX_REGISTERS, do registro que será esrito.
-    reg: endereço do buffer de registro que será usado para a escrita.
-
-  Saida:
-    Retorna TRUE se o registro foi lido corretamente.
-    Retorna FALSE se houve um problema de leitura.
-    Retorna -1 se registerIndex é inválido.
-
-  Responsável: Francisco Knebel
-  -----------------------------------------------------------------------------*/
-  int writeRegister(int registerIndex, REGISTER_T* reg);
 
   /*-----------------------------------------------------------------------------
   Função: writeRecord
     Escrita de um descritor de arquivo.
 
   Entrada:
-    block: bloco, de DATA_BLOCK até DISK_BLOCKS, que será lido.
+    block: bloco, de DATA_CLUSTER até DISK_CLUSTERS, que será lido.
     index: indice do descritor dentro do bloco de diretório.
     record: descritor que será armazenado no disco.
 
@@ -163,21 +131,6 @@
   -----------------------------------------------------------------------------*/
   int writeRecord(int block, int index, struct t2fs_record record);
 
-  /*-----------------------------------------------------------------------------
-  Função: writeTupla
-    Escrita de uma t2fs_4tupla em um buffer de registro.
-
-  Entrada:
-    buffer: buffer de um registro.
-    tupla: endereço da tupla que deve ser escrita no buffer.
-    index: indice onde a tupla deve ser escrita no registro.
-
-  Saida:
-    Retorna parâmetro de destino da tupla (padrão da função memcpy).
-
-  Responsável: Francisco Knebel
-  -----------------------------------------------------------------------------*/
-  void* writeTupla(unsigned char* buffer, struct t2fs_4tupla* tupla, int index);
 
   /*-----------------------------------------------------------------------------
   Função: resetBlock
@@ -194,19 +147,5 @@
   -----------------------------------------------------------------------------*/
   int resetBlock(int block);
 
-  /*-----------------------------------------------------------------------------
-  Função: freeRegister
-    Libera um registro do MFT, para uso por outras operações.
-
-  Entrada:
-    registerIndex: indice do registro que deve ser invalidado.
-
-  Saida:
-    Retorna TRUE se o registro foi escrito corretamente.
-    Retorna FALSE se houve um problema de escrita ou se o número do registor é inválido.
-
-  Responsável: Francisco Knebel
-  -----------------------------------------------------------------------------*/
-  int freeRegister(int registerIndex);
 
 #endif

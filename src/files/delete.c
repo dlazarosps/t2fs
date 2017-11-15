@@ -10,9 +10,11 @@
 
 int removeFileFromDirectory(DWORD directoryMFTNumber, struct t2fs_record file) {
   int return_value;
+/* FAT */
+/*
   int registerIndex = directoryMFTNumber;
-
   REGISTER_T reg;
+
   if(readRegister(registerIndex, &reg) != TRUE) {
     return FALSE;
   }
@@ -20,9 +22,9 @@ int removeFileFromDirectory(DWORD directoryMFTNumber, struct t2fs_record file) {
   struct t2fs_4tupla *tuplas = malloc(constants.MAX_TUPLAS_REGISTER * sizeof(struct t2fs_4tupla));
   parseRegister(reg.at, tuplas);
 
-  struct t2fs_record records[constants.RECORD_PER_BLOCK];
+  struct t2fs_record records[constants.RECORD_PER_CLUSTER];
   BLOCK_T blockBuffer;
-  blockBuffer.at = malloc(sizeof(unsigned char) * constants.BLOCK_SIZE);
+  blockBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
 
   unsigned int i = 0, amountOfBlocksRead = 0, removedFile = FALSE, block;
 
@@ -40,7 +42,7 @@ int removeFileFromDirectory(DWORD directoryMFTNumber, struct t2fs_record file) {
           parseDirectory(blockBuffer, records);
 
           unsigned int j;
-          for (j = 0; j < constants.RECORD_PER_BLOCK && removedFile != TRUE; j++) {
+          for (j = 0; j < constants.RECORD_PER_CLUSTER && removedFile != TRUE; j++) {
             if(strcmp(records[j].name, file.name) == 0 && (records[j].TypeVal == TYPEVAL_REGULAR || records[j].TypeVal == TYPEVAL_DIRETORIO)) {
               // Achou arquivo válido com o mesmo nome
               file.TypeVal = TYPEVAL_INVALIDO;
@@ -85,98 +87,22 @@ int removeFileFromDirectory(DWORD directoryMFTNumber, struct t2fs_record file) {
       i++;
       break;
     }
-  }
-
-  return return_value;
-}
-
-int removeFileFromMFT(struct t2fs_record file) {
-  int registerIndex = file.MFTNumber;
-  int check, return_value;
-  BLOCK_T blockBuffer;
-  blockBuffer.at = malloc(sizeof(unsigned char) * constants.BLOCK_SIZE);
-
-  REGISTER_T reg;
-  if(readRegister(registerIndex, &reg) != TRUE) {
-    return FALSE;
-  }
-
-  struct t2fs_4tupla *tuplas = malloc(constants.MAX_TUPLAS_REGISTER * sizeof(struct t2fs_4tupla));
-  parseRegister(reg.at, tuplas);
-
-
-  /* Desalocando registro do MFT usado. */
-  check = setMFT(registerIndex, MFT_BM_LIVRE);
-  if (check < 0) {
-    return MFT_BM_ERROR;
-  }
-
-  // Marca registro como livre, para uso das funções de MFT.
-  freeRegister(registerIndex);
-
-  /* Desalocar blocos indicados pelas tuplas */
-  unsigned int i = 0, amountOfBlocksRead = 0, block;
-  while (i < constants.MAX_TUPLAS_REGISTER) {
-    switch (tuplas[i].atributeType) {
-      case REGISTER_MAP:
-        while(amountOfBlocksRead < tuplas[i].numberOfContiguosBlocks) {
-          block = tuplas[i].logicalBlockNumber + amountOfBlocksRead;
-          amountOfBlocksRead++;
-
-          check = setBitmap2(block, BM_LIVRE);
-          if (check < 0) {
-            return BM_ERROR;
-          }
-        }
-
-        amountOfBlocksRead = 0;
-        i++;
-        break;
-      case REGISTER_ADITIONAL:
-        registerIndex = tuplas[i].virtualBlockNumber;
-
-        if(readRegister(registerIndex, &reg) != TRUE) {
-          return FALSE;
-        }
-
-        /* Desalocando registro do MFT usado. */
-        check = setMFT(registerIndex, MFT_BM_LIVRE);
-        if (check < 0) {
-          return MFT_BM_ERROR;
-        }
-
-        free(tuplas);
-        tuplas = malloc(constants.MAX_TUPLAS_REGISTER * sizeof(struct t2fs_4tupla));
-
-        parseRegister(reg.at, tuplas);
-        i = 0; // reset i para 0, começar a ler tuplas novamente
-
-        // Marca registro como livre, para uso das funções de MFT.
-        freeRegister(registerIndex);
-
-        break;
-      case REGISTER_FIM:
-        return REGISTER_FIM;
-        break;
-      default:
-        return_value = tuplas[i].atributeType;
-        i++;
-        break;
-    }
-  }
+  }*/
 
   return return_value;
 }
 
 int deleteFileFromDisk(struct t2fs_record file, char* filename) {
   /* Remover record do diretório */
-  char * directoryname = malloc(strlen(filename));
+/* FAT */
   int return_value = -1;
+/* 
+  char * directoryname = malloc(strlen(filename));
 
-  getFileDirectory(filename, directoryname);
+ getFileDirectory(filename, directoryname);
 
   if(strcmp("/", directoryname) == 0) { // remover da root
-    return_value = removeFileFromDirectory(REGISTER_ROOT, file);
+    return_value = removeFileFromDirectory(FAT_ROOT, file);
   } else {
     struct t2fs_record directory;
 
@@ -200,8 +126,8 @@ int deleteFileFromDisk(struct t2fs_record file, char* filename) {
     }
   }
 
-  /* Desalocar blocos e registros do arquivo */
+  // Desalocar blocos e registros do arquivo 
   removeFileFromMFT(file);
-
+*/
   return return_value;
 }

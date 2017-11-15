@@ -9,10 +9,11 @@
 #include "libs.h"
 
 int truncateFile(FILE2 handle, struct descritor descritor) {
-  int registerIndex = descritor.record.MFTNumber;
+  // int registerIndex = descritor.record.MFTNumber;
   BLOCK_T blockBuffer;
-  blockBuffer.at = malloc(sizeof(unsigned char) * constants.BLOCK_SIZE);
-
+  blockBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
+/*FAT*/  
+/*
   REGISTER_T reg;
   if(readRegister(registerIndex, &reg) != TRUE) {
     return -1;
@@ -21,7 +22,7 @@ int truncateFile(FILE2 handle, struct descritor descritor) {
   struct t2fs_4tupla *tuplas = malloc(constants.MAX_TUPLAS_REGISTER * sizeof(struct t2fs_4tupla));
   parseRegister(reg.at, tuplas);
 
-  unsigned int initialBlock = descritor.currentPointer / constants.BLOCK_SIZE;
+  unsigned int initialBlock = descritor.currentPointer / constants.CLUSTER_SIZE;
   unsigned int i = findOffsetTupla(tuplas, initialBlock, &reg);
 
   unsigned int k = i+1, isDone = FALSE, notAditionalReg = TRUE;
@@ -89,18 +90,19 @@ int truncateFile(FILE2 handle, struct descritor descritor) {
       // Libera blocos ocupados
       setBitmap2(tuplas[k].logicalBlockNumber + --contiguousLeft, BM_LIVRE);
     }
-  }
+  }*/
 
   // Todos blocos depois do atual foram liberados. Apenas é necessário sinalizar o novo tamanho do arquivo.
   // Bytes posteriores ao tamanho do arquivo no disco serão ignorados na leitura.
   descritor.record.bytesFileSize = descritor.currentPointer;
-  descritor.record.blocksFileSize = (descritor.record.bytesFileSize / constants.BLOCK_SIZE) + 1;
+  // descritor.record.blocksFileSize = (descritor.record.bytesFileSize / constants.CLUSTER_SIZE) + 1;
 
   // Atualiza descritor na LDAA
   updateLDAA(handle, TYPEVAL_REGULAR, descritor);
 
   // Atualiza record no diretório
   addRecordToDirectory(descritor.record, descritor.name, TRUE);
+
 
   return 0;
 }
