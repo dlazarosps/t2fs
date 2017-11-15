@@ -14,23 +14,29 @@
 */
 
 void initFAT() {
-  SECTOR_T reg;
+  BLOCK_T reg;
   unsigned int i, j;
 
-  for (i = 0; i < REGISTER_REGULAR; i++) { //VERIFICAR - primeiros resgistros reservados 
+  /*
+  	Reserva os primeiros registros de Clusters por ser o super bloco e FAT
+  */
+  for (i = 0; i <= FAT_SECTOR; i++) {
     config.indexFAT[i] = FAT_OCUPADO;
   }
 
-  for (i = REGISTER_REGULAR, j = REGISTER_REGULAR*2; j < constants.MAX_SECTORS_REGISTER; i++, j += 2) {
-    int sector = constants.MFT_SECTOR + j;
+  // VERIFICAR - Aqui os acessos para FAT
+  for (i = FAT_SECTOR, j = REGISTER_REGULAR*2; j < constants.DISK_CLUSTERS; i++, j += 2) {
+    int cluster = constants.FAT_SECTOR + j;
 
-    if(readSector(sector, &reg) != TRUE) {
+	//Caso erro na leitura para execução
+    if(readBlock(cluster, &reg) != TRUE) {
       return;
     }
 
+	//Verificar t2fs_4tupla
     struct t2fs_4tupla tuplaInicial = parseRegister_tupla(reg.at, 0);
 
-	//VARIFICAR - Aqui o FAT deve ocupado registra valores > 1
+	//VERIFICAR - Aqui o FAT deve ocupado registra valores > 1
     if(tuplaInicial.atributeType == (unsigned int) REGISTER_FREE) {
       config.indexFAT[i] = FAT_LIVRE; //livre
     } else {

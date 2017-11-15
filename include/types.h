@@ -49,7 +49,9 @@
     unsigned int FAT_SECTOR;
     unsigned int DATA_SECTOR;
 
-    /* Registro */
+    /* Registro 
+    	Isso Aqui é necessário??? ou deve ser modificado para o fat???
+    */
     unsigned int REGISTER_SIZE;
     unsigned int REGISTER_PER_BLOCK;
     unsigned int MAX_REGISTERS;
