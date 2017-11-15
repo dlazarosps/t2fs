@@ -18,11 +18,11 @@ TST_DIR=./teste
 
 # GERAÇÂO DO T2FS #
 FILES_OBJECTS=$(LIB_DIR)/files/create.o $(LIB_DIR)/files/delete.o $(LIB_DIR)/files/open.o $(LIB_DIR)/files/close.o $(LIB_DIR)/files/read.o $(LIB_DIR)/files/write.o $(LIB_DIR)/files/truncate.o $(LIB_DIR)/files/readdir.o
-HELPER_OBJECTS=$(LIB_DIR)/helpers/print.o $(LIB_DIR)/helpers/util.o $(LIB_DIR)/helpers/files.o $(LIB_DIR)/helpers/mft.o $(LIB_DIR)/helpers/ldaa.o
+HELPER_OBJECTS=$(LIB_DIR)/helpers/print.o $(LIB_DIR)/helpers/util.o $(LIB_DIR)/helpers/files.o $(LIB_DIR)/helpers/ldaa.o
 SRC_OBJECTS=$(LIB_DIR)/t2fs.o $(LIB_DIR)/disk.o $(LIB_DIR)/parse.o
 
 LIB_GENERATED_OBJECTS=$(SRC_OBJECTS) $(FILES_OBJECTS) $(HELPER_OBJECTS)
-LIB_OBJECTS=$(LIB_GENERATED_OBJECTS) $(LIB_DIR)/apidisk.o $(LIB_DIR)/bitmap2.o
+LIB_OBJECTS=$(LIB_GENERATED_OBJECTS) $(LIB_DIR)/apidisk.o
 
 all: $(LIB_OBJECTS)
 	ar rcs $(LIB_DIR)/libt2fs.a $(LIB_OBJECTS)
@@ -71,9 +71,6 @@ $(LIB_DIR)/helpers/util.o: $(SRC_DIR)/helpers/util.c
 $(LIB_DIR)/helpers/files.o: $(SRC_DIR)/helpers/files.c
 	$(CC) $(CFLAGS) -c -o $(LIB_DIR)/helpers/files.o -I$(INC_DIR) $(SRC_DIR)/helpers/files.c
 
-$(LIB_DIR)/helpers/mft.o: $(SRC_DIR)/helpers/mft.c
-	$(CC) $(CFLAGS) -c -o $(LIB_DIR)/helpers/mft.o -I$(INC_DIR) $(SRC_DIR)/helpers/mft.c
-
 $(LIB_DIR)/helpers/ldaa.o: $(SRC_DIR)/helpers/ldaa.c
 	$(CC) $(CFLAGS) -c -o $(LIB_DIR)/helpers/ldaa.o -I$(INC_DIR) $(SRC_DIR)/helpers/ldaa.c
 
@@ -94,7 +91,7 @@ ifeq (teste,$(firstword $(MAKECMDGOALS)))
   $(eval $(RUN_ARGS):;@:)
 endif
 
-TEST_FILES=$(BIN_DIR)/test_display $(BIN_DIR)/test_disk $(BIN_DIR)/test_parse $(BIN_DIR)/test_util $(BIN_DIR)/test_bitmap $(BIN_DIR)/test_files $(BIN_DIR)/test_mft $(BIN_DIR)/test_ldaa
+TEST_FILES=$(BIN_DIR)/test_display $(BIN_DIR)/test_disk $(BIN_DIR)/test_parse $(BIN_DIR)/test_util  $(BIN_DIR)/test_files $(BIN_DIR)/test_ldaa
 teste: $(TEST_FILES)
 	$(BIN_DIR)/$(RUN_ARGS)
 
@@ -110,14 +107,8 @@ $(BIN_DIR)/test_parse: all $(TST_DIR)/test_parse.c
 $(BIN_DIR)/test_util: all $(TST_DIR)/test_util.c
 	$(CC) $(CFLAGS) -o $(BIN_DIR)/test_util $(TST_DIR)/test_util.c -L$(LIB_DIR) -lt2fs -I$(INC_DIR)
 
-$(BIN_DIR)/test_bitmap: all $(TST_DIR)/test_bitmap.c
-	$(CC) $(CFLAGS) -o $(BIN_DIR)/test_bitmap $(TST_DIR)/test_bitmap.c -L$(LIB_DIR) -lt2fs -I$(INC_DIR)
-
 $(BIN_DIR)/test_files: all $(TST_DIR)/test_files.c
 	$(CC) $(CFLAGS) -o $(BIN_DIR)/test_files $(TST_DIR)/test_files.c -L$(LIB_DIR) -lt2fs -I$(INC_DIR)
-
-$(BIN_DIR)/test_mft: all $(TST_DIR)/test_mft.c
-	$(CC) $(CFLAGS) -o $(BIN_DIR)/test_mft $(TST_DIR)/test_mft.c -L$(LIB_DIR) -lt2fs -I$(INC_DIR)
 
 $(BIN_DIR)/test_ldaa: all $(TST_DIR)/test_ldaa.c
 	$(CC) $(CFLAGS) -o $(BIN_DIR)/test_ldaa $(TST_DIR)/test_ldaa.c -L$(LIB_DIR) -lt2fs -I$(INC_DIR)
