@@ -52,15 +52,20 @@
   #define NOT_FOUND_LDAA -1
   #define ERRO_REMOVE_LDAA -2
 
-  /* Bitmap */
+  /* Retirar Isto Mantive apenas como refefrencia até a Lib FAT estar pronta - Bitmap */
   #define BM_LIVRE 0
   #define BM_OCUPADO 1
   #define BM_ERROR -100
 
-  /* MFT Bitmap */
+  /* Retirar Isto Mantive apenas como refefrencia até a Lib FAT estar pronta - MFT Bitmap */
   #define MFT_BM_LIVRE 0
   #define MFT_BM_OCUPADO 1
   #define MFT_BM_ERROR -100
+  
+  /* FAT */
+  #define FAT_LIVRE 0
+  #define FAT_BM_ERROR -2
+  #define FAT_END_ARQ -1
 
   /* API */
   #define FOUND_FILE_ERROR -1

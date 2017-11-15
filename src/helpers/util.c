@@ -75,6 +75,11 @@ int initConfig() {
   BYTE * MFT = malloc(sizeof(BYTE) * constants.MAX_REGISTERS);
   config.indexMFT = MFT;
   initMFT();
+	
+  // criando o espaçõ para o FAT - Verificar se é realmente MAX_REGISTERS ou DISK_CLUSTERS
+  unsigned int * FAT = malloc(sizeof(unsigned int) * constants.DISK_CLUSTERS);	
+  config.indexFAT = FAT;
+  initFAT();
 
   initLDAA();
 

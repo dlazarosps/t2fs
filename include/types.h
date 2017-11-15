@@ -73,7 +73,11 @@
 
     struct t2fs_superbloco superbloco;
 
+	//Mantido como referencia somente até ser removida MFT.h
     BYTE* indexMFT;
+    
+    //Lista de clusters representados na FAT
+    unsigned int* indexFAT;
 
     struct descritor LDAA[MAX_FILES_OPEN];
   };
