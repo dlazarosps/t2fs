@@ -24,24 +24,29 @@ void initFAT() {
     config.indexFAT[i] = FAT_OCUPADO;
   }
 
-  // VERIFICAR - Aqui os acessos para FAT
-  for (i = FAT_SECTOR, j = REGISTER_REGULAR*2; j < constants.DISK_CLUSTERS; i++, j += 2) {
-    int cluster = constants.FAT_SECTOR + j;
-
-	//Caso erro na leitura para execução
-    if(readBlock(cluster, &reg) != TRUE) {
+  for (i = FAT_SECTOR + 1, i < constants.DISK_CLUSTERS; i++) {
+	
+	//Caso erro na leitura do cluster (i) para execução
+    if(readBlock(i, &reg) != TRUE) {
       return;
     }
-
+	
+	/* 
+		Aqui apenas para continuar funcionando
+		Deve-se verificar se existe algo criado no disco
+	*/
+	config.indexFAT[i] = FAT_LIVRE;
+	
+	/*
 	//Verificar t2fs_4tupla
-    struct t2fs_4tupla tuplaInicial = parseRegister_tupla(reg.at, 0);
+    //struct t2fs_4tupla tuplaInicial = parseRegister_tupla(reg.at, 0);
 
 	//VERIFICAR - Aqui o FAT deve ocupado registra valores > 1
     if(tuplaInicial.atributeType == (unsigned int) REGISTER_FREE) {
       config.indexFAT[i] = FAT_LIVRE; //livre
     } else {
       config.indexFAT[i] = FAT_OCUPADO; //ocupado
-    }
+    } /* */
   }
 }
 

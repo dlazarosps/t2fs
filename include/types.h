@@ -58,6 +58,14 @@
 
     struct t2fs_superbloco superbloco;
 
+	/*
+		O indexFAT talvez possa ser iniciado diretamente
+		
+		unsigned int indexFAT[DISK_CLUSTERS];
+		
+		Caso utilizar isto retirar o malloc do initConfig()
+	*/
+
     //Lista de clusters representados na FAT
     unsigned int* indexFAT;
 
