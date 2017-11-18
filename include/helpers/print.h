@@ -18,11 +18,11 @@
 
   int printSector2(unsigned char* buffer, int currentSector);
 
-  int printBlock(unsigned char* buffer);
+  int printCluster(unsigned char* buffer);
 
-  void showBlock(int block);
+  void showCluster(int cluster);
 
-  void printBootBlock();
+  void printSuperblock();
 
   void printConstants();
 

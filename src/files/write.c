@@ -3,7 +3,7 @@
   T2FS - 2017/1
 
   Douglas Lazaro
-  Francisco Knebel
+  Douglas Lázaro
 */
 
 #include "libs.h"
@@ -20,38 +20,38 @@ int writeFile(int handle, struct descritor descritor, char * buffer, unsigned in
   struct t2fs_4tupla *tuplas = malloc(constants.MAX_TUPLAS_REGISTER * sizeof(struct t2fs_4tupla));
   parseRegister(reg.at, tuplas);
 
-  BLOCK_T blockBuffer;
-  blockBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
+  CLUSTER_T clusterBuffer;
+  clusterBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
 
-  int allocated, fileBlocksCounter = 0;
-  unsigned int i = 0, block;
+  int allocated, fileClustersCounter = 0;
+  unsigned int i = 0, cluster;
   unsigned int bytesWritten = 0, bytesLeft = size;
-  unsigned int amountOfBlocksRead = 0;
+  unsigned int amountOfClustersRead = 0;
 
   // Achar tupla, bloco e offset inicial, de acordo com currentPointer.
-  unsigned int bytesWrittenToBlock = 0;
-  unsigned int initialBlock = descritor.currentPointer / constants.CLUSTER_SIZE;
+  unsigned int bytesWrittenToCluster = 0;
+  unsigned int initialCluster = descritor.currentPointer / constants.CLUSTER_SIZE;
   unsigned int initialOffset = descritor.currentPointer % constants.CLUSTER_SIZE;
-  i = findOffsetTupla(tuplas, initialBlock, &reg);
+  i = findOffsetTupla(tuplas, initialCluster, &reg);
 
   while (i < constants.MAX_TUPLAS_REGISTER && bytesLeft > (unsigned int) 0) {
     switch(tuplas[i].atributeType) {
       case REGISTER_MAP:
-        amountOfBlocksRead = initialBlock;
-        initialBlock = 0;
+        amountOfClustersRead = initialCluster;
+        initialCluster = 0;
 
-        bytesWrittenToBlock = initialOffset;
-        while(amountOfBlocksRead < tuplas[i].numberOfContiguosBlocks && bytesLeft > (unsigned int) 0) {
-          block = tuplas[i].logicalBlockNumber + amountOfBlocksRead;
+        bytesWrittenToCluster = initialOffset;
+        while(amountOfClustersRead < tuplas[i].numberOfContiguosClusters && bytesLeft > (unsigned int) 0) {
+          cluster = tuplas[i].logicalBlockNumber + amountOfClustersRead;
 
-          if(readBlock(block, &blockBuffer) == FALSE) {
+          if(readCluster(cluster, &clusterBuffer) == FALSE) {
             return FALSE;
           };
 
           if(bytesLeft <= constants.CLUSTER_SIZE) {
             // Escreve dados no buffer do bloco, e depois escreve no disco.
-            memcpy(&blockBuffer.at[initialOffset], &buffer[bytesWritten], bytesLeft);
-            writeBlock(block, &blockBuffer);
+            memcpy(&clusterBuffer.at[initialOffset], &buffer[bytesWritten], bytesLeft);
+            writeCluster(cluster, &clusterBuffer);
 
             // Chegou no final da escrita
             bytesWritten += bytesLeft;
@@ -69,7 +69,7 @@ int writeFile(int handle, struct descritor descritor, char * buffer, unsigned in
               descritor.record.bytesFileSize += bytesWritten;
             }
             descritor.currentPointer += bytesWritten;
-            descritor.record.blocksFileSize = (descritor.record.bytesFileSize / constants.CLUSTER_SIZE) + 1;
+            descritor.record.clustersFileSize = (descritor.record.bytesFileSize / constants.CLUSTER_SIZE) + 1;
             updateLDAA(handle, TYPEVAL_REGULAR, descritor);
 
             // Atualiza record no diretório
@@ -78,30 +78,30 @@ int writeFile(int handle, struct descritor descritor, char * buffer, unsigned in
             return_value = bytesWritten;
           } else {
             // Escreve dados no buffer do bloco, e depois escreve no disco.
-            memcpy(&blockBuffer.at[initialOffset], &buffer[bytesWritten], constants.CLUSTER_SIZE);
-            writeBlock(block, &blockBuffer);
+            memcpy(&clusterBuffer.at[initialOffset], &buffer[bytesWritten], constants.CLUSTER_SIZE);
+            writeCluster(cluster, &clusterBuffer);
 
             bytesWritten += constants.CLUSTER_SIZE;
             bytesLeft -= constants.CLUSTER_SIZE;
           }
 
           // Verificação se escreveu até o final do bloco. Se sim, incrementa o contador.
-          bytesWrittenToBlock += bytesWritten;
-          if(bytesWrittenToBlock >= constants.CLUSTER_SIZE) {
-            bytesWrittenToBlock = 0;
-            amountOfBlocksRead++;
+          bytesWrittenToCluster += bytesWritten;
+          if(bytesWrittenToCluster >= constants.CLUSTER_SIZE) {
+            bytesWrittenToCluster = 0;
+            amountOfClustersRead++;
           }
 
           initialOffset = 0;
         }
 
-        fileBlocksCounter += amountOfBlocksRead;
+        fileClustersCounter += amountOfClustersRead;
 
         if(bytesLeft > 0) {
           if(tuplas[i+1].atributeType == REGISTER_FIM) {
             // verificar se é possivel criar bloco contiguo na tupla atual
-            block = tuplas[i].logicalBlockNumber + tuplas[i].numberOfContiguosBlocks;
-            allocated = getBitmap2(block);
+            cluster = tuplas[i].logicalBlockNumber + tuplas[i].numberOfContiguosClusters;
+            allocated = getBitmap2(cluster);
 
             if(allocated < 0) {
               return BM_ERROR;
@@ -109,16 +109,16 @@ int writeFile(int handle, struct descritor descritor, char * buffer, unsigned in
 
             if(allocated == BM_LIVRE) {
               // Aloca bloco contíguo, atualizando o registro
-              tuplas[i].numberOfContiguosBlocks += 1;
+              tuplas[i].numberOfContiguosClusters += 1;
               writeTupla(reg.at, &tuplas[i], i);
-              setBitmap2(block, BM_OCUPADO);
+              setBitmap2(cluster, BM_OCUPADO);
 
-              resetBlock(block);
+              resetCluster(cluster);
 
               writeRegister(registerIndex, &reg);
 
               // Loop de tuplas começara novamente, partindo do novo bloco.
-              initialBlock = tuplas[i].numberOfContiguosBlocks - 1;
+              initialCluster = tuplas[i].numberOfContiguosClusters - 1;
             } else {
               // próxima tupla está no final do registro
               if(i+1 == constants.MAX_TUPLAS_REGISTER - 1) {
@@ -145,7 +145,7 @@ int writeFile(int handle, struct descritor descritor, char * buffer, unsigned in
                 }
 
                 // Inicializa o novo registro.
-                initNewRegister(novoRegisterIndex, fileBlocksCounter, fileLBN);
+                initNewRegister(novoRegisterIndex, fileClustersCounter, fileLBN);
 
                 i = 0; // Reinicia o loop, no novo registro.
                 if(readRegister(registerIndex, &reg) != TRUE) {
@@ -160,12 +160,12 @@ int writeFile(int handle, struct descritor descritor, char * buffer, unsigned in
                 if (check < 0) {
                   return BM_ERROR;
                 }
-                resetBlock(newLBN);
+                resetCluster(newLBN);
 
                 // ATUALIZAÇÃO DO REGISTRO 
                 readRegister(registerIndex, &reg);
 
-                tuplas[i+1] = initTupla(REGISTER_MAP, fileBlocksCounter, newLBN, 1);
+                tuplas[i+1] = initTupla(REGISTER_MAP, fileClustersCounter, newLBN, 1);
                 writeTupla(reg.at, &tuplas[i+1], i+1);
 
                 tuplas[i+2] = initTupla(REGISTER_FIM, 0, 0, 0);

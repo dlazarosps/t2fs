@@ -3,7 +3,7 @@
   T2FS - 2017/1
 
   Douglas Lazaro
-  Francisco Knebel
+  Douglas Lázaro
 */
 
 #include "libs.h"
@@ -38,7 +38,7 @@ int printSector2(unsigned char* buffer, int currentSector) {
   return 0;
 }
 
-int printBlock(unsigned char* buffer) {
+int printCluster(unsigned char* buffer) {
   unsigned int i;
 
   for(i = 0; i < constants.SECTOR_PER_CLUSTER; i++) {
@@ -49,18 +49,18 @@ int printBlock(unsigned char* buffer) {
   return 0;
 }
 
-void showBlock(int block) {
-  BLOCK_T buffer;
+void showCluster(int cluster) {
+  CLUSTER_T buffer;
   buffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
 
-  readBlock(block, &buffer);
+  readCluster(cluster, &buffer);
 
-  printBlock(buffer.at);
+  printCluster(buffer.at);
 
   return;
 }
 
-void printBootBlock() {
+void printSuperblock() {
   printf("ID: %s\n", config.superbloco.id);
   printf("Version: %s\n", config.superbloco.version);
   printf("Disk Size: %d\n", config.superbloco.DiskSize);

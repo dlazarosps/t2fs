@@ -38,9 +38,9 @@
   Saida:
     Retorna o descritor t2fs_record do arquivo.
 
-  Responsável: Francisco Knebel
+  Responsável: Douglas Lázaro
   -----------------------------------------------------------------------------*/
-  int parseRecord(BLOCK_T blockBuffer, struct t2fs_record * record, int offset);
+  int parseRecord(CLUSTER_T clusterBuffer, struct t2fs_record * record, int offset);
 
   /*-----------------------------------------------------------------------------
   Função: parseDirectory
@@ -53,8 +53,8 @@
   Saida:
     Retorna o bloco convertido em múltiplos t2fs_record.
 
-  Responsável: Francisco Knebel
+  Responsável: Douglas Lázaro
   -----------------------------------------------------------------------------*/
-  int parseDirectory(BLOCK_T block, struct t2fs_record* records);
+  int parseDirectory(CLUSTER_T cluster, struct t2fs_record* records);
 
 #endif

@@ -82,7 +82,7 @@ struct t2fs_superbloco parseSuperBlock(unsigned char* superbloco) {
   memcpy(version, superbloco + 4, 2 * sizeof(BYTE));
   parseVersion(version, config.version);
 
-  // SUPER BLOCK SIZE
+  // SUPER CLUSTER SIZE
   memcpy(superBlockSize, superbloco + 6, 2 * sizeof(BYTE));
   config.SuperBlockSize = parseTwoBytesStructure(superBlockSize);
 
@@ -113,27 +113,27 @@ struct t2fs_superbloco parseSuperBlock(unsigned char* superbloco) {
   return config;
 }
 
-int parseRecord(BLOCK_T blockBuffer, struct t2fs_record * record, int offset) {
+int parseRecord(CLUSTER_T clusterBuffer, struct t2fs_record * record, int offset) {
   char str[2];
 
-  record->TypeVal = blockBuffer.at[RECORD_TYPE + offset];
-  memcpy(record->name, &blockBuffer.at[RECORD_NAME + offset], MAX_FILE_NAME_SIZE * sizeof(char));
-  // record->blocksFileSize = convertFourBytes(blockBuffer.at, RECORD_BLOCK_FILE_SIZE + offset, str);
-  record->bytesFileSize = convertFourBytes(blockBuffer.at, RECORD_BYTES_FILE_SIZE + offset, str);
-  // record->MFTNumber = convertFourBytes(blockBuffer.at, RECORD_MFT_NUMBER + offset, str);
+  record->TypeVal = clusterBuffer.at[RECORD_TYPE + offset];
+  memcpy(record->name, &clusterBuffer.at[RECORD_NAME + offset], MAX_FILE_NAME_SIZE * sizeof(char));
+  // record->clustersFileSize = convertFourBytes(clusterBuffer.at, RECORD_BLOCK_FILE_SIZE + offset, str);
+  record->bytesFileSize = convertFourBytes(clusterBuffer.at, RECORD_BYTES_FILE_SIZE + offset, str);
+  // record->MFTNumber = convertFourBytes(clusterBuffer.at, RECORD_MFT_NUMBER + offset, str);
   /* FAT */
 
   return TRUE;
 }
 
-int parseDirectory(BLOCK_T block, struct t2fs_record* records) {
+int parseDirectory(CLUSTER_T cluster, struct t2fs_record* records) {
   unsigned int i;
   unsigned int offset;
 
   for (i = 0; i < constants.RECORD_PER_CLUSTER; i++) {
     offset = (i * RECORD_SIZE);
 
-    parseRecord(block, &records[i], offset);
+    parseRecord(cluster, &records[i], offset);
   }
 
   return TRUE;

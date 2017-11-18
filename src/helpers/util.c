@@ -10,14 +10,14 @@
 
 #include "libs.h"
 
-struct Constants initConstants(struct t2fs_superbloco superblock) {
+struct Constants initConstants(struct t2fs_superbloco supercluster) {
   struct Constants k;
 
   /* Disco */
-  k.SECTOR_PER_CLUSTER = superblock.SectorsPerCluster;
+  k.SECTOR_PER_CLUSTER = supercluster.SectorsPerCluster;
   k.CLUSTER_SIZE = k.SECTOR_PER_CLUSTER * SECTOR_SIZE; // SECTOR_SIZE IS A DEFINED CONSTANT
 
-  k.DISK_SECTORS = superblock.NofSectors;
+  k.DISK_SECTORS = supercluster.NofSectors;
   k.DISK_CLUSTERS = k.DISK_SECTORS / k.SECTOR_PER_CLUSTER;
 
   
@@ -25,7 +25,7 @@ struct Constants initConstants(struct t2fs_superbloco superblock) {
   k.SUPERBLOCK_CLUSTER_SIZE = 1;
   k.SUPERBLOCK_SECTOR_SIZE = SECTOR_SIZE;
 
-  k.FAT_CLUSTER_SIZE = (superblock.DataSectorStart - superblock.pFATSectorStart)/ k.SECTOR_PER_CLUSTER;
+  k.FAT_CLUSTER_SIZE = (supercluster.DataSectorStart - supercluster.pFATSectorStart)/ k.SECTOR_PER_CLUSTER;
   k.FAT_SECTOR_SIZE = k.FAT_CLUSTER_SIZE * k.SECTOR_PER_CLUSTER;
 
   k.DATA_CLUSTER_SIZE = k.DISK_CLUSTERS - (k.SUPERBLOCK_CLUSTER_SIZE + k.FAT_CLUSTER_SIZE);
@@ -38,8 +38,8 @@ struct Constants initConstants(struct t2fs_superbloco superblock) {
   
   /* Setores de inicio do disco */
   k.SUPERBLOCK_SECTOR = 0;
-  k.FAT_SECTOR = superblock.pFATSectorStart;
-  k.DATA_SECTOR = superblock.DataSectorStart;
+  k.FAT_SECTOR = supercluster.pFATSectorStart;
+  k.DATA_SECTOR = supercluster.DataSectorStart;
 
   /* Records */
   k.RECORD_PER_CLUSTER = k.CLUSTER_SIZE / RECORD_SIZE;
@@ -53,7 +53,7 @@ int initConfig() {
 
   SECTOR_T superBlock;
 
-  if(readBootBlock(&superBlock) == FALSE) {
+  if(readSuperblock(&superBlock) == FALSE) {
     return FALSE;
   };
 

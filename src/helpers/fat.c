@@ -14,7 +14,7 @@
 */
 
 void initFAT() {
-  BLOCK_T reg;
+  CLUSTER_T reg;
   unsigned int i, j;
 
   /*
@@ -27,7 +27,7 @@ void initFAT() {
   for (i = FAT_SECTOR + 1, i < constants.DISK_CLUSTERS; i++) {
 	
 	//Caso erro na leitura do cluster (i)
-    if(readBlock(i, &reg) != TRUE) {
+    if(readCluster(i, &reg) != TRUE) {
       config.indexFAT[i] = FAT_ERROR;
     }
 	

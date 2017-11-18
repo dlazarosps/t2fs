@@ -3,15 +3,15 @@
   T2FS - 2017/1
 
   Douglas Lazaro
-  Francisco Knebel
+  Douglas Lázaro
 */
 
 #include "libs.h"
 
 int truncateFile(FILE2 handle, struct descritor descritor) {
   // int registerIndex = descritor.record.MFTNumber;
-  BLOCK_T blockBuffer;
-  blockBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
+  CLUSTER_T clusterBuffer;
+  clusterBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
 /*FAT*/  
 /*
   REGISTER_T reg;
@@ -22,8 +22,8 @@ int truncateFile(FILE2 handle, struct descritor descritor) {
   struct t2fs_4tupla *tuplas = malloc(constants.MAX_TUPLAS_REGISTER * sizeof(struct t2fs_4tupla));
   parseRegister(reg.at, tuplas);
 
-  unsigned int initialBlock = descritor.currentPointer / constants.CLUSTER_SIZE;
-  unsigned int i = findOffsetTupla(tuplas, initialBlock, &reg);
+  unsigned int initialCluster = descritor.currentPointer / constants.CLUSTER_SIZE;
+  unsigned int i = findOffsetTupla(tuplas, initialCluster, &reg);
 
   unsigned int k = i+1, isDone = FALSE, notAditionalReg = TRUE;
   int contiguousLeft = 0;
@@ -39,7 +39,7 @@ int truncateFile(FILE2 handle, struct descritor descritor) {
         }
         writeTupla(reg.at, &tuplas[k], k);
 
-        contiguousLeft = tuplas[k].numberOfContiguosBlocks;
+        contiguousLeft = tuplas[k].numberOfContiguosClusters;
         while(contiguousLeft > 0) {
           // Libera blocos ocupados
           setBitmap2(tuplas[k].logicalBlockNumber + --contiguousLeft, BM_LIVRE);
@@ -81,11 +81,11 @@ int truncateFile(FILE2 handle, struct descritor descritor) {
 
   // Todos blocos depois da tupla atual estão liberados.
   // Apenas necessário liberar dentro da tupla.
-  contiguousLeft = tuplas[i].numberOfContiguosBlocks;
+  contiguousLeft = tuplas[i].numberOfContiguosClusters;
 
   // Libera blocos contiguos após o bloco atual
-  if(initialBlock + 1 < tuplas[i].numberOfContiguosBlocks) {
-    contiguousLeft = tuplas[k].numberOfContiguosBlocks - initialBlock + 1;
+  if(initialCluster + 1 < tuplas[i].numberOfContiguosClusters) {
+    contiguousLeft = tuplas[k].numberOfContiguosClusters - initialCluster + 1;
     while(contiguousLeft > 0) {
       // Libera blocos ocupados
       setBitmap2(tuplas[k].logicalBlockNumber + --contiguousLeft, BM_LIVRE);
@@ -95,7 +95,7 @@ int truncateFile(FILE2 handle, struct descritor descritor) {
   // Todos blocos depois do atual foram liberados. Apenas é necessário sinalizar o novo tamanho do arquivo.
   // Bytes posteriores ao tamanho do arquivo no disco serão ignorados na leitura.
   descritor.record.bytesFileSize = descritor.currentPointer;
-  // descritor.record.blocksFileSize = (descritor.record.bytesFileSize / constants.CLUSTER_SIZE) + 1;
+  // descritor.record.clustersFileSize = (descritor.record.bytesFileSize / constants.CLUSTER_SIZE) + 1;
 
   // Atualiza descritor na LDAA
   updateLDAA(handle, TYPEVAL_REGULAR, descritor);

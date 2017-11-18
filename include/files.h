@@ -3,7 +3,7 @@
   T2FS - 2017/1
 
   Douglas Lazaro
-  Francisco Knebel
+  Douglas Lázaro
 */
 
 #ifndef __files2__
@@ -23,7 +23,7 @@
   Saida:
     Retorna o descritor de arquivo criado.
 
-  Responsável: Francisco Knebel
+  Responsável: Douglas Lázaro
   -----------------------------------------------------------------------------*/
   struct t2fs_record createRecord(char* pathname, BYTE typeVal);
 
@@ -40,7 +40,7 @@
     Caso tudo ocorrer corretamente, retorna o handle do arquivo criado.
     Caso contrário, retorna um erro associado ao problema gerado, que é sempre < 0.
 
-  Responsável: Francisco Knebel
+  Responsável: Douglas Lázaro
   -----------------------------------------------------------------------------*/
   int createNewFile(char * filename, BYTE typeVal);
 
@@ -59,7 +59,7 @@
     Caso tudo ocorrer corretamente, retorna o índice dentro do diretório onde foi adicionado.
     Caso contrário, retorna um erro associado ao problema gerado, que é sempre < 0.
 
-  Responsável: Francisco Knebel
+  Responsável: Douglas Lázaro
   -----------------------------------------------------------------------------*/
   int addRecordToDirectory(struct t2fs_record record, char * filename, int updatingRecord);
 
@@ -80,7 +80,7 @@
     Caso tudo ocorrer corretamente, retorna o índice dentro do diretório onde foi removido.
     Caso contrário, retorna um erro associado ao problema gerado, que é sempre < 0.
 
-  Responsável: Francisco Knebel
+  Responsável: Douglas Lázaro
   -----------------------------------------------------------------------------*/
   int deleteFileFromDisk(struct t2fs_record file, char* filename);
 
@@ -96,7 +96,7 @@
     Caso tudo ocorrer corretamente, retorna o handle do arquivo aberto.
     Caso contrário, retorna um erro associado ao problema gerado, que é sempre < 0.
 
-  Responsável: Francisco Knebel
+  Responsável: Douglas Lázaro
   -----------------------------------------------------------------------------*/
   int openFile(char* filename);
 
@@ -114,7 +114,7 @@
     Caso tudo ocorrer corretamente, retorna 0.
     Caso contrário, retorna um erro associado ao problema gerado, que é sempre < 0.
 
-  Responsável: Francisco Knebel
+  Responsável: Douglas Lázaro
   -----------------------------------------------------------------------------*/
   int closeFile(int handle, BYTE TypeVal);
 
@@ -133,7 +133,7 @@
     Caso tudo ocorrer corretamente, retorna a quantidade de bytes lidos.
     Caso contrário, retorna um erro associado ao problema gerado, que é sempre < 0.
 
-  Responsável: Francisco Knebel
+  Responsável: Douglas Lázaro
   -----------------------------------------------------------------------------*/
   int readFile(int handle, struct descritor descritor, char * buffer, unsigned int size);
 
@@ -152,7 +152,7 @@
     Caso tudo ocorrer corretamente, retorna a quantidade de bytes escritos.
     Caso contrário, retorna um erro associado ao problema gerado, que é sempre < 0.
 
-  Responsável: Francisco Knebel
+  Responsável: Douglas Lázaro
   -----------------------------------------------------------------------------*/
   int writeFile(int handle, struct descritor descritor, char * buffer, unsigned int size);
 
@@ -170,7 +170,7 @@
     Caso tudo ocorrer corretamente, retorna 0.
     Caso contrário, retorna um erro associado ao problema gerado, que é sempre < 0.
 
-  Responsável: Francisco Knebel
+  Responsável: Douglas Lázaro
   -----------------------------------------------------------------------------*/
   int truncateFile(FILE2 handle, struct descritor descritor);
 
@@ -190,7 +190,7 @@
     Caso chegou no final do diretório, retorna -END_OF_DIR;
     Caso contrário, retorna um erro associado ao problema gerado, que é sempre < 0.
 
-  Responsável: Francisco Knebel
+  Responsável: Douglas Lázaro
   -----------------------------------------------------------------------------*/
   int readDirectory(DIR2 handle, struct descritor descritor, DIRENT2 *dentry);
 

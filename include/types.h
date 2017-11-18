@@ -82,7 +82,7 @@
 
   typedef struct {
     unsigned char * at;
-  } BLOCK_T; //cluster
+  } CLUSTER_T; //cluster
 
 
 #endif

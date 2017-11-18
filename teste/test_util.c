@@ -3,7 +3,7 @@
 void test_initConfig() {
   initConfig();
 
-  printBootBlock();
+  printSuperblock();
 }
 
 int main(int argc, char const *argv[]) {

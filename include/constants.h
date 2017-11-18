@@ -3,7 +3,7 @@
   T2FS - 2017/1
 
   Douglas Lazaro
-  Francisco Knebel
+  Douglas Lázaro
 
   Declarações de constantes usadas por todo o T2FS.
 */

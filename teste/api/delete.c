@@ -4,7 +4,7 @@
 
   Testes dos métodos de API: delete
 
-  Desenvolvido por Francisco Knebel
+  Desenvolvido por Douglas Lázaro
 */
 
 #include <stdio.h>
@@ -48,16 +48,16 @@ FILE2 test_executeCreate2(char * filename) {
   return handle;
 }
 
-void test_create2_showfiles_parseandprint(int block) {
-  BLOCK_T blockBuffer;
-  blockBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
+void test_create2_showfiles_parseandprint(int cluster) {
+  CLUSTER_T clusterBuffer;
+  clusterBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
   struct t2fs_record records[constants.RECORD_PER_CLUSTER];
   unsigned int i;
 
-  if(readBlock(block, &blockBuffer) == FALSE) {
+  if(readCluster(cluster, &clusterBuffer) == FALSE) {
     return;
   };
-  parseDirectory(blockBuffer, records);
+  parseDirectory(clusterBuffer, records);
 
   for (i = 0; i < constants.RECORD_PER_CLUSTER; i++) {
     printRecord(records[i]);

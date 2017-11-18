@@ -3,7 +3,7 @@
   T2FS - 2017/1
 
   Douglas Lazaro
-  Francisco Knebel
+  Douglas Lázaro
 */
 
 #include "libs.h"
@@ -20,14 +20,14 @@ int readSector(int sector, SECTOR_T* buffer) {
   return FALSE;
 }
 
-int readBlock(int block, BLOCK_T* buffer) {
+int readCluster(int cluster, CLUSTER_T* buffer) {
   unsigned int i, sector;
 
-  if (block < 0 || block > (int) constants.DISK_CLUSTERS) {
+  if (cluster < 0 || cluster > (int) constants.DISK_CLUSTERS) {
     return FALSE;
   }
 
-  sector = block * constants.SECTOR_PER_CLUSTER;
+  sector = cluster * constants.SECTOR_PER_CLUSTER;
 
   for(i = 0; i < constants.SECTOR_PER_CLUSTER; i++) {
     if (readSector(sector, (SECTOR_T*) &buffer->at[i * SECTOR_SIZE]) == FALSE) {
@@ -40,7 +40,7 @@ int readBlock(int block, BLOCK_T* buffer) {
   return TRUE;
 }
 
-int readBootBlock(SECTOR_T* buffer) {
+int readSuperblock(SECTOR_T* buffer) {
   if (read_sector(SUPERBLOCK, (unsigned char*) buffer) == 0) {
     return TRUE;
   }
@@ -48,20 +48,20 @@ int readBootBlock(SECTOR_T* buffer) {
   return FALSE;
 }
 
-int readRecord(int block, int index, struct t2fs_record * record) {
-  if(block < (int) constants.DATA_CLUSTER || block >= (int) constants.DISK_CLUSTERS || index < 0 || index >= (int) constants.RECORD_PER_CLUSTER) {
+int readRecord(int cluster, int index, struct t2fs_record * record) {
+  if(cluster < (int) constants.DATA_CLUSTER || cluster >= (int) constants.DISK_CLUSTERS || index < 0 || index >= (int) constants.RECORD_PER_CLUSTER) {
     return FALSE;
   }
 
   int offset = (index * RECORD_SIZE);
-  BLOCK_T blockBuffer;
-  blockBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
+  CLUSTER_T clusterBuffer;
+  clusterBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
 
-  if (readBlock(block, &blockBuffer) == FALSE) {
+  if (readCluster(cluster, &clusterBuffer) == FALSE) {
     return FALSE;
   }
 
-  parseRecord(blockBuffer, record, offset);
+  parseRecord(clusterBuffer, record, offset);
 
   return TRUE;
 }
@@ -78,14 +78,14 @@ int writeSector(int sector, SECTOR_T* buffer) {
   return FALSE;
 }
 
-int writeBlock(int block, BLOCK_T* buffer) {
+int writeCluster(int cluster, CLUSTER_T* buffer) {
   unsigned int i, sector;
 
-  if (block < 0 || block > (int) constants.DISK_CLUSTERS) {
+  if (cluster < 0 || cluster > (int) constants.DISK_CLUSTERS) {
     return FALSE;
   }
 
-  sector = block * constants.SECTOR_PER_CLUSTER;
+  sector = cluster * constants.SECTOR_PER_CLUSTER;
 
   for(i = 0; i < constants.SECTOR_PER_CLUSTER; i++){
     if (writeSector(sector++, (SECTOR_T*) &buffer->at[i*SECTOR_SIZE]) == FALSE) {
@@ -96,14 +96,14 @@ int writeBlock(int block, BLOCK_T* buffer) {
   return TRUE;
 }
 
-int writeRecord(int block, int index, struct t2fs_record record) {
-  if(block < (int) constants.DATA_CLUSTER || block >= (int) constants.DISK_CLUSTERS || index < 0 || index >= (int) constants.RECORD_PER_CLUSTER) {
+int writeRecord(int cluster, int index, struct t2fs_record record) {
+  if(cluster < (int) constants.DATA_CLUSTER || cluster >= (int) constants.DISK_CLUSTERS || index < 0 || index >= (int) constants.RECORD_PER_CLUSTER) {
     return FALSE;
   }
 
   int sector_offset = index / constants.SECTOR_PER_CLUSTER;
   int record_offset = index % constants.SECTOR_PER_CLUSTER;
-  int sector = block * constants.SECTOR_PER_CLUSTER + sector_offset;
+  int sector = cluster * constants.SECTOR_PER_CLUSTER + sector_offset;
   SECTOR_T sectorBuffer;
 
   if(readSector(sector, &sectorBuffer) == FALSE) {
@@ -117,11 +117,11 @@ int writeRecord(int block, int index, struct t2fs_record record) {
   return TRUE;
 }
 
-int resetBlock(int block) {
-  BLOCK_T tempBlock;
+int resetCluster(int cluster) {
+  CLUSTER_T tempCluster;
 
-  tempBlock.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
-  memset(tempBlock.at, 0, sizeof(unsigned char) * constants.CLUSTER_SIZE);
+  tempCluster.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
+  memset(tempCluster.at, 0, sizeof(unsigned char) * constants.CLUSTER_SIZE);
 
-  return writeBlock(block, &tempBlock);
+  return writeCluster(cluster, &tempCluster);
 }

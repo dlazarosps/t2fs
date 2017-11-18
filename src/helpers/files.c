@@ -3,7 +3,7 @@
   T2FS - 2017/1
 
   Douglas Lazaro
-  Francisco Knebel
+  Douglas Lázaro
 */
 
 #include "libs.h"
@@ -113,26 +113,26 @@ int parsePath(char* path, char ** elements) {
 int findRecord(int FATvector, char* name, struct t2fs_record * record) {
   /*FAT find*/
   /*
-  BLOCK_T blockBuffer;
-  blockBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
+  CLUSTER_T clusterBuffer;
+  clusterBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
 
   struct t2fs_record records[constants.RECORD_PER_CLUSTER];
   int returnValue = TRUE;
   int foundFile = FALSE;
-  unsigned int amountOfBlocksRead = 0;
-  unsigned int currentBlock, i = 0;
+  unsigned int amountOfClustersRead = 0;
+  unsigned int currentCluster, i = 0;
 
   switch (tupla.atributeType) {
     case REGISTER_MAP:
-      while(amountOfBlocksRead < tupla.numberOfContiguosBlocks && foundFile != TRUE) {
-        currentBlock = tupla.logicalBlockNumber + amountOfBlocksRead;
-        amountOfBlocksRead++;
+      while(amountOfClustersRead < tupla.numberOfContiguosClusters && foundFile != TRUE) {
+        currentCluster = tupla.logicalBlockNumber + amountOfClustersRead;
+        amountOfClustersRead++;
 
-        if(readBlock(currentBlock, &blockBuffer) == FALSE) {
+        if(readCluster(currentCluster, &clusterBuffer) == FALSE) {
           return FALSE;
         };
 
-        parseDirectory(blockBuffer, records);
+        parseDirectory(clusterBuffer, records);
 
         for (i = 0; i < constants.RECORD_PER_CLUSTER && foundFile != TRUE; i++) {
           if(strcmp(records[i].name, name) == 0 && (records[i].TypeVal == TYPEVAL_REGULAR || records[i].TypeVal == TYPEVAL_DIRETORIO)) { // FILE NAME FOUND
@@ -252,7 +252,7 @@ int lookup(char* pathname, struct t2fs_record * fileRecord) {
   return -1;
 }
 
-struct t2fs_record initRecord(BYTE typeVal, char* name, DWORD blocksFileSize, DWORD bytesFileSize, DWORD MFTNumber) {
+struct t2fs_record initRecord(BYTE typeVal, char* name, DWORD clustersFileSize, DWORD bytesFileSize, DWORD MFTNumber) {
   struct t2fs_record record;
 
   memset(&record, 0, sizeof(record));

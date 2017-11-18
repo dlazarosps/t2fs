@@ -4,7 +4,7 @@
 
   Testes dos métodos de API: write
 
-  Desenvolvido por Francisco Knebel
+  Desenvolvido por Douglas Lázaro
 */
 
 #include <time.h>
@@ -116,7 +116,7 @@ void test_writeRoot(char* path, int size, char* buffer) {
   close2(handle);
 }
 
-void test_writeBlock(char* path) {
+void test_writeCluster(char* path) {
   int handle = open2(path);
 
   int i = 0, loops = 16, bytesPerWrite = 64;
@@ -128,11 +128,11 @@ void test_writeBlock(char* path) {
   readAndPrint(handle, path, size);
 
   printf("\n\n");
-  BLOCK_T block;
-  block.at = malloc(sizeof(char) * constants.CLUSTER_SIZE);
+  CLUSTER_T cluster;
+  cluster.at = malloc(sizeof(char) * constants.CLUSTER_SIZE);
 
-  readBlock(2052, &block);
-  printBlock(block.at);
+  readCluster(2052, &cluster);
+  printCluster(cluster.at);
 
   close2(handle);
 }
@@ -149,23 +149,23 @@ void test_contiguousBlocks(char* path) {
   readAndPrint(handle, path, size);
 
   printf("\n\n");
-  BLOCK_T block1, block2, block3;
-  block1.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
-  block2.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
-  block3.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
+  CLUSTER_T cluster1, cluster2, cluster3;
+  cluster1.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
+  cluster2.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
+  cluster3.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
 
   /*
-  readBlock(2052, &block1);
-  readBlock(2053, &block2);
-  readBlock(2054, &block3);
-  printBlock(block1.at);
-  printBlock(block2.at);
-  printBlock(block3.at);
+  readCluster(2052, &cluster1);
+  readCluster(2053, &cluster2);
+  readCluster(2054, &cluster3);
+  printCluster(cluster1.at);
+  printCluster(cluster2.at);
+  printCluster(cluster3.at);
   */
 
-  free(block1.at);
-  free(block2.at);
-  free(block3.at);
+  free(cluster1.at);
+  free(cluster2.at);
+  free(cluster3.at);
 
   close2(handle);
 }
@@ -193,37 +193,37 @@ void test_contiguousBlocksThenMap(char* path, char* newFileName) {
   readAndPrint(handle, path, size*2);
 
   printf("\n\n");
-  BLOCK_T block1, block2, block3, block4, block5, block6;
-  block1.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
-  block2.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
-  block3.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
-  block4.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
-  block5.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
-  block6.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
+  CLUSTER_T cluster1, cluster2, cluster3, cluster4, cluster5, cluster6;
+  cluster1.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
+  cluster2.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
+  cluster3.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
+  cluster4.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
+  cluster5.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
+  cluster6.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
 
   /*
-  readBlock(2052, &block1);
-  readBlock(2053, &block2);
-  readBlock(2054, &block3);
+  readCluster(2052, &cluster1);
+  readCluster(2053, &cluster2);
+  readCluster(2054, &cluster3);
 
-  readBlock(2058, &block1);
-  readBlock(2059, &block2);
-  readBlock(2060, &block3);
+  readCluster(2058, &cluster1);
+  readCluster(2059, &cluster2);
+  readCluster(2060, &cluster3);
 
-  printBlock(block1.at);
-  printBlock(block2.at);
-  printBlock(block3.at);
-  printBlock(block4.at);
-  printBlock(block5.at);
-  printBlock(block6.at);
+  printCluster(cluster1.at);
+  printCluster(cluster2.at);
+  printCluster(cluster3.at);
+  printCluster(cluster4.at);
+  printCluster(cluster5.at);
+  printCluster(cluster6.at);
   */
 
-  free(block1.at);
-  free(block2.at);
-  free(block3.at);
-  free(block4.at);
-  free(block5.at);
-  free(block6.at);
+  free(cluster1.at);
+  free(cluster2.at);
+  free(cluster3.at);
+  free(cluster4.at);
+  free(cluster5.at);
+  free(cluster6.at);
 
   close2(handle);
   close2(handle2);
@@ -263,7 +263,7 @@ void test_write2() {
 
   //test_openFileAndWrite("/file2");
 
-  //test_writeBlock("/file2");
+  //test_writeCluster("/file2");
 
   test_contiguousBlocks("/file2");
 

@@ -3,7 +3,7 @@
   T2FS - 2017/1
 
   Douglas Lazaro
-  Francisco Knebel
+  Douglas Lázaro
 */
 
 #ifndef __helperfiles__
@@ -21,7 +21,7 @@
     TRUE se tudo ok.
     FALSE se há algum caractere ou regra inválida.
 
-  Responsável: Francisco Knebel
+  Responsável: Douglas Lázaro
   -----------------------------------------------------------------------------*/
   int validPath(char* path);
 
@@ -35,7 +35,7 @@
 
   Saída: Retorna TRUE se tudo ok.
 
-  Responsável: Francisco Knebel
+  Responsável: Douglas Lázaro
   -----------------------------------------------------------------------------*/
   int getFileDirectory(char* path, char* directory);
 
@@ -51,7 +51,7 @@
     Se tudo ocorreu corretamente, retorna a quantidade de elementos
     Caso a path seja inválida, retorna FALSE.
 
-  Responsável: Francisco Knebel
+  Responsável: Douglas Lázaro
   -----------------------------------------------------------------------------*/
   int parsePath(char* path, char ** elements);
 
@@ -72,7 +72,7 @@
     Caso ocorreu algum erro de leitura, retorna um número negativo, associado ao tipo de erro.
     Os tipos de erro estão todos no arquivo de header constants.h
 
-  Responsável: Francisco Knebel
+  Responsável: Douglas Lázaro
   -----------------------------------------------------------------------------*/
   int lookup(char* pathname, struct t2fs_record * fileRecord);
 
@@ -88,9 +88,9 @@
     No caso do initNewRegister e initFileRegister, o retorno é desprezível.
     Nos demais casos, retorna a estrutura preenchida.
 
-  Responsável: Francisco Knebel
+  Responsável: Douglas Lázaro
   -----------------------------------------------------------------------------*/
-  struct t2fs_record initRecord(BYTE typeVal, char* name, DWORD blocksFileSize, DWORD bytesFileSize, DWORD MFTNumber);
+  struct t2fs_record initRecord(BYTE typeVal, char* name, DWORD clustersFileSize, DWORD bytesFileSize, DWORD MFTNumber);
 
 
   DIRENT2 initDentry(struct t2fs_record record);

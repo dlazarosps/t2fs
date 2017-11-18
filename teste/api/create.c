@@ -4,7 +4,7 @@
 
   Testes dos métodos de API: create
 
-  Desenvolvido por Francisco Knebel
+  Desenvolvido por Douglas Lázaro
 */
 
 
@@ -83,16 +83,16 @@ void test_create2_root() {
   test_executeCreate2(path3);
 }
 
-void test_create2_showfiles_parseandprint(int block) {
-  BLOCK_T blockBuffer;
-  blockBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
+void test_create2_showfiles_parseandprint(int cluster) {
+  CLUSTER_T clusterBuffer;
+  clusterBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
   struct t2fs_record records[constants.RECORD_PER_CLUSTER];
   int i;
 
-  if(readBlock(block, &blockBuffer) == FALSE) {
+  if(readCluster(cluster, &clusterBuffer) == FALSE) {
     return;
   };
-  parseDirectory(blockBuffer, records);
+  parseDirectory(clusterBuffer, records);
 
   for (i = 0; i < constants.RECORD_PER_CLUSTER; i++) {
     printRecord(records[i]);
@@ -108,18 +108,18 @@ void test_create2_newmap_showfiles() {
   parseRegister(reg.at, tuplas);
 
   int i = 0;
-  int blocks[constants.MAX_TUPLAS_REGISTER];
+  int clusters[constants.MAX_TUPLAS_REGISTER];
 
   while(tuplas[i].atributeType != REGISTER_FIM) {
     // printTupla(tuplas[i]);
-    blocks[i] = tuplas[i].logicalBlockNumber;
+    clusters[i] = tuplas[i].logicalBlockNumber;
 
     i++;
   }
 
-  test_create2_showfiles_parseandprint(blocks[0]);
+  test_create2_showfiles_parseandprint(clusters[0]);
   getchar();
-  test_create2_showfiles_parseandprint(blocks[1]);
+  test_create2_showfiles_parseandprint(clusters[1]);
   getchar();
 }
 

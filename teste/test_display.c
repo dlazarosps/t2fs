@@ -4,7 +4,7 @@
 
 	Display de setores fornecido.
 
-	Modificações por Francisco Knebel
+	Modificações por Douglas Lázaro
 */
 
 #include "libs.h"

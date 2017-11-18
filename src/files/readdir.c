@@ -3,7 +3,7 @@
   T2FS - 2017/1
 
   Douglas Lazaro
-  Francisco Knebel
+  Douglas Lázaro
 */
 
 #include "libs.h"
@@ -11,8 +11,8 @@
 int readDirectory(DIR2 handle, struct descritor descritor, DIRENT2 *dentry) {
   int return_value = -1;
 
-  BLOCK_T blockBuffer;
-  blockBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
+  CLUSTER_T clusterBuffer;
+  clusterBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
 
 /*FAT*/
 /*
@@ -24,19 +24,19 @@ int readDirectory(DIR2 handle, struct descritor descritor, DIRENT2 *dentry) {
   struct t2fs_4tupla *tuplas = malloc(constants.MAX_TUPLAS_REGISTER * sizeof(struct t2fs_4tupla));
   parseRegister(reg.at, tuplas);
 
-  unsigned int initialBlock = descritor.currentPointer / constants.CLUSTER_SIZE;
+  unsigned int initialCluster = descritor.currentPointer / constants.CLUSTER_SIZE;
   unsigned int recordIndex = (descritor.currentPointer % constants.CLUSTER_SIZE) / RECORD_SIZE;
-  unsigned int i = findOffsetTupla(tuplas, initialBlock, &reg);
+  unsigned int i = findOffsetTupla(tuplas, initialCluster, &reg);
 
-  unsigned int currentBlock = tuplas[i].logicalBlockNumber + initialBlock;
+  unsigned int currentCluster = tuplas[i].logicalBlockNumber + initialCluster;
   struct t2fs_record records[constants.RECORD_PER_CLUSTER];
-  //printf("CP: %d, IB: %d, RI: %d, i: %d, CB: %d\n", descritor.currentPointer, initialBlock, recordIndex, i, currentBlock);
+  //printf("CP: %d, IB: %d, RI: %d, i: %d, CB: %d\n", descritor.currentPointer, initialCluster, recordIndex, i, currentCluster);
 
-  if(readBlock(currentBlock, &blockBuffer) == FALSE) {
+  if(readCluster(currentCluster, &clusterBuffer) == FALSE) {
     return FALSE;
   };
 
-  parseDirectory(blockBuffer, records);
+  parseDirectory(clusterBuffer, records);
 
   struct t2fs_record file = records[recordIndex];
   DIRENT2 dirEntry_temp;
@@ -57,14 +57,14 @@ int readDirectory(DIR2 handle, struct descritor descritor, DIRENT2 *dentry) {
       }
     }
 
-    currentBlock = initialBlock+1;
+    currentCluster = initialCluster+1;
     // Verificar nos blocos contiguos se há mais arquivos
-    while(currentBlock < tuplas[i].numberOfContiguosBlocks && foundFile != TRUE){
-        if(readBlock(currentBlock, &blockBuffer) == FALSE) {
+    while(currentCluster < tuplas[i].numberOfContiguosClusters && foundFile != TRUE){
+        if(readCluster(currentCluster, &clusterBuffer) == FALSE) {
           return FALSE;
         };
 
-        parseDirectory(blockBuffer, records);
+        parseDirectory(clusterBuffer, records);
         recordIndex = (descritor.currentPointer % constants.CLUSTER_SIZE) / RECORD_SIZE;
 
         if(records[recordIndex].TypeVal != TYPEVAL_DIRETORIO && records[recordIndex].TypeVal != TYPEVAL_REGULAR) {
@@ -92,7 +92,7 @@ int readDirectory(DIR2 handle, struct descritor descritor, DIRENT2 *dentry) {
      }
 
      if(foundFile != TRUE)
-      currentBlock++;
+      currentCluster++;
   }
 
     // Verifica nas tuplas seguintes se há mais arquivos
@@ -112,13 +112,13 @@ int readDirectory(DIR2 handle, struct descritor descritor, DIRENT2 *dentry) {
             i = 0;
           
           case REGISTER_MAP:
-               currentBlock = tuplas[i].logicalBlockNumber + initialBlock;
+               currentCluster = tuplas[i].logicalBlockNumber + initialCluster;
 
-               if(readBlock(currentBlock, &blockBuffer) == FALSE) {
+               if(readCluster(currentCluster, &clusterBuffer) == FALSE) {
                  return FALSE;
                };
 
-               parseDirectory(blockBuffer, records);
+               parseDirectory(clusterBuffer, records);
                recordIndex = (descritor.currentPointer % constants.CLUSTER_SIZE) / RECORD_SIZE;
 
                if(records[recordIndex].TypeVal != TYPEVAL_DIRETORIO && records[recordIndex].TypeVal != TYPEVAL_REGULAR) {

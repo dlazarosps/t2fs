@@ -4,7 +4,7 @@
 
   Testes dos métodos de src/disk.c
 
-  Desenvolvido por Francisco Knebel
+  Desenvolvido por Douglas Lázaro
 */
 
 #include "libs.h"
@@ -19,29 +19,29 @@ void test_readSector() {
   printf("-- ENCERROU READ SECTOR --\n");
 }
 
-void test_readBlock() {
-  printf("-- READ BLOCK --\n");
-  BLOCK_T blockBuffer;
-  blockBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
+void test_readCluster() {
+  printf("-- READ CLUSTER --\n");
+  CLUSTER_T clusterBuffer;
+  clusterBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
 
-  readBlock(1, &blockBuffer);
-  printBlock(blockBuffer.at);
+  readCluster(1, &clusterBuffer);
+  printCluster(clusterBuffer.at);
 
-  printf("-- ENCERROU READ BLOCK --\n");
+  printf("-- ENCERROU READ CLUSTER --\n");
 }
 
-void test_showBlock() {
-  printf("-- SHOW BLOCK --\n");
+void test_showCluster() {
+  printf("-- SHOW CLUSTER --\n");
 
   /* Mostrar blocos de importância */
-  printf("-- BOOT BLOCK --\n");
-  showBlock(constants.SUPERBLOCK_CLUSTER);
-  printf("-- MFT BLOCK --\n");
-  showBlock(constants.FAT_CLUSTER);
-  printf("-- DATA BLOCK --\n");
-  showBlock(constants.DATA_CLUSTER);
+  printf("-- BOOT CLUSTER --\n");
+  showCluster(constants.SUPERBLOCK_CLUSTER);
+  printf("-- MFT CLUSTER --\n");
+  showCluster(constants.FAT_CLUSTER);
+  printf("-- DATA CLUSTER --\n");
+  showCluster(constants.DATA_CLUSTER);
 
-  printf("-- ENCERROU SHOW BLOCK --\n");
+  printf("-- ENCERROU SHOW CLUSTER --\n");
 }
 
 void test_writeSector() {
@@ -65,28 +65,28 @@ void test_writeSector() {
   printf("-- ENCERROU WRITE SECTOR --\n");
 }
 
-void test_writeBlock() {
-  printf("-- WRITE BLOCK --\n");
+void test_writeCluster() {
+  printf("-- WRITE CLUSTER --\n");
 
-  BLOCK_T blockBuffer, blockBufferBackup;
-  blockBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
-  blockBufferBackup.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
+  CLUSTER_T clusterBuffer, clusterBufferBackup;
+  clusterBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
+  clusterBufferBackup.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
 
-  readBlock(0, &blockBuffer);
-  readBlock(1, &blockBufferBackup);
+  readCluster(0, &clusterBuffer);
+  readCluster(1, &clusterBufferBackup);
 
-  writeBlock(1, &blockBuffer);
+  writeCluster(1, &clusterBuffer);
 
   // Mostra bloco modificado
-  readBlock(1, &blockBuffer);
-  printBlock(blockBuffer.at);
+  readCluster(1, &clusterBuffer);
+  printCluster(clusterBuffer.at);
 
   // Restaura bloco modificado
-  writeBlock(1, &blockBufferBackup);
-  readBlock(1, &blockBuffer);
-  printBlock(blockBuffer.at);
+  writeCluster(1, &clusterBufferBackup);
+  readCluster(1, &clusterBuffer);
+  printCluster(clusterBuffer.at);
 
-  printf("-- ENCERROU WRITE BLOCK --\n");
+  printf("-- ENCERROU WRITE CLUSTER --\n");
 }
 
 void test_readRegister() {
@@ -178,8 +178,8 @@ void test_readRecord() {
   printf("-- ENCERROU READ RECORD --\n");
 }
 
-void test_executeWriteRecord(int block, int index, struct t2fs_record record) {
-  if (writeRecord(block, index, record) == FALSE) {
+void test_executeWriteRecord(int cluster, int index, struct t2fs_record record) {
+  if (writeRecord(cluster, index, record) == FALSE) {
     printf("Erro no write record: ");
 
     if(index >= constants.RECORD_PER_CLUSTER) {
@@ -190,11 +190,11 @@ void test_executeWriteRecord(int block, int index, struct t2fs_record record) {
       printf("Index passado menor do que %d. ", 0);
     }
 
-    if(block >= constants.DISK_CLUSTERS) {
+    if(cluster >= constants.DISK_CLUSTERS) {
       printf("Número de bloco maior do que %d (acima do limite do disco). ", constants.DISK_CLUSTERS -1);
     }
 
-    if(block < constants.DATA_CLUSTER) {
+    if(cluster < constants.DATA_CLUSTER) {
       printf("Número de bloco menor do que %d (antes do bloco de dados). ", constants.DATA_CLUSTER);
     }
 
@@ -237,14 +237,14 @@ void test_writeRecord() {
   test_executeWriteRecord(constants.DISK_CLUSTERS, 15, record2);
 
   printf("\nImprimindo diretório alterado...\n");
-  BLOCK_T blockBuffer;
-  blockBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
+  CLUSTER_T clusterBuffer;
+  clusterBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
   struct t2fs_record records[constants.RECORD_PER_CLUSTER];
 
-  if(readBlock(3000, &blockBuffer) == FALSE) {
+  if(readCluster(3000, &clusterBuffer) == FALSE) {
     return;
   };
-  parseDirectory(blockBuffer, records);
+  parseDirectory(clusterBuffer, records);
 
   int i;
   for (i = 0; i < constants.RECORD_PER_CLUSTER; i++) {
@@ -282,17 +282,17 @@ int main(int argc, char const *argv[]) {
   /* READ SECTOR */
   test_readSector();
 
-  /* READ BLOCK */
-  test_readBlock();
+  /* READ CLUSTER */
+  test_readCluster();
 
-  /* SHOW BLOCK */
-  test_showBlock();
+  /* SHOW CLUSTER */
+  test_showCluster();
 
   /* WRITE SECTOR */
   test_writeSector();
 
-  /* WRITE BLOCK */
-  test_writeBlock();
+  /* WRITE CLUSTER */
+  test_writeCluster();
 
   /* READ REGISTER */
   test_readRegister();

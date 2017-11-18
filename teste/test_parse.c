@@ -2,7 +2,7 @@
   INF01142 - Sistemas Operacionais I
   T2FS - 2017/1
 
-  Testes desenvolvidos por Francisco Knebel
+  Testes desenvolvidos por Douglas Lázaro
 */
 
 #include <stdio.h>
@@ -11,20 +11,19 @@
 
 #include "libs.h"
 
-void test_parseBootBlock() {
+void test_parseSuperblock() {
   printf("\n--- Teste de parsing do bloco de boot ---\n\n");
 
-  SECTOR_T bootBlock;
-  struct BootBlock config;
+  SECTOR_T Superblock;
+  struct Superblock config;
 
-  readSector(0, &bootBlock);
+  readSector(0, &Superblock);
 
-  config = parseBootBlock(bootBlock.at);
+  config = parseSuperblock(Superblock.at);
 
   printf("ID: %s\n", config.id);
   printf("Version: %s\n", config.version);
-  printf("Block Size: %d\n", config.blockSize);
-  printf("MFT Blocks Size: %d\n", config.MFTBlocksSize);
+  printf("Block Size: %d\n", config.clusterSize);
   printf("Disk Sector Size: %d\n", config.diskSectorSize);
 
   printf("\n--- Encerrou parsing do bloco de boot ---\n\n");
@@ -55,15 +54,15 @@ void test_parseRegister() {
 void test_parseDirectory() {
   printf("\n--- Teste de parsing de diretório ---\n\n");
 
-  BLOCK_T blockBuffer;
-  blockBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
+  CLUSTER_T clusterBuffer;
+  clusterBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
   struct t2fs_record records[constants.RECORD_PER_CLUSTER];
 
-  if(readBlock(2050, &blockBuffer) == FALSE) {
+  if(readCluster(2050, &clusterBuffer) == FALSE) {
     return;
   };
 
-  parseDirectory(blockBuffer, records);
+  parseDirectory(clusterBuffer, records);
   int i;
   for (i = 0; i < constants.RECORD_PER_CLUSTER; i++) {
     printRecord(records[i]);
@@ -76,7 +75,7 @@ int main(int argc, char const *argv[]) {
   initConfig();
 
   // PARSE BOOT BLOCK
-  //test_parseBootBlock();
+  //test_parseSuperblock();
 
   /* Parse Register */
   test_parseRegister();

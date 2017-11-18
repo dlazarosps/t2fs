@@ -3,7 +3,7 @@
   T2FS - 2017/1
 
   Douglas Lazaro
-  Francisco Knebel
+  Douglas Lázaro
 */
 
 #include "libs.h"
@@ -99,23 +99,23 @@ int addToDirectory(DWORD directoryMFTNumber, struct t2fs_record record, int upda
   parseRegister(reg.at, tuplas);
 
   struct t2fs_record records[constants.RECORD_PER_CLUSTER];
-  BLOCK_T blockBuffer;
-  blockBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
+  CLUSTER_T clusterBuffer;
+  clusterBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
 
-  unsigned int i = 0, amountOfBlocksRead = 0, foundSpaceToAdd = FALSE, block, fileBlocksCounter = 0;
+  unsigned int i = 0, amountOfClustersRead = 0, foundSpaceToAdd = FALSE, cluster, fileClustersCounter = 0;
   int allocated;
   while (i < constants.MAX_TUPLAS_REGISTER && foundSpaceToAdd != TRUE) {
     switch (tuplas[i].atributeType) {
       case REGISTER_MAP:
-        while(amountOfBlocksRead < tuplas[i].numberOfContiguosBlocks && foundSpaceToAdd != TRUE) {
-          block = tuplas[i].logicalBlockNumber + amountOfBlocksRead;
-          amountOfBlocksRead++;
+        while(amountOfClustersRead < tuplas[i].numberOfContiguosClusters && foundSpaceToAdd != TRUE) {
+          cluster = tuplas[i].logicalBlockNumber + amountOfClustersRead;
+          amountOfClustersRead++;
 
-          if(readBlock(block, &blockBuffer) == FALSE) {
+          if(readCluster(cluster, &clusterBuffer) == FALSE) {
             return FALSE;
           };
 
-          parseDirectory(blockBuffer, records);
+          parseDirectory(clusterBuffer, records);
 
           unsigned int j;
           for (j = 0; j < constants.RECORD_PER_CLUSTER && foundSpaceToAdd != TRUE; j++) {
@@ -131,8 +131,8 @@ int addToDirectory(DWORD directoryMFTNumber, struct t2fs_record record, int upda
           }
         }
 
-        fileBlocksCounter += amountOfBlocksRead;
-        amountOfBlocksRead = 0;
+        fileClustersCounter += amountOfClustersRead;
+        amountOfClustersRead = 0;
 
         if(foundSpaceToAdd != TRUE) {
           i++;
@@ -141,8 +141,8 @@ int addToDirectory(DWORD directoryMFTNumber, struct t2fs_record record, int upda
         break;
       case REGISTER_FIM:
         // CHEGOU AO FIM DAS TUPLAS
-        block = tuplas[i-1].logicalBlockNumber + tuplas[i-1].numberOfContiguosBlocks;
-        allocated = getBitmap2(block);
+        cluster = tuplas[i-1].logicalBlockNumber + tuplas[i-1].numberOfContiguosClusters;
+        allocated = getBitmap2(cluster);
 
         if(allocated < 0) {
           return BM_ERROR;
@@ -150,15 +150,15 @@ int addToDirectory(DWORD directoryMFTNumber, struct t2fs_record record, int upda
 
         // Possível adicionar mais um bloco contiguo para a tupla
         if(allocated == BM_LIVRE) {
-          tuplas[i-1].numberOfContiguosBlocks += 1;
+          tuplas[i-1].numberOfContiguosClusters += 1;
           writeTupla(reg.at, &tuplas[i-1], i-1);
-          setBitmap2(block, BM_OCUPADO);
+          setBitmap2(cluster, BM_OCUPADO);
 
-          resetBlock(block);
+          resetCluster(cluster);
 
           writeRegister(registerIndex, &reg);
 
-          if(writeRecord(block, 0, record) == FALSE) {
+          if(writeRecord(cluster, 0, record) == FALSE) {
             return RECORD_WRITE_ERROR;
           };
 
@@ -187,7 +187,7 @@ int addToDirectory(DWORD directoryMFTNumber, struct t2fs_record record, int upda
           }
 
           // Inicializa o novo registro.
-          initNewRegister(novoRegisterIndex, fileBlocksCounter, fileLBN);
+          initNewRegister(novoRegisterIndex, fileClustersCounter, fileLBN);
 
           // Adiciona record para o inicio do bloco, do novo registro.
           if(writeRecord(fileLBN, 0, record) == FALSE) {
@@ -208,10 +208,10 @@ int addToDirectory(DWORD directoryMFTNumber, struct t2fs_record record, int upda
             return BM_ERROR;
           }
 
-          resetBlock(newLBN);
+          resetCluster(newLBN);
 
           // Tupla atual vira um MAP, para os novos blocos do arquivo.
-          tuplas[i] = initTupla(REGISTER_MAP, fileBlocksCounter, newLBN, 1);
+          tuplas[i] = initTupla(REGISTER_MAP, fileClustersCounter, newLBN, 1);
           writeTupla(reg.at, &tuplas[i], i);
 
           // Tupla seguinte vira o novo fim do registro.

@@ -4,7 +4,7 @@
 
   Testes dos métodos de API: truncate
 
-  Desenvolvido por Francisco Knebel
+  Desenvolvido por Douglas Lázaro
 */
 
 #include <stdio.h>
@@ -86,7 +86,7 @@ void readAndPrint(int handle, char* path, int size) {
   printf("%s", newBuffer);
 }
 
-int writeContiguousBlocks(char* path) {
+int writeContiguousClusters(char* path) {
   int handle = open2(path);
 
   int i = 0, loops = 30, bytesPerWrite = 64;
@@ -100,7 +100,7 @@ int writeContiguousBlocks(char* path) {
 }
 
 void test_truncate_contiguous(char* path) {
-  int size = writeContiguousBlocks(path);
+  int size = writeContiguousClusters(path);
 
   int handle = open2(path);
 

@@ -3,7 +3,7 @@
   T2FS - 2017/1
 
   Douglas Lazaro
-  Francisco Knebel
+  Douglas Lázaro
 */
 
 #ifndef __helperutil__
@@ -14,7 +14,7 @@
     Inicialização do T2FS, para inicializar constantes e estruturas que serão
     utilizadas para execução do sistema. É chamado apenas na primeira chamada da API.
 
-  Responsável: Francisco Knebel
+  Responsável: Douglas Lázaro
   -----------------------------------------------------------------------------*/
   int initConfig();
 
@@ -32,7 +32,7 @@
   Saída:
     Retorna o valor em forma de número inteiro.
 
-  Responsável: Francisco Knebel
+  Responsável: Douglas Lázaro
   -----------------------------------------------------------------------------*/
 
   int convertTwoBytes(unsigned char* buffer, int index, char* str);

@@ -3,7 +3,7 @@
   T2FS - 2017/1
 
   Douglas Lazaro
-  Francisco Knebel
+  Douglas Lázaro
 */
 
 #include "libs.h"
@@ -23,23 +23,23 @@ int removeFileFromDirectory(DWORD directoryMFTNumber, struct t2fs_record file) {
   parseRegister(reg.at, tuplas);
 
   struct t2fs_record records[constants.RECORD_PER_CLUSTER];
-  BLOCK_T blockBuffer;
-  blockBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
+  CLUSTER_T clusterBuffer;
+  clusterBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
 
-  unsigned int i = 0, amountOfBlocksRead = 0, removedFile = FALSE, block;
+  unsigned int i = 0, amountOfClustersRead = 0, removedFile = FALSE, cluster;
 
   while (i < constants.MAX_TUPLAS_REGISTER && removedFile != TRUE) {
     switch (tuplas[i].atributeType) {
       case REGISTER_MAP:
-        while(amountOfBlocksRead < tuplas[i].numberOfContiguosBlocks && removedFile != TRUE) {
-          block = tuplas[i].logicalBlockNumber + amountOfBlocksRead;
-          amountOfBlocksRead++;
+        while(amountOfClustersRead < tuplas[i].numberOfContiguosClusters && removedFile != TRUE) {
+          cluster = tuplas[i].logicalBlockNumber + amountOfClustersRead;
+          amountOfClustersRead++;
 
-          if(readBlock(block, &blockBuffer) == FALSE) {
+          if(readCluster(cluster, &clusterBuffer) == FALSE) {
             return FALSE;
           };
 
-          parseDirectory(blockBuffer, records);
+          parseDirectory(clusterBuffer, records);
 
           unsigned int j;
           for (j = 0; j < constants.RECORD_PER_CLUSTER && removedFile != TRUE; j++) {
@@ -57,7 +57,7 @@ int removeFileFromDirectory(DWORD directoryMFTNumber, struct t2fs_record file) {
           }
         }
 
-        amountOfBlocksRead = 0;
+        amountOfClustersRead = 0;
 
         if(removedFile != TRUE) {
           i++;

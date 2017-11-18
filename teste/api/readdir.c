@@ -4,7 +4,7 @@
 
   Testes dos métodos de API: readdir
 
-  Desenvolvido por Francisco Knebel
+  Desenvolvido por Douglas Lázaro
 */
 
 #include <stdio.h>

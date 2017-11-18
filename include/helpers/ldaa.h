@@ -3,7 +3,7 @@
   T2FS - 2017/1
 
   Douglas Lazaro
-  Francisco Knebel
+  Douglas Lázaro
 */
 
 #ifndef __ldaa__
@@ -106,7 +106,7 @@ Entra: char* name -> String de até MAX_FILE_NAME_SIZE*20 para indicar a path.
 Saída: Sucesso -> handle do descritor, para uso na função searchLDAA.
     Não encontrado -> valor negativo
 
-Responsável: Francisco Knebel
+Responsável: Douglas Lázaro
 -----------------------------------------------------------------------------*/
   int findByNameLDAA(char * name);
 
@@ -117,7 +117,7 @@ Entra: char* name -> Path do arquivo que deve ser aberto.
 
 Saida: TRUE se pode adicionar, FALSE se não pode.
 
-Responsável: Francisco Knebel
+Responsável: Douglas Lázaro
 -----------------------------------------------------------------------------*/
   int canAddToLDAA(char * name);
 

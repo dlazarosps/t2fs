@@ -3,7 +3,7 @@
   T2FS - 2017/1
 
   Douglas Lazaro
-  Francisco Knebel
+  Douglas Lázaro
 
   Funções para leitura, escrita e reset de estruturas do disco.
 */
@@ -24,28 +24,28 @@
     Retorna TRUE se o setor foi lido corretamente.
     Retorna FALSE se houve um problema de leitura ou se o número de setor é inválido.
 
-  Responsável: Francisco Knebel
+  Responsável: Douglas Lázaro
   -----------------------------------------------------------------------------*/
   int readSector(int sector, SECTOR_T* buffer);
 
   /*-----------------------------------------------------------------------------
-  Função: readBlock
+  Função: readCluster
     Leitura de um bloco e armazenamento em um buffer.
 
   Entrada:
-    block: número do block que será lido.
-    buffer: endereço onde o buffer do block lido será armazenado.
+    cluster: número do cluster que será lido.
+    buffer: endereço onde o buffer do cluster lido será armazenado.
 
   Saida:
     Retorna TRUE se o bloco foi lido corretamente.
     Retorna FALSE se houve um problema de leitura ou se o número do bloco é inválido.
 
-  Responsável: Francisco Knebel
+  Responsável: Douglas Lázaro
   -----------------------------------------------------------------------------*/
-  int readBlock(int block, BLOCK_T* buffer);
+  int readCluster(int cluster, CLUSTER_T* buffer);
 
   /*-----------------------------------------------------------------------------
-  Função: readBootBlock
+  Função: readSuperblock
     Leitura especial do bloco de boot. É a primeira leitura efetuada do T2FS,
     e será usado para definir os tamanhos dos elementos do disco, utilizados
     em outros métodos.
@@ -57,9 +57,9 @@
     Retorna TRUE se o bloco foi lido corretamente.
     Retorna FALSE se houve um problema de leitura.
 
-  Responsável: Francisco Knebel
+  Responsável: Douglas Lázaro
   -----------------------------------------------------------------------------*/
-  int readBootBlock(SECTOR_T* buffer);
+  int readSuperblock(SECTOR_T* buffer);
 
   
   /*-----------------------------------------------------------------------------
@@ -67,7 +67,7 @@
     Leitura de um descritor de arquivo.
 
   Entrada:
-    block: bloco, de DATA_CLUSTER até DISK_CLUSTERS, que será lido.
+    cluster: bloco, de DATA_CLUSTER até DISK_CLUSTERS, que será lido.
     index: indice do descritor dentro do bloco de diretório.
     record: endereço onde será armazenado o descritor lido.
 
@@ -76,9 +76,9 @@
     Retorna TRUE se o descritor foi lido e armazenado corretamente.
 
 
-  Responsável: Francisco Knebel
+  Responsável: Douglas Lázaro
   -----------------------------------------------------------------------------*/
-  int readRecord(int block, int index, struct t2fs_record * record);
+  int readRecord(int cluster, int index, struct t2fs_record * record);
 
   /*-----------------------------------------------------------------------------
   Função: writeSector
@@ -92,25 +92,25 @@
     Retorna TRUE se o setor foi escrito corretamente.
     Retorna FALSE se houve um problema de escrita ou se o número de setor é inválido.
 
-  Responsável: Francisco Knebel
+  Responsável: Douglas Lázaro
   -----------------------------------------------------------------------------*/
   int writeSector(int sector, SECTOR_T* buffer);
 
   /*-----------------------------------------------------------------------------
-  Função: writeBlock
+  Função: writeCluster
     Escrita de um bloco no disco.
 
   Entrada:
-    block: número do block que será escrito.
+    cluster: número do cluster que será escrito.
     buffer: endereço do buffer de bloco que será usado para a escrita.
 
   Saida:
     Retorna TRUE se o bloco foi escrito corretamente.
     Retorna FALSE se houve um problema de escrita ou se o número do bloco é inválido.
 
-  Responsável: Francisco Knebel
+  Responsável: Douglas Lázaro
   -----------------------------------------------------------------------------*/
-  int writeBlock(int block, BLOCK_T* buffer);
+  int writeCluster(int cluster, CLUSTER_T* buffer);
 
 
   /*-----------------------------------------------------------------------------
@@ -118,7 +118,7 @@
     Escrita de um descritor de arquivo.
 
   Entrada:
-    block: bloco, de DATA_CLUSTER até DISK_CLUSTERS, que será lido.
+    cluster: bloco, de DATA_CLUSTER até DISK_CLUSTERS, que será lido.
     index: indice do descritor dentro do bloco de diretório.
     record: descritor que será armazenado no disco.
 
@@ -127,25 +127,25 @@
     Retorna TRUE se o descritor foi escrito corretamente.
 
 
-  Responsável: Francisco Knebel
+  Responsável: Douglas Lázaro
   -----------------------------------------------------------------------------*/
-  int writeRecord(int block, int index, struct t2fs_record record);
+  int writeRecord(int cluster, int index, struct t2fs_record record);
 
 
   /*-----------------------------------------------------------------------------
-  Função: resetBlock
+  Função: resetCluster
     Reset de um bloco no disco com 0's.
 
   Entrada:
-    block: indice do bloco que deve ser resetado.
+    cluster: indice do bloco que deve ser resetado.
 
   Saida:
     Retorna TRUE se o bloco foi escrito corretamente.
     Retorna FALSE se houve um problema de escrita ou se o número do bloco é inválido.
 
-  Responsável: Francisco Knebel
+  Responsável: Douglas Lázaro
   -----------------------------------------------------------------------------*/
-  int resetBlock(int block);
+  int resetCluster(int cluster);
 
 
 #endif

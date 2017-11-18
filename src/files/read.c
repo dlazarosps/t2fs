@@ -3,7 +3,7 @@
   T2FS - 2017/1
 
   Douglas Lazaro
-  Francisco Knebel
+  Douglas Lázaro
 */
 
 #include "libs.h"
@@ -28,12 +28,12 @@ int readFile(int handle, struct descritor descritor, char * buffer, unsigned int
   struct t2fs_4tupla *tuplas = malloc(constants.MAX_TUPLAS_REGISTER * sizeof(struct t2fs_4tupla));
   parseRegister(reg.at, tuplas);
 
-  BLOCK_T blockBuffer;
-  blockBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
+  CLUSTER_T clusterBuffer;
+  clusterBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
 
-  unsigned int i = 0, bytesRead = 0, block;
+  unsigned int i = 0, bytesRead = 0, cluster;
   unsigned int bytesLeft, cpySize;
-  unsigned int amountOfBlocksRead = 0;
+  unsigned int amountOfClustersRead = 0;
 
   if(size > descritor.record.bytesFileSize) {
     bytesLeft = descritor.record.bytesFileSize;
@@ -44,27 +44,27 @@ int readFile(int handle, struct descritor descritor, char * buffer, unsigned int
   tempBuffer = malloc(sizeof(char) * cpySize);
 
   // Achar tupla, bloco e offset inicial, de acordo com currentPointer.
-  unsigned int bytesReadFromBlock = 0;
-  unsigned int initialBlock = descritor.currentPointer / constants.CLUSTER_SIZE;
+  unsigned int bytesReadFromCluster = 0;
+  unsigned int initialCluster = descritor.currentPointer / constants.CLUSTER_SIZE;
   unsigned int initialOffset = descritor.currentPointer % constants.CLUSTER_SIZE;
-  i = findOffsetTupla(tuplas, initialBlock, &reg);
+  i = findOffsetTupla(tuplas, initialCluster, &reg);
 
   while (i < constants.MAX_TUPLAS_REGISTER && bytesLeft > (unsigned int) 0) {
     switch(tuplas[i].atributeType) {
       case REGISTER_MAP:
-        amountOfBlocksRead = initialBlock;
-        initialBlock = 0;
+        amountOfClustersRead = initialCluster;
+        initialCluster = 0;
 
-        bytesReadFromBlock = initialOffset;
-        while(amountOfBlocksRead < tuplas[i].numberOfContiguosBlocks && bytesLeft > (unsigned int) 0) {
-          block = tuplas[i].logicalBlockNumber + amountOfBlocksRead;
+        bytesReadFromCluster = initialOffset;
+        while(amountOfClustersRead < tuplas[i].numberOfContiguosClusters && bytesLeft > (unsigned int) 0) {
+          cluster = tuplas[i].logicalBlockNumber + amountOfClustersRead;
 
-          if(readBlock(block, &blockBuffer) == FALSE) {
+          if(readCluster(cluster, &clusterBuffer) == FALSE) {
             return FALSE;
           };
 
-          //printf("CP: %d, IB: %d, IO: %d\n", descritor.currentPointer, initialBlock, initialOffset);
-          //printf("BR: %d, Block: %d, BFS: %d\n", bytesRead, block, descritor.record.bytesFileSize); getchar();
+          //printf("CP: %d, IB: %d, IO: %d\n", descritor.currentPointer, initialCluster, initialOffset);
+          //printf("BR: %d, Block: %d, BFS: %d\n", bytesRead, cluster, descritor.record.bytesFileSize); getchar();
           if(bytesLeft <= constants.CLUSTER_SIZE) {
             int bytes = bytesLeft;
              // Caso de borda, se leitura vai estrapolar tamanho do arquivo.
@@ -73,7 +73,7 @@ int readFile(int handle, struct descritor descritor, char * buffer, unsigned int
               bytes = bytesLeft - (initialOffset + bytesLeft) % descritor.record.bytesFileSize;
             }
 
-            memcpy(&tempBuffer[bytesRead], &blockBuffer.at[initialOffset], bytes);
+            memcpy(&tempBuffer[bytesRead], &clusterBuffer.at[initialOffset], bytes);
             bytesRead += bytes;
             descritor.currentPointer += bytesRead;
             updateLDAA(handle, TYPEVAL_REGULAR, descritor);
@@ -82,7 +82,7 @@ int readFile(int handle, struct descritor descritor, char * buffer, unsigned int
             bytesLeft = 0;
             return_value = bytesRead;
           } else {
-            memcpy(&tempBuffer[bytesRead], &blockBuffer.at[initialOffset], constants.CLUSTER_SIZE);
+            memcpy(&tempBuffer[bytesRead], &clusterBuffer.at[initialOffset], constants.CLUSTER_SIZE);
             bytesRead += constants.CLUSTER_SIZE;
             bytesLeft -= constants.CLUSTER_SIZE;
 
@@ -98,10 +98,10 @@ int readFile(int handle, struct descritor descritor, char * buffer, unsigned int
           }
 
           // Verificação se leu até o final do bloco. Se sim, incrementa o contador.
-          bytesReadFromBlock += bytesRead;
-          if(bytesReadFromBlock >= constants.CLUSTER_SIZE ) {
-            bytesReadFromBlock = 0;
-            amountOfBlocksRead++;
+          bytesReadFromCluster += bytesRead;
+          if(bytesReadFromCluster >= constants.CLUSTER_SIZE ) {
+            bytesReadFromCluster = 0;
+            amountOfClustersRead++;
           }
 
           initialOffset = 0;
