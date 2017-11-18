@@ -152,6 +152,7 @@ $(API)/truncate: all $(API_SRC)/truncate.c
 
 # LIMPEZA #
 clean:
+	clear
 	rm -rf $(LIB_DIR)/*.a $(BIN_DIR)/*.o $(SRC_DIR)/*~ $(INC_DIR)/*~ *~
 	rm -rf $(LIB_GENERATED_OBJECTS)
 	rm -rf $(TEST_FILES)
