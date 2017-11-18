@@ -20,8 +20,6 @@ Função: Usada para iniciar a FAT
 Entra: void
 
 Saída: void
-
-Responsável: Henrique La Porta
 -----------------------------------------------------------------------------*/
   void initFAT();
 
@@ -31,39 +29,33 @@ Entra: int begin -> índice inicial
 	   int end -> índice final
 
 Saída: print dos índices da FAT entre begin e end.
-
-Responsável: Henrique La Porta
 -----------------------------------------------------------------------------*/
   void printFAT(int begin, int end);
 
 /*------------------------------------------------------------------------
-	Retorna a informação de alocação do índice FAT “registerIndex”.
+	Retorna a informação de alocação do índice FAT “clusterIndex”.
 Entra:
-	registerIndex -> numero do índice FAT cujo os 4 bytes deve ser retornado
+	clusterIndex -> numero do índice FAT cujo os 4 bytes deve ser retornado
 Retorna:
 	Sucesso: valor da alocacao: ZERO (livre) ou >0 (alocado)
 	Erro: número negativo
-
-Responsável: Henrique La Porta
 ------------------------------------------------------------------------*/
-  int getFAT(int registerIndex);
+  int getFAT(int clusterIndex);
 
 /*------------------------------------------------------------------------
-	Seta a informação de alocação do índice FAT “registerIndex”.
+	Seta a informação de alocação do índice FAT “clusterIndex”.
 	Essa informação é passada no parâmetro “allocated”.
 	Esse parâmetro pode ser:
 Entra:
-	registerIndex -> numero do índice FAT cujo os bytes devem ser setados
+	clusterIndex -> numero do índice FAT cujo os bytes devem ser setados
 	allocated -> valor a ser escrito
-		==0 -> coloca bit em LIVRE (ZERO)
-		!=0 -> coloca bit em OCUPADO
+		==0 -> coloca em LIVRE (ZERO)
+		!=0 -> coloca coloca o valor corespondente allocated
 Retorna
 	Sucesso: TRUE (1)
 	Erro: número negativo
-
-Responsável: Henrique La Porta
 ------------------------------------------------------------------------*/
-  int setFAT(int registerIndex, int allocated);
+  int setFAT(int clusterIndex, int allocated);
 
 /*------------------------------------------------------------------------
 	Procura, a partir do índice FAT “0” (zero), no vetor de índices do FAT,
@@ -75,8 +67,6 @@ Entra:
 Retorna
 	Sucesso: número do índice FAT encontrado (número >= 0)
 	Erro: número negativo
-
-Responsável: Henrique La Porta
 ------------------------------------------------------------------------*/
   int searchFAT(int allocated);
 

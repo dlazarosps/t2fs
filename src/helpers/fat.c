@@ -26,9 +26,9 @@ void initFAT() {
 
   for (i = FAT_SECTOR + 1, i < constants.DISK_CLUSTERS; i++) {
 	
-	//Caso erro na leitura do cluster (i) para execução
+	//Caso erro na leitura do cluster (i)
     if(readBlock(i, &reg) != TRUE) {
-      return;
+      config.indexFAT[i] = FAT_ERROR;
     }
 	
 	/* 
@@ -37,16 +37,6 @@ void initFAT() {
 	*/
 	config.indexFAT[i] = FAT_LIVRE;
 	
-	/*
-	//Verificar t2fs_4tupla
-    //struct t2fs_4tupla tuplaInicial = parseRegister_tupla(reg.at, 0);
-
-	//VERIFICAR - Aqui o FAT deve ocupado registra valores > 1
-    if(tuplaInicial.atributeType == (unsigned int) REGISTER_FREE) {
-      config.indexFAT[i] = FAT_LIVRE; //livre
-    } else {
-      config.indexFAT[i] = FAT_OCUPADO; //ocupado
-    } /* */
   }
 }
 
@@ -54,23 +44,34 @@ void printFAT(int begin, int end){
   int i;
   for (i = begin; i < end; ++i)
   {
-    if (config.indexMFT[i] == MFT_BM_LIVRE)
-      printf("Index MFT [%d] =  LIVRE \n",i);
+    if (config.indexFAT[i] == FAT_LIVRE)
+      printf("Index FAT [%d] =  LIVRE \n",i);
+	else if (config.indexFAT[i] == FAT_ERROR)
+      printf("Index FAT [%d] =  Cluster com ERRO \n",i);
     else
-      printf("Index MFT [%d] =  OCUPADO \n",i);
+      printf("Index FAT [%d] =  OCUPADO \n",i);
   }
 
 }
 
-int getFAT(int registerIndex){
-  return config.indexMFT[registerIndex];
+int getFAT(int clusterIndex){
+  return config.indexFAT[clusterIndex];
 }
 
-int setMFT(int registerIndex, int allocated){
+int setFAT(int clusterIndex, int allocated){
+	if(clusterIndex == SUPERBLOCK || clusterIndex == FAT_ROOT){
+		printf("Acesso a index FAT [%d] negado, indice reservado\n", clusterIndex);
+		return -1;
+	}	
 
-    config.indexMFT[registerIndex] = allocated;
+	if(config.indexFAT[clusterIndex] == FAT_ERROR){
+		printf("Acesso a index FAT [%d] negado, cluster com ERRO\n", clusterIndex);
+		return -1;
+	}
+	
+    config.indexFAT[clusterIndex] = allocated;
 
-    if (config.indexMFT[registerIndex] == allocated)
+    if (config.indexFAT[clusterIndex] == allocated)
       return TRUE;
     else
       return -1;
@@ -78,9 +79,9 @@ int setMFT(int registerIndex, int allocated){
 
 int searchFAT(int allocated){
   unsigned int i;
-  for (i = REGISTER_REGULAR; i < constants.MAX_REGISTERS; ++i)
+  for (i = REGISTER_REGULAR; i < constants.DISK_CLUSTERS; ++i)
   {
-    if (config.indexMFT[i] == allocated)
+    if (config.indexFAT[i] == allocated)
       return i;
   }
   return -1;
