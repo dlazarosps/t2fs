@@ -2,8 +2,7 @@
   INF01142 - Sistemas Operacionais I
   T2FS - 2017/1
 
-  Douglas Lazaro
-  Douglas Lázaro
+Douglas Lázaro
 
   Funções para leitura, escrita e reset de estruturas do disco.
 */
