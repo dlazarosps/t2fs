@@ -21,6 +21,7 @@
 #include "helpers/util.h"
 #include "helpers/files.h"
 #include "helpers/ldaa.h"
+#include "helpers/fat.h"
 
 #include "disk.h"
 #include "parse.h"

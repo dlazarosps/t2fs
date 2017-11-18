@@ -62,7 +62,7 @@ void showCluster(int cluster) {
 
 void printSuperblock() {
   printf("ID: %s\n", config.superbloco.id);
-  printf("Version: %s\n", config.superbloco.version);
+  printf("Version: %d\n", config.superbloco.version);
   printf("Disk Size: %d\n", config.superbloco.DiskSize);
   printf("Num of Sectors: %d\n", config.superbloco.NofSectors);
   printf("Sectors Per Cluster: %d\n", config.superbloco.SectorsPerCluster);

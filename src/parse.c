@@ -36,7 +36,7 @@ DWORD parseDiskSectorSize(unsigned char* DiskSectorSize) {
   return num;
 }
 
-WORD parseFourBytesStructure(unsigned char* structure) {
+DWORD parseFourBytesStructure(unsigned char* structure) {
   /* 00 00 00 08 => 0x08000000 => 134217728 */
   char temp[4] = "";
 
@@ -49,7 +49,7 @@ WORD parseTwoBytesStructure(unsigned char* structure) {
 
   return convertTwoBytes(structure, 0, temp);
 }
-
+/*
 void parseVersion(char* version, char* str) {
   unsigned char lowNibble = version[0] & 0x0f;
   unsigned char highNibble = (version[0] >> 4) & 0x0f;
@@ -60,12 +60,12 @@ void parseVersion(char* version, char* str) {
 
   strcpy(str, temp);
   return;
-}
+}*/
 
 struct t2fs_superbloco parseSuperBlock(unsigned char* superbloco) {
   struct t2fs_superbloco config;
 
-  char version[2] = "";
+  unsigned char version[2] = "";
   unsigned char superBlockSize[2] = "";
   unsigned char diskSize[4] = "";
   unsigned char nofSectors[4] = "";
@@ -80,7 +80,8 @@ struct t2fs_superbloco parseSuperBlock(unsigned char* superbloco) {
 
   // VERSION
   memcpy(version, superbloco + 4, 2 * sizeof(BYTE));
-  parseVersion(version, config.version);
+  config.version = parseTwoBytesStructure(version);
+  // parseVersion(version, config.version);
 
   // SUPER CLUSTER SIZE
   memcpy(superBlockSize, superbloco + 6, 2 * sizeof(BYTE));
