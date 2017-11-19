@@ -32,13 +32,13 @@ int truncateFile(FILE2 handle, struct descritor descritor) {
         break;
       default:
         vectorFAT[i] = clusterIndex;
-        aux =  indexFAT[clusterIndex];
+        aux =  config.indexFAT[clusterIndex];
         clusterIndex = aux;
         break;
     }
         i++;  
   }
-  while(config.indexFAT[clusterIndex] != FAT_EOF)
+  while(config.indexFAT[clusterIndex] != FAT_EOF);
 
   // libera todos os clusters depois do current pointer do arquivo
   unsigned int initialCluster = descritor.currentPointer / constants.CLUSTER_SIZE;
@@ -53,7 +53,7 @@ int truncateFile(FILE2 handle, struct descritor descritor) {
       i++;
     }
   }
-  while(vectorFAT[i] != -1)
+  while(vectorFAT[i] != -1);
 
 
   // Todos blocos depois do atual foram liberados. Apenas é necessário sinalizar o novo tamanho do arquivo.
