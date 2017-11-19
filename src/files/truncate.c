@@ -1,6 +1,6 @@
 /*
   INF01142 - Sistemas Operacionais I
-  T2FS - 2017/1
+  T2FS - 2017/2
 
 Douglas Lázaro
 */
@@ -8,88 +8,53 @@ Douglas Lázaro
 #include "libs.h"
 
 int truncateFile(FILE2 handle, struct descritor descritor) {
-  // int registerIndex = descritor.record.MFTNumber;
-  CLUSTER_T clusterBuffer;
-  clusterBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
-/*FAT*/  
-/*
-  REGISTER_T reg;
-  if(readRegister(registerIndex, &reg) != TRUE) {
-    return -1;
+  
+  int clusterIndex = descritor.record.firstCluster;
+  int vectorFAT[MAX_FILES_OPEN];
+  int aux, i;
+
+  // inicializa o vetor de todos o cluster do arquivo
+  for (i = 0; i < MAX_FILES_OPEN; ++i)
+  {
+    vectorFAT[i] = -1;
   }
 
-  struct t2fs_4tupla *tuplas = malloc(constants.MAX_TUPLAS_REGISTER * sizeof(struct t2fs_4tupla));
-  parseRegister(reg.at, tuplas);
+  i = 0; 
 
-  unsigned int initialCluster = descritor.currentPointer / constants.CLUSTER_SIZE;
-  unsigned int i = findOffsetTupla(tuplas, initialCluster, &reg);
-
-  unsigned int k = i+1, isDone = FALSE, notAditionalReg = TRUE;
-  int contiguousLeft = 0;
-
-  // DESALOCAR TODOS BLOCOS DAS TUPLAS POSTERIORES A ATUAL
-  while(k < constants.MAX_TUPLAS_REGISTER && isDone != TRUE) {
-    switch(tuplas[k].atributeType) {
-      case REGISTER_MAP:
-        if(k == i+1 && notAditionalReg == TRUE) {
-          tuplas[k].atributeType = REGISTER_FIM;
-        } else {
-          tuplas[k].atributeType = REGISTER_FREE;
-        }
-        writeTupla(reg.at, &tuplas[k], k);
-
-        contiguousLeft = tuplas[k].numberOfContiguosClusters;
-        while(contiguousLeft > 0) {
-          // Libera blocos ocupados
-          setBitmap2(tuplas[k].logicalBlockNumber + --contiguousLeft, BM_LIVRE);
-        }
-        k++;
-      case REGISTER_ADITIONAL:
-        tuplas[k].atributeType = REGISTER_FREE;
-        writeTupla(reg.at, &tuplas[k], k);
-        writeRegister(registerIndex, &reg);
-
-        registerIndex = tuplas[k].virtualBlockNumber;
-        readRegister(registerIndex, &reg);
-
-        setMFT(registerIndex, MFT_BM_LIVRE);
-        parseRegister(reg.at, tuplas);
-        k = 0;
-        notAditionalReg = FALSE;
-      case REGISTER_FIM:
-        if(k == i+1 && notAditionalReg == TRUE) {
-          tuplas[k].atributeType = REGISTER_FIM;
-        } else {
-          tuplas[k].atributeType = REGISTER_FREE;
-        }
-
-        writeTupla(reg.at, &tuplas[k], k);
-        writeRegister(registerIndex, &reg);
-      case REGISTER_FREE:
+  // acumula todos os clusters do arquivo a ser truncado
+  do{
+    switch(config.indexFAT[clusterIndex]){
+      case FAT_ERROR:
+      return FAT_ERROR;
+        break;
+      case FAT_EOF:
+        vectorFAT[i] = clusterIndex;
+        break;
       default:
-        isDone = TRUE;
+        vectorFAT[i] = clusterIndex;
+        aux =  indexFAT[clusterIndex];
+        clusterIndex = aux;
         break;
     }
+        i++;  
   }
+  while(config.indexFAT[clusterIndex] != FAT_EOF)
 
-  registerIndex = descritor.record.MFTNumber;
-  if(readRegister(registerIndex, &reg) != TRUE) {
-    return -1;
-  }
-  parseRegister(reg.at, tuplas);
+  // libera todos os clusters depois do current pointer do arquivo
+  unsigned int initialCluster = descritor.currentPointer / constants.CLUSTER_SIZE;
+  i = initialCluster +1;
 
-  // Todos blocos depois da tupla atual estão liberados.
-  // Apenas necessário liberar dentro da tupla.
-  contiguousLeft = tuplas[i].numberOfContiguosClusters;
-
-  // Libera blocos contiguos após o bloco atual
-  if(initialCluster + 1 < tuplas[i].numberOfContiguosClusters) {
-    contiguousLeft = tuplas[k].numberOfContiguosClusters - initialCluster + 1;
-    while(contiguousLeft > 0) {
-      // Libera blocos ocupados
-      setBitmap2(tuplas[k].logicalBlockNumber + --contiguousLeft, BM_LIVRE);
+  do{
+    if (vectorFAT[i] == -1)
+      break;
+    else{
+      aux = vectorFAT[i];
+      config.indexFAT[aux] = FAT_LIVRE;
+      i++;
     }
-  }*/
+  }
+  while(vectorFAT[i] != -1)
+
 
   // Todos blocos depois do atual foram liberados. Apenas é necessário sinalizar o novo tamanho do arquivo.
   // Bytes posteriores ao tamanho do arquivo no disco serão ignorados na leitura.
