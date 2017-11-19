@@ -50,6 +50,7 @@ int truncateFile(FILE2 handle, struct descritor descritor) {
     else{
       aux = vectorFAT[i];
       config.indexFAT[aux] = FAT_LIVRE;
+      saveFAT(aux);
       i++;
     }
   }
