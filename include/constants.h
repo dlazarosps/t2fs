@@ -50,9 +50,12 @@ Douglas Lázaro
 
 
   /* FAT */
-  #define FAT_LIVRE 0
-  #define FAT_ERROR -2
-  #define FAT_END_ARQ -1
+  #define FAT_SECTORS 128   //num de setores de fat
+  #define FAT_LIVRE 0       //0x00000000
+  #define FAT_ERROR -2      //0xFFFFFFFE bad sector
+  #define FAT_EOF -1        //0xFFFFFFFF end of fat
+  #define FAT_PER_SECTOR 64 //qntos vetores fat de 4 bytes cabem num setor  256 / 4 = 64 
+
 
   /* API */
   #define FOUND_FILE_ERROR -1

@@ -29,24 +29,24 @@ void initFAT() {
     }
 	
 	//"caminha" de 4 em 4 bytes pelo setor e salva o valor de acordo com o indice na FAT
-	for(j = 0; j <= FAT_SECTOR_SIZE-4; j += 4){
-		aux[0] = sec->at[j];
-		aux[1] = sec->at[j+1];
-		aux[2] = sec->at[j+2];
-		aux[3] = sec->at[j+3];
-		
-		int num =convertFourBytes(aux, 0, str);
-		
-		if(num != 1)		
-			config.indexFAT[index] = num;
-		else
-			config.indexFAT[index] = FAT_ERROR;
-			
-		index++;
-		//Garantia para não ocorrer Segmataton Fault no IndexFat
-		if(index >= constants.DISK_CLUSTERS)
-			return;
-	}//End FOR 2
+  	for(j = 0; j <= FAT_SECTOR_SIZE-4; j += 4){
+  		aux[0] = sec->at[j];
+  		aux[1] = sec->at[j+1];
+  		aux[2] = sec->at[j+2];
+  		aux[3] = sec->at[j+3];
+  		
+  		int num = convertFourBytes(aux, 0, str); 
+  		
+  		if(num != 1)		
+  			config.indexFAT[index] = num;
+  		else
+  			config.indexFAT[index] = FAT_ERROR;
+  			
+  		index++;
+  		//Garantia para não ocorrer Segmataton Fault no IndexFat
+  		if(index >= constants.DISK_CLUSTERS)
+  			return;
+  	}//End FOR 2
   }//End FOR 1
 }
 
@@ -95,4 +95,77 @@ int searchFAT(int allocated){
       return i;
   }
   return -1;
+}
+
+int saveFAT(int clusterIndex){
+  int setorIndex;
+  int i;
+  float cluster;
+  SECTOR_T buffer;
+
+  if(clusterIndex != 0){
+    
+    //Grava um unico setor da FAT no disco
+    
+
+    cluster = clusterIndex / FAT_PER_SECTOR;
+    setorIndex = ceilnum(cluster);
+    setorIndex = (clusterIndex % FAT_PER_SECTOR == 0) ?  setorIndex + 1 : sector;
+
+    i =  FAT_PER_SECTOR * setorIndex; 
+
+    for (i; i < i + FAT_PER_SECTOR ; ++i){
+      switch(config.indexFAT[i]){
+        case FAT_ERROR:
+          // concatenar 0xFFFFFFFE no buffer
+          break;
+        case FAT_EOF:
+          // concatenar 0xFFFFFFFF no buffer
+          break;
+        default:
+          // converter o valor em little-endian e concaternar no buffer
+          break;
+
+      }    
+    }
+
+    writeSector(setorIndex, buffer);
+
+  }
+  else{
+
+    //Grava toda a FAT no disco
+    i = 0;
+    int j;
+    for (j = 1; j <= FAT_SECTORS; ++j)
+    {
+      for (i; i < FAT_PER_SECTOR*j; ++i){
+        switch(config.indexFAT[i]){
+          case FAT_ERROR:
+            // concatenar 0xFFFFFFFE no buffer
+            break;
+          case FAT_EOF:
+            // concatenar 0xFFFFFFFF no buffer
+            break;
+          default:
+            // converter o valor em little-endian e concaternar no buffer
+            break;
+        }    
+      }
+
+      writeSector(FAT_ROOT+j, buffer);
+
+    }
+
+  }
+ return 0;
+}
+
+int ceilnum(float num){
+  int inum = (int) num;
+  if (num == (float) inum){
+    return inum;
+  }
+  
+  return inum+1;
 }

@@ -70,4 +70,17 @@ Retorna
 ------------------------------------------------------------------------*/
   int searchFAT(int allocated);
 
+/*------------------------------------------------------------------------
+	Salva setores na area de FAT.
+Entra:
+	allocated -> valor procurado
+		“0” (zero), se deve procurar por um índice FAT desalocado (LIVRE)
+		outros valores, se deve procurar por um índice FAT alocado (ALOCADO)
+Retorna
+	Sucesso: número do índice FAT encontrado (número >= 0)
+	Erro: número negativo
+------------------------------------------------------------------------*/
+  int saveFAT(int clusterIndex);
+
+
 #endif
