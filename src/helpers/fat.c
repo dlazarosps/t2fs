@@ -24,27 +24,58 @@ void initFAT() {
 	
 	//Caso erro na leitura do de algum setor do cluster da fat
     if(readSector(i, &sec) != TRUE) {
-    	printf("Erro durante a leitura de setores da FAT \n");
+    	printf("Erro durante a leitura do setor %d da FAT \n", i);
 		return;
     }
 	
 	//"caminha" de 4 em 4 bytes pelo setor e salva o valor de acordo com o indice na FAT
   	for(j = 0; j <= FAT_SECTOR_SIZE-4; j += 4){
+  		// 4 bytes = 8 nº Hexas
   		aux[0] = sec->at[j];
   		aux[1] = sec->at[j+1];
   		aux[2] = sec->at[j+2];
   		aux[3] = sec->at[j+3];
+  		aux[4] = sec->at[j+4];
+  		aux[5] = sec->at[j+5];
+  		aux[6] = sec->at[j+6];
+  		aux[7] = sec->at[j+7];
   		
   		int num = convertFourBytes(aux, 0, str); 
   		
-  		if(num != 1)		
-  			config.indexFAT[index] = num;
-  		else
-  			config.indexFAT[index] = FAT_ERROR;
-  			
+  		/*
+  			Função "temporária" com alguns testes aqui fiquei meio na duvida
+  			de exatamente qual valor é retornado pelo convertFourBytes()
+  		*/
+  		int op;
+		if(aux[0] = 'F' && aux[1] = 'F' && aux[2] = 'F' && aux[3] = 'F' && aux[4] = 'F' && aux[5] = 'F' && aux[6] = 'F'){
+			if(aux[7] = 'F')
+				op = FAT_EOF;
+			else if(aux[7] = 'E')
+				op = FAT_ERROR;
+			else
+				op = 0;
+		}
+		
+		switch(op){
+			case FAT_ERROR:
+				config.indexFAT[index] = FAT_ERROR;
+				// concatenar 0xFFFFFFFE no buffer
+				break;
+			case FAT_EOF:
+				config.indexFAT[index] = FAT_EOF;
+				// concatenar 0xFFFFFFFF no buffer
+				break;
+			default:
+				if(num != 1)		
+		  			config.indexFAT[index] = num;
+		  		else
+					config.indexFAT[index] = FAT_ERROR;
+			break;
+		}
+	
   		index++;
   		//Garantia para não ocorrer Segmataton Fault no IndexFat
-  		if(index >= constants.DISK_CLUSTERS)
+  		if(index > constants.DISK_CLUSTERS)
   			return;
   	}//End FOR 2
   }//End FOR 1
