@@ -1,6 +1,6 @@
 /*
 	INF01142 - Sistemas Operacionais I
-	T2FS - 2017/1
+	T2FS - 2017/2
 
 	Display de setores fornecido.
 
