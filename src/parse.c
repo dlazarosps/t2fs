@@ -119,10 +119,8 @@ int parseRecord(CLUSTER_T clusterBuffer, struct t2fs_record * record, int offset
 
   record->TypeVal = clusterBuffer.at[RECORD_TYPE + offset];
   memcpy(record->name, &clusterBuffer.at[RECORD_NAME + offset], MAX_FILE_NAME_SIZE * sizeof(char));
-  // record->clustersFileSize = convertFourBytes(clusterBuffer.at, RECORD_BLOCK_FILE_SIZE + offset, str);
   record->bytesFileSize = convertFourBytes(clusterBuffer.at, RECORD_BYTES_FILE_SIZE + offset, str);
-  // record->MFTNumber = convertFourBytes(clusterBuffer.at, RECORD_MFT_NUMBER + offset, str);
-  /* FAT */
+  record->firstCluster = convertFourBytes(clusterBuffer.at, RECORD_FIRST_CLUSTER + offset, str);
 
   return TRUE;
 }
