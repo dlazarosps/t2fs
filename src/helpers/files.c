@@ -109,145 +109,34 @@ int parsePath(char* path, char ** elements) {
   return i -1;
 }
 
-int findRecord(int FATvector, char* name, struct t2fs_record * record) {
-  /*FAT find*/
-  /*
-  CLUSTER_T clusterBuffer;
-  clusterBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
-
-  struct t2fs_record records[constants.RECORD_PER_CLUSTER];
-  int returnValue = TRUE;
-  int foundFile = FALSE;
-  unsigned int amountOfClustersRead = 0;
-  unsigned int currentCluster, i = 0;
-
-  switch (tupla.atributeType) {
-    case REGISTER_MAP:
-      while(amountOfClustersRead < tupla.numberOfContiguosClusters && foundFile != TRUE) {
-        currentCluster = tupla.logicalBlockNumber + amountOfClustersRead;
-        amountOfClustersRead++;
-
-        if(readCluster(currentCluster, &clusterBuffer) == FALSE) {
-          return FALSE;
-        };
-
-        parseDirectory(clusterBuffer, records);
-
-        for (i = 0; i < constants.RECORD_PER_CLUSTER && foundFile != TRUE; i++) {
-          if(strcmp(records[i].name, name) == 0 && (records[i].TypeVal == TYPEVAL_REGULAR || records[i].TypeVal == TYPEVAL_DIRETORIO)) { // FILE NAME FOUND
-            memcpy((void*) record, (void*) &records[i], RECORD_SIZE);
-
-            foundFile = TRUE;
-          }
-        }
-      }
-
-      returnValue = foundFile == TRUE ? (int) i-1 : FIND_REGISTER_NOTFOUND; // 0 to RECORD_PER_CLUSTER-1
-
-      break;
-    case REGISTER_FIM:
-      returnValue = FIND_REGISTER_FIM;
-      break;
-    case REGISTER_ADITIONAL:
-      returnValue = FIND_REGISTER_ADITIONAL;
-      break;
-    case REGISTER_FREE:
-    default:
-      returnValue = FIND_REGISTER_FREE;
-      break;
-  }
-
-  return returnValue;
-  */
-  return -1;
-}
 
 int lookup(char* pathname, struct t2fs_record * fileRecord) {
   /* FAT */
-/*
+
   char ** parsedPath = malloc(sizeof(char) * MAX_FILE_NAME_SIZE);
   unsigned int parseCount = parsePath(pathname, parsedPath);
 
   if(parseCount == FALSE) {
     return PARSED_PATH_ERROR;
   }
-  REGISTER_T root;
-  struct t2fs_4tupla * tuplas = malloc(constants.MAX_TUPLAS_REGISTER * sizeof(struct t2fs_4tupla));
-
-  if(readRegister(FAT_ROOT, &root) != TRUE) {
-    return FALSE;
+  
+  if (parseCount <= 1){         // SE for PATH RELATIVO
+    //ler FAT diretorio current
+    // procurar arquivo com o nome "pathname"
+    // SE achou 
+    //  copia para fileRecord
+    //  retorna TRUE
+    // SENAO retorna FALSE
   }
-  parseRegister(root.at, tuplas);
-
-  // ITERAR NA ÁRVORE ATÉ ACHAR FOLHA
-  unsigned int i = 0, j = 1;
-  int found = FALSE, endReached = FALSE;
-
-  while(i < constants.MAX_TUPLAS_REGISTER && endReached != TRUE) {
-    found = findRecord(tuplas[i], parsedPath[j], fileRecord);
-
-    switch (found) {
-      case FIND_REGISTER_FIM:
-      case FIND_REGISTER_FREE:
-        endReached = TRUE;
-
-        if(j < parseCount) {
-          found = DIRECTORY_NOT_FOUND;
-        }
-
-        break;
-      case FIND_REGISTER_ADITIONAL:
-        // ler novo MFT Register, indicado pelo número de bloco em tuplas[i].virtualBlockNumber
-        if(readRegister(tuplas[i].virtualBlockNumber, &root) != TRUE) {
-          return REGISTER_READ_ERROR;
-        }
-        free(tuplas);
-        tuplas = malloc(constants.MAX_TUPLAS_REGISTER * sizeof(struct t2fs_4tupla));
-
-        parseRegister(root.at, tuplas);
-
-        i = 0; // reset i para 0, começar a ler tuplas novamente
-        break;
-      case FIND_REGISTER_NOTFOUND:
-        i++; // não estava na tupla atual, parte para a próxima tupla
-        break;
-      default:
-        // fileRecord é o arquivo procurado.
-        // i indica a tupla do diretório.
-        // found indica o índice do arquivo dentro da tupla onde foi encontrado.
-
-        if(j >= parseCount) { // Verifica se arquivo é o último procurado.
-          endReached = TRUE;
-        } else {
-          // Não é o último, logo precisa descer mais um nível da árvore, indo para o registro indicado no arquivo encontrado.
-
-          if(fileRecord->TypeVal == TYPEVAL_DIRETORIO) {
-            // Se é um diretório, encontra o registro indicado pelo arquivo, e itera para o novo registro
-            if(readRegister(fileRecord->MFTNumber, &root) != TRUE) {
-              // printf("Erro lendo registro '%d'.\n", fileRecord->MFTNumber);
-              return REGISTER_READ_ERROR;
-            }
-            free(tuplas);
-            tuplas = malloc(constants.MAX_TUPLAS_REGISTER * sizeof(struct t2fs_4tupla));
-            parseRegister(root.at, tuplas);
-
-            i = 0;
-            j++;
-          } else {
-            // Se não é um arquivo de diretório, volta para a leitura do diretório atual
-            found = FIND_REGISTER_NOTFOUND; // não encontrou o arquivo correto, mas um diretório de mesmo nome.
-            i++;
-          }
-        }
-
-        break;
-    }
+  else{                         //SE for PATH ABSOLUTO
+    //ler FAT diretorio root até chegar diretorio folha
+    // procurar arquivo com o nome "pathname"
+    // SE achou 
+    //  copia para fileRecord
+    //  retorna TRUE
+    // SENAO retorna FALSE
   }
-
-  free(tuplas);
-  tuplas = NULL;
-  return found;
-*/
+  
   return -1;
 }
 
