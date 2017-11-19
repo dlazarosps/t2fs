@@ -34,11 +34,11 @@ struct t2fs_record createRecord(char* pathname, BYTE typeVal) {
 }
 
 int createNewFile(char * filename, BYTE typeVal) {
+  /* FAT */
+  /*
   struct t2fs_record file;
   int return_value = lookup(filename, &file);
-  /* FAT */
   
-  /*
   int check;
 
   switch (return_value) {
@@ -81,12 +81,13 @@ int createNewFile(char * filename, BYTE typeVal) {
       break;
   }*/
 
-  return return_value;
+  // return return_value;
+  return -1;
 }
 
 int addToDirectory(DWORD directoryMFTNumber, struct t2fs_record record, int updatingRecord) {
-  int return_value;
   /*
+  int return_value;
   int registerIndex = directoryMFTNumber;
 
   REGISTER_T reg;
@@ -250,13 +251,14 @@ int addToDirectory(DWORD directoryMFTNumber, struct t2fs_record record, int upda
     }
   }*/
 
-  return return_value;
+  // return return_value;
+  return -1;
 }
 
 int addRecordToDirectory(struct t2fs_record record, char * filename, int updatingRecord) {
-  int return_value = FALSE;
 /* FAT */
 /*
+  int return_value = FALSE;
   struct t2fs_record directory;
   char * directoryname = malloc(strlen(filename));
 
@@ -287,5 +289,6 @@ int addRecordToDirectory(struct t2fs_record record, char * filename, int updatin
       break;
   }*/
 
-  return return_value;
+  // return return_value;
+  return -1;
 }

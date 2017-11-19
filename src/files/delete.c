@@ -8,9 +8,9 @@ Douglas Lázaro
 #include "libs.h"
 
 int removeFileFromDirectory(DWORD directoryMFTNumber, struct t2fs_record file) {
-  int return_value;
 /* FAT */
 /*
+  int return_value;
   int registerIndex = directoryMFTNumber;
   REGISTER_T reg;
 
@@ -88,14 +88,15 @@ int removeFileFromDirectory(DWORD directoryMFTNumber, struct t2fs_record file) {
     }
   }*/
 
-  return return_value;
+  // return return_value;
+  return -1;
 }
 
 int deleteFileFromDisk(struct t2fs_record file, char* filename) {
-  /* Remover record do diretório */
 /* FAT */
-  int return_value = -1;
+  /* Remover record do diretório */
 /* 
+  int return_value = -1;
   char * directoryname = malloc(strlen(filename));
 
  getFileDirectory(filename, directoryname);
@@ -128,5 +129,6 @@ int deleteFileFromDisk(struct t2fs_record file, char* filename) {
   // Desalocar blocos e registros do arquivo 
   removeFileFromMFT(file);
 */
-  return return_value;
+  // return return_value;
+  return -1;
 }
