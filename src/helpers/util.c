@@ -61,7 +61,7 @@ int initConfig() {
   constants = initConstants(boot);
   
   /*FAT*/
-  unsigned int * FAT = malloc(sizeof(unsigned int) * constants.DISK_CLUSTERS);	
+  int * FAT = malloc(sizeof(int) * constants.DISK_CLUSTERS);	
   config.indexFAT = FAT;
   initFAT();
 

@@ -16,8 +16,8 @@
 void initFAT() {
   SECTOR_T sec;
   unsigned int i, j, index = 0;
-  unsigned char aux[4];
-  char* str;
+  unsigned char aux[8];
+  char str[4];
 	
 	// Ler todos os setores do cluster 1
   for (i = 0; i < constants.SECTOR_PER_CLUSTER; i++) {
