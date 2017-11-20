@@ -129,7 +129,7 @@ int lookup(char* pathname, struct t2fs_record * fileRecord) {
   }
   
   CLUSTER_T actualCluster;
-  clusterRoot.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
+  actualCluster.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
   
   struct t2fs_record list_records[constants.RECORD_PER_CLUSTER];
   
@@ -144,17 +144,61 @@ int lookup(char* pathname, struct t2fs_record * fileRecord) {
   
   if (relativePath){         // SE for PATH RELATIVO
     //ler FAT diretorio current   
-	//while(!found){
+	char* currentdir = getcwd2(pathname, sizeof(pathname)); //TEM QUE IMPLEMENTAR ESSA FUNÇÃO 
+	char ** parsedCurrent = malloc(sizeof(char) * MAX_FILE_NAME_SIZE);
+	int parseCurrentCount = parsePath(currentdir, parsedCurrent);
+	
+	while (i < parseCurrentCount){
 		
+		//Se chegou no limite ou tipo inválido, o arquivo desejado
+		//não existe.
+		if (j == constants.RECORD_PER_CLUSTER || j == -3){
+			return FILE_NOT_FOUND;
+		}
 		
-		
-	//}
+		//A partir da lista de records, se verifica o tipo.
+		switch(list_records[j].typeVal){
+			case TYPEVAL_INVALIDO:
+				j = -3;
+				i = parseCount;
+				break;
+			
+			case TYPEVAL_DIRETORIO:
+				if(strcmp(list_records[j].name, parseCurrentCount[i]) == 0 && (list_records[i].TypeVal == TYPEVAL_DIRETORIO)) { // FILE NAME FOUND
+					readCluster(list_records[i].firstCluster, &actualCluster);
+					parseDirectory(actualCluster.at, list_records);
+					i++;
+					j = 0;
+					break;
+				} else {
+					j++;
+					break;
+				}
+				
+			case TYPEVAL_REGULAR:			
+				if(strcmp(list_records[j].name, parsedPath[1]) == 0 && (list_records[j].TypeVal == TYPEVAL_REGULAR )) { // FILE NAME FOUND
+					memcpy((void*) fileRecord, (void*) &list_records[i], RECORD_SIZE);
+					found = TRUE;
+					i++;
+					break;
+				} else {
+					j++;
+					break;
+				}
+			default: 
+					found = FALSE;
+					break;
+		}
+	}
+	
+
 	// procurar arquivo com o nome "pathname"
     // SE achou 
     //  copia para fileRecord
     //  retorna TRUE
     // SENAO retorna FALSE
   }
+  
   else {                         //SE for PATH ABSOLUTO
     //ler FAT diretorio root até chegar diretorio folha
 	while (i < parseCount && endReached){
@@ -173,18 +217,18 @@ int lookup(char* pathname, struct t2fs_record * fileRecord) {
 				break;
 			
 			case TYPEVAL_DIRETORIO:
-				if(strcmp(list_records[j].name, parsedPath[i]) == 0 && (records[i].TypeVal == TYPEVAL_DIRETORIO)) { // FILE NAME FOUND
+				if(strcmp(list_records[j].name, parsedPath[i]) == 0 && (list_records[j].TypeVal == TYPEVAL_DIRETORIO)) { // FILE NAME FOUND
 					readCluster(list_records[i].firstCluster, &actualCluster);
 					parseDirectory(actualCluster.at, list_records);
 					i++;
-					j++;
+					j = 0;
 					break;
 				} else {
 					j++;
 					break;
 				}
 			case TYPEVAL_REGULAR:			
-				if(strcmp(list_records[j].name, parsedPath[i]) == 0 && (records[i].TypeVal == TYPEVAL_REGULAR )) { // FILE NAME FOUND
+				if(strcmp(list_records[j].name, parsedPath[i]) == 0 && (list_records[j].TypeVal == TYPEVAL_REGULAR )) { // FILE NAME FOUND
 					memcpy((void*) fileRecord, (void*) &list_records[i], RECORD_SIZE);
 					found = TRUE;
 					i++;
