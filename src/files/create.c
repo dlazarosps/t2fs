@@ -32,12 +32,10 @@ struct t2fs_record createRecord(char* pathname, BYTE typeVal) {
 
 int createNewFile(char * filename, BYTE typeVal) {
 	struct t2fs_record file;
-  
-	int return_value = lookup(filename, &file);
-  
+	int return_value;
 	int check;
 
-	if(return_value == TRUE){
+	if(lookup(filename, &file) == TRUE){
 		printf("Create file ERROR, o arquivo já existe \n");
 		return FALSE;
 	}
@@ -57,12 +55,12 @@ int createNewFile(char * filename, BYTE typeVal) {
 		int handle = insertLDAA(file, filename);
 
 		if(handle < 0){
-			printf("Create file ERROR, onão é possivel mais adicionar aquivos a LDAA \n");
+			printf("Create file ERROR, não foi possivel adicionar o aquivo a LDAA \n");
 			return FALSE;
 		}
 		
 	} else {
-		printf("Create file ERROR, onão é possivel mais adicionar aquivos a LDAA \n");
+		printf("Create file ERROR, não é possivel adicionar mais aquivos a LDAA \n");
 		return FALSE;
 	}
 
@@ -76,8 +74,15 @@ int addRecordToDirectory(struct t2fs_record record, char * filename, int updatin
  
 	struct t2fs_record list_records[constants.RECORD_PER_CLUSTER];
 	
-	// Aqui não deve ser o root MODIFICAR
-	if(readCluster(config.RootDirCluster, &actualCluster) != TRUE){
+	// Encontra o cluster referente ao diretório onde será criado o arquivo
+	int clusterDir = findClusterDirectory(filename);
+	if(clusterDir <= 1){
+		printf("Create file ERROR, diretório não encontrado \n");
+		return FALSE;
+	}
+	
+	// Realiza a leitura do diretorio onde irá ser criado o arquivo
+	if(readCluster(clusterDir, &actualCluster) != TRUE){
 		printf("Create file ERROR, erro durante a leitura do cluster do diretório \n");
 		return FALSE;
 	}
@@ -96,12 +101,79 @@ int addRecordToDirectory(struct t2fs_record record, char * filename, int updatin
 		return FALSE;
 	}
 	
-	//Escre o record no disco
-	// Aqui não deve ser o root MODIFICAR
-	if(writeRecord(config.RootDirCluster, recordIndex, record) != TRUE){
+	//Escreve o record no disco
+	if(writeRecord(clusterDir, recordIndex, record) != TRUE){
 		printf("Create file ERROR durante a escrita do record\n");
 		return FALSE;
 	}
 	
 	return TRUE;
 }
+
+/*
+	Retorna o cluster do ultimo diretório do pathname
+	Agora a função funciona somente para diretórios absolutos
+	Estrutura copiada da Lookup
+*/
+int findClusterDirectory(char* pathname) {
+
+	char ** parsedPath = malloc(sizeof(char) * MAX_FILE_NAME_SIZE);
+	unsigned int parseCount = parsePath(pathname, parsedPath);
+  
+	if(parseCount == FALSE) {
+		return PARSED_PATH_ERROR;
+	}
+  
+	CLUSTER_T actualCluster;
+	actualCluster.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
+
+	struct t2fs_record list_records[constants.RECORD_PER_CLUSTER];
+
+	if(readCluster(config.RootDirCluster, &actualCluster) != TRUE){
+		return FALSE;
+	}
+
+	parseDirectory(actualCluster.at, list_records);
+
+	unsigned int i = 0, j = 1;
+	int found = FALSE, endReached = FALSE;
+	int cluster = 0;
+	while (i < parseCount && endReached){
+		
+		//Se chegou no limite ou tipo inválido, o arquivo desejado
+		//não existe.
+		if (j == constants.RECORD_PER_CLUSTER || j == -3){
+			return FILE_NOT_FOUND;
+		}
+		
+		//A partir da lista de records, se verifica o tipo.
+		switch(list_records[j].typeVal){
+			case TYPEVAL_INVALIDO:
+				j = -3;
+				i = parseCount;
+				break;
+			
+			case TYPEVAL_DIRETORIO:
+				if(strcmp(list_records[j].name, parsedPath[i]) == 0 && (list_records[j].TypeVal == TYPEVAL_DIRETORIO)) { 
+					readCluster(list_records[i].firstCluster, &actualCluster);
+					parseDirectory(actualCluster.at, list_records);
+					cluster = list_records[i].firstCluster;
+					i++;
+					j = 0;
+					break;
+				} else {
+					j++;
+					break;
+				}
+			default: 
+					j++;
+					break;
+		}
+	}
+	
+	if(i < parseCount)
+		return FALSE;
+	else
+		return cluster;
+}
+
