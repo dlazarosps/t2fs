@@ -28,16 +28,8 @@ int openFile(char* filename) {
 
   struct t2fs_record file;
   int return_value = lookup(filename, &file);
-  
-/* FAT */
-/*
+
   switch (return_value) {
-    case REGISTER_READ_ERROR:
-      printf("Erro crítico na leitura de um registro no lookup.\n");
-      break;
-    case FIND_REGISTER_ADITIONAL:
-      printf("Erro! Valor de retorno de lookup nunca deve ser FIND_REGISTER_ADITIONAL.\n");
-      break;
     case PARSED_PATH_ERROR:
       printf("Path '%s' inválida.\n", filename);
       break;
@@ -52,6 +44,6 @@ int openFile(char* filename) {
         return_value = FILE_NOT_FOUND;
       }
   }
-*/
+
   return return_value;
 }
