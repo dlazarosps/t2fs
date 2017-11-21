@@ -240,7 +240,7 @@ int chdir2 (char *pathname);
 
 
 /*-----------------------------------------------------------------------------
-Função:	Função que informa o diretório atual de trabalho.
+Função:	Função usada para obter o caminho do diretório corrente.
 	O T2FS deve copiar o pathname do diretório de trabalho, incluindo o ‘\0’ do final do string, para o buffer indicado por "pathname".
 	Essa cópia não pode exceder o tamanho do buffer, informado pelo parâmetro "size".
 

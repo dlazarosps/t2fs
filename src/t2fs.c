@@ -221,3 +221,11 @@ int closedir2 (DIR2 handle) {
 
   return closeFile(handle, TYPEVAL_DIRETORIO);
 };
+
+int getcwd2 (char *pathname, int size){
+	if (!config.initiated) {
+		initConfig();
+	}
+	
+	return getCurrentDirectory(pathname, size);
+};
