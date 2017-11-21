@@ -1,20 +1,111 @@
 /*
   INF01142 - Sistemas Operacionais I
   T2FS - 2017/2
-
-Douglas Lázaro
+	
+  Rodrigo Okido
 */
 
 #include "libs.h"
 
 int readFile(int handle, struct descritor descritor, char * buffer, unsigned int size) {
+  
+  char * tempBuffer;
+  
   if(descritor.currentPointer >= descritor.record.bytesFileSize) {
     // Ponteiro após o final do arquivo.
     return 0;
   }
 
+  unsigned int descritorCluster = descritor.record.firstCluster;
   
-  int return_value = -1;
+  CLUSTER_T actualCluster;
+  actualCluster.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
+  
+  if(readCluster(descritorCluster, &actualCluster) != TRUE){
+	return FALSE;
+  }
+  
+  unsigned int i = 0, bytesRead = 0, nextCluster;
+  unsigned int bytesLeft, cpySize;
+
+  // Se size for maior que o tamanho do arquivo, atribui 
+  // bytesLeft como o tamanho do arquivo. Caso contrário,
+  // bytesLeft recebe size
+  if(size > descritor.record.bytesFileSize) {
+    bytesLeft = descritor.record.bytesFileSize;
+  } else {
+    bytesLeft = size;
+  }
+  
+  cpySize = bytesLeft;
+  
+  unsigned int initialOffset = descritor.currentPointer % constants.CLUSTER_SIZE;
+  
+  //Pega o próximo cluster do arquivo a ser lido (se houver)
+  nextCluster = getFAT(descritorCluster);
+  
+  tempBuffer = malloc(sizeof(char) * cpySize);
+  
+  //Arquivo só ocupa um cluster
+  if (nextCluster < 0){
+	  
+	int bytes = bytesLeft;
+
+    memcpy(&tempBuffer[bytesRead], &actualCluster.at[initialOffset], bytes);
+    bytesRead += bytes;
+    descritor.currentPointer += bytesRead;
+    updateLDAA(handle, TYPEVAL_REGULAR, descritor);
+
+    memcpy(buffer, tempBuffer, sizeof(char) * cpySize);
+    bytesLeft = 0;
+    return_value = bytesRead;
+
+  
+  } else {
+	  
+	  while(nextCluster > 0 && bytesLeft > (unsigned int) 0){
+		  
+		  switch(nextCluster){
+			
+			case FAT_EOF:
+				int bytes = bytesLeft;
+
+				memcpy(&tempBuffer[bytesRead], &actualCluster.at[initialOffset], bytes);
+				bytesRead += bytes;
+				descritor.currentPointer += bytesRead;
+				updateLDAA(handle, TYPEVAL_REGULAR, descritor);
+
+				memcpy(buffer, tempBuffer, sizeof(char) * cpySize);
+				bytesLeft = 0;
+				return_value = bytesRead;
+			
+				break;
+			
+			default:
+				memcpy(&tempBuffer[bytesRead], &clusterBuffer.at[initialOffset], constants.CLUSTER_SIZE);
+				bytesRead += constants.CLUSTER_SIZE;
+				bytesLeft -= constants.CLUSTER_SIZE;
+				descritor.currentPointer += bytesRead;
+				updateLDAA(handle, TYPEVAL_REGULAR, descritor);
+
+				memcpy(buffer, tempBuffer, sizeof(char) * cpySize);
+
+				return_value = bytesRead;
+				
+				nextCluster = getFAT(nextCluster);
+				readCluster(nextCluster, &actualCluster);
+
+				break;
+		  }
+		  
+		  
+	  }
+  }
+  
+  return return_value;
+  
+
+  
  /*FAT*/
  /* int registerIndex = descritor.record.MFTNumber;
   char * tempBuffer;
@@ -134,5 +225,4 @@ int readFile(int handle, struct descritor descritor, char * buffer, unsigned int
     }
   }*/
 
-  return return_value;
 }
