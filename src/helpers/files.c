@@ -139,7 +139,7 @@ int lookup(char* pathname, struct t2fs_record * fileRecord) {
   
   parseDirectory(actualCluster.at, list_records);
   
-  unsigned int i = 0, j = 1;
+  unsigned int i = 0, j = 1, k = 1;
   int found = FALSE, endReached = FALSE;
   
   if (relativePath){         // SE for PATH RELATIVO
@@ -160,11 +160,11 @@ int lookup(char* pathname, struct t2fs_record * fileRecord) {
 		switch(list_records[j].typeVal){
 			case TYPEVAL_INVALIDO:
 				j = -3;
-				i = parseCount;
+				i = parseCurrentCount;
 				break;
 			
 			case TYPEVAL_DIRETORIO:
-				if(strcmp(list_records[j].name, parseCurrentCount[i]) == 0 && (list_records[i].TypeVal == TYPEVAL_DIRETORIO)) { // FILE NAME FOUND
+				if(strcmp(list_records[j].name, parsedCurrent[i]) == 0 && (list_records[i].TypeVal == TYPEVAL_DIRETORIO)) { // FILE NAME FOUND
 					readCluster(list_records[i].firstCluster, &actualCluster);
 					parseDirectory(actualCluster.at, list_records);
 					i++;
