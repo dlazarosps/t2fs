@@ -7,128 +7,51 @@ Douglas Lázaro
 
 #include "libs.h"
 
-int removeFileFromDirectory(DWORD directoryMFTNumber, struct t2fs_record file) {
-/* FAT */
-/*
-  int return_value;
-  int registerIndex = directoryMFTNumber;
-  REGISTER_T reg;
-
-  if(readRegister(registerIndex, &reg) != TRUE) {
-    return FALSE;
-  }
-
-  struct t2fs_4tupla *tuplas = malloc(constants.MAX_TUPLAS_REGISTER * sizeof(struct t2fs_4tupla));
-  parseRegister(reg.at, tuplas);
-
-  struct t2fs_record records[constants.RECORD_PER_CLUSTER];
-  CLUSTER_T clusterBuffer;
-  clusterBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
-
-  unsigned int i = 0, amountOfClustersRead = 0, removedFile = FALSE, cluster;
-
-  while (i < constants.MAX_TUPLAS_REGISTER && removedFile != TRUE) {
-    switch (tuplas[i].atributeType) {
-      case REGISTER_MAP:
-        while(amountOfClustersRead < tuplas[i].numberOfContiguosClusters && removedFile != TRUE) {
-          cluster = tuplas[i].logicalBlockNumber + amountOfClustersRead;
-          amountOfClustersRead++;
-
-          if(readCluster(cluster, &clusterBuffer) == FALSE) {
-            return FALSE;
-          };
-
-          parseDirectory(clusterBuffer, records);
-
-          unsigned int j;
-          for (j = 0; j < constants.RECORD_PER_CLUSTER && removedFile != TRUE; j++) {
-            if(strcmp(records[j].name, file.name) == 0 && (records[j].TypeVal == TYPEVAL_REGULAR || records[j].TypeVal == TYPEVAL_DIRETORIO)) {
-              // Achou arquivo válido com o mesmo nome
-              file.TypeVal = TYPEVAL_INVALIDO;
-
-              if(writeRecord(tuplas[i].logicalBlockNumber, j, file) == FALSE) {
-                return RECORD_WRITE_ERROR;
-              };
-
-              removedFile = TRUE;
-              return_value = i;
-            }
-          }
-        }
-
-        amountOfClustersRead = 0;
-
-        if(removedFile != TRUE) {
-          i++;
-        }
-
-      break;
-    case REGISTER_FIM:
-      // CHEGOU AO FIM DAS TUPLAS E NÃO ACHOU
-      return REGISTER_FIM;
-      break;
-    case REGISTER_ADITIONAL:
-      // Ler novo registro e recomeçar a leitura.
-      registerIndex = tuplas[i].virtualBlockNumber;
-
-      if(readRegister(registerIndex, &reg) != TRUE) {
-        return FALSE;
-      }
-      free(tuplas);
-      tuplas = malloc(constants.MAX_TUPLAS_REGISTER * sizeof(struct t2fs_4tupla));
-
-      parseRegister(reg.at, tuplas);
-      i = 0; // reset i para 0, começar a ler tuplas novamente
-
-      break;
-    default:
-      return_value = FIND_REGISTER_FREE;
-      i++;
-      break;
-    }
-  }*/
-
-  // return return_value;
-  return -1;
-}
-
 int deleteFileFromDisk(struct t2fs_record file, char* filename) {
-/* FAT */
-  /* Remover record do diretório */
-/* 
-  int return_value = -1;
-  char * directoryname = malloc(strlen(filename));
+	int recordIndex = -1;
+	CLUSTER_T actualCluster; 
+	struct t2fs_record record = malloc(sizeof(t2fs_record));
 
- getFileDirectory(filename, directoryname);
+	struct t2fs_record list_records[constants.RECORD_PER_CLUSTER]
 
-  if(strcmp("/", directoryname) == 0) { // remover da root
-    return_value = removeFileFromDirectory(FAT_ROOT, file);
-  } else {
-    struct t2fs_record directory;
+	// Encontra o cluster referente ao diretório onde será criado o arquivo
+	int clusterDir = findClusterDirectory(filename);
+	if(clusterDir <= 1){
+		printf("Delete file ERROR, diretório não encontrado \n");
+		return FALSE;
+	}
 
-    return_value = lookup(directoryname, &directory);
+	// Realiza a leitura do diretorio onde irá ser criado o arquivo
+	if(readCluster(clusterDir, &actualCluster) != TRUE){
+		printf("Delete file ERROR, erro durante a leitura do cluster do diretório \n");
+		return FALSE;
+	}
+	
+	parseDirectory(actualCluster.at, list_records);
 
-    switch (return_value) {
-      case REGISTER_READ_ERROR:
-        printf("Erro crítico na leitura de um registro.\n");
-        break;
-      case FIND_REGISTER_ADITIONAL:
-        printf("ERRO! Valor de retorno de lookup nunca deve ser FIND_REGISTER_ADITIONAL.\n");
-        break;
-      case FIND_REGISTER_NOTFOUND:
-      case FIND_REGISTER_FIM:
-      case FIND_REGISTER_FREE:
-        printf("Diretório '%s' não encontrado.\n", directoryname);
-        break;
-      default:
-        return_value = removeFileFromDirectory(directory.MFTNumber, file);
-        break;
-    }
-  }
+	//Procura pelo record vazio do CLuster do diretorio
+	for(i = 0; i < constants.RECORD_PER_CLUSTER; i++){
+		if(strcmp(list_records[i].name, filename) == 0 && recordIndex < 0) //record vazio
+			recordIndex = i;
+	}
 
-  // Desalocar blocos e registros do arquivo 
-  removeFileFromMFT(file);
-*/
-  // return return_value;
-  return -1;
+	//Caso diretório cheio nenhum record vazio
+	if(recordIndex < 0){
+		printf("Celete file ERROR, record do arquivo não encontrado no diretório\n");
+		return FALSE;
+	}
+
+	//Escreve o record vazio no disco
+	if(writeRecord(clusterDir, recordIndex, record) != TRUE){
+		printf("Delete file ERROR enquanto apagava o record\n");
+		return FALSE;
+	}
+
+	//Apaga registro da fat
+	if(deleteIndexFAT(file.firstCluster) != TRUE){
+		printf("Delete file ERROR não foi possivel apagar registro da indexFat\n");
+		return FALSE;
+	}
+
+  return TRUE;
 }

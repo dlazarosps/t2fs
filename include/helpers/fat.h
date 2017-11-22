@@ -81,6 +81,17 @@ Retorna
 	Erro: número negativo
 ------------------------------------------------------------------------*/
   int saveFAT(int clusterIndex);
+  
+/*------------------------------------------------------------------------
+	Apaga todos os registros do (arquivo/diretório) iniciado pelo clusterIndex
+Entra:
+	clusterIndex = indice do cluster
+
+Retorna
+	Sucesso: setou todos index para FAT_LIVRE = TRUE
+	Erro: retorna FALSE
+------------------------------------------------------------------------*/
+  int deleteIndexFAT(int clusterIndex);
 
 
 #endif

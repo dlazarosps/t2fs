@@ -19,7 +19,7 @@ struct t2fs_record createRecord(char* pathname, BYTE typeVal) {
 	int check;
 	int fileCluster = searchFAT(FAT_LIVRE); // Encontra cluster de dados para o arquivo
   
-	check = setFAT(fileLBN, FAT_EOF); // Set o cluster como ocupado
+	check = setFAT(fileCluster, FAT_EOF); // Set o cluster como ocupado
 
 	if (check < 0) {
 		return FAT_ERROR;
@@ -35,10 +35,16 @@ int createNewFile(char * filename, BYTE typeVal) {
 	int return_value;
 	int check;
 
-	if(lookup(filename, &file) == TRUE){
+	check = lookup(filename, &file);
+	if(check == TRUE){
 		printf("Create file ERROR, o arquivo já existe \n");
 		return FALSE;
 	}
+	
+	if(check == PARSED_PATH_ERROR){
+      printf("Path '%s' inválida.\n", filename);
+      return FALSE
+    }
 
 	if(canAddToLDAA(filename)) { 
 		

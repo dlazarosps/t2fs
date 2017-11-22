@@ -200,3 +200,42 @@ int ceilnum(float num){
   
   return inum+1;
 }
+
+int deleteIndexFAT(int clusterIndex){
+	if(clusterIndex < 2){
+		printf("Acesso a index FAT [%d] negado, indice reservado\n", clusterIndex);
+		return FALSE;
+	}
+	int index = getFAT(clusterIndex);
+	
+	if(setFAT(clusterIndex, FAT_LIVRE) != TRUE){
+		printf("DeleteIndexFAT ERROR, indexFAT [%d] não foi possivel alterar o valor\n", clusterIndex);
+		return FALSE;
+	}
+	int aux;
+	while(index != FAT_EOF){
+		aux = getFAT(index);
+		if(setFAT(index, FAT_LIVRE) != TRUE){
+			printf("DeleteIndexFAT ERROR, indexFAT [%d] não foi possivel alterar o valor\n", clusterIndex);
+			return FALSE;
+		}
+		index = aux;
+	}
+	
+	return TRUE;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
