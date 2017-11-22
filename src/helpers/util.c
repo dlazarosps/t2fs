@@ -67,6 +67,8 @@ int initConfig() {
 
   initLDAA();
 
+	currentPath = openRoot("/");
+
   config.initiated = TRUE;
 
   printf("\tInicialização encerrada.\n");

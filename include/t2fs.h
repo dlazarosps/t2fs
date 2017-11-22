@@ -231,7 +231,7 @@ Função:	Altera o current path
 			(b) algum dos componentes do "pathname" não existe (caminho inválido);
 			(c) o "pathname" indicado não é um diretório;
 
-Entra:	pathname -> caminho do diretório a ser criado
+Entra:	pathname -> caminho do diretório
 
 Saída:	Se a operação foi realizada com sucesso, a função retorna "0" (zero).
 	Em caso de erro, será retornado um valor diferente de zero.

@@ -50,9 +50,6 @@ int delete2 (char *filename) {
   int handle, check;
 
   switch (return_value) {
-    case REGISTER_READ_ERROR:
-      printf("Erro crítico na leitura de um registro no lookup.\n");
-      break;
     case PARSED_PATH_ERROR:
       printf("Path '%s' inválida.\n", filename);
       break;
@@ -190,8 +187,11 @@ DIR2 opendir2 (char *pathname) {
   if (!config.initiated) {
     initConfig();
   }
-
-  return openFile(pathname);
+	DIR2 aux = openFile(pathname);
+	if(aux < 0 ) return -1;
+	
+	config.currentPath = aux;
+  return config.currentPath;
 };
 
 int readdir2 (DIR2 handle, DIRENT2 *dentry) {
@@ -225,4 +225,18 @@ int getcwd2 (char *pathname, int size){
 	}
 	
 	return getCurrentDirectory(pathname, size);
+};
+
+int chdir2 (char *pathname){
+	if (!config.initiated) {
+		initConfig();
+	}
+	DIR2 newCurrentPath;
+	
+	int check = getcwd2(pathname, sizeof(pathname));
+	if(check!=TRUE) return -1;
+	
+	newCurrentPath = opendir2(pathname);
+	if(newCurrentPath < 0) return -1;
+
 };

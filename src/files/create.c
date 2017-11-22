@@ -35,6 +35,9 @@ int createNewFile(char * filename, BYTE typeVal) {
 	int return_value;
 	int check;
 
+	int check = getcwd2(filename, sizeof(filename));
+	if(check!=TRUE) return FALSE;
+
 	check = lookup(filename, &file);
 	if(check == TRUE){
 		printf("Create file ERROR, o arquivo já existe \n");
@@ -74,14 +77,18 @@ int createNewFile(char * filename, BYTE typeVal) {
 }
 
 int addRecordToDirectory(struct t2fs_record record, char * filename, int updatingRecord) {
-	int i;
+	int i, clusterDir;
 	int recordIndex = -1;
 	CLUSTER_T actualCluster;
- 
+  
 	struct t2fs_record list_records[constants.RECORD_PER_CLUSTER];
 	
 	// Encontra o cluster referente ao diretório onde será criado o arquivo
-	int clusterDir = findClusterDirectory(filename);
+	if(record->type == TYPEVAL_DIRETORIO)
+		clusterDir = findClusterDirectory(filename, 1);
+	else
+		clusterDir = findClusterDirectory(filename, 0);
+	
 	if(clusterDir <= 1){
 		printf("Create file ERROR, diretório não encontrado \n");
 		return FALSE;
@@ -95,7 +102,7 @@ int addRecordToDirectory(struct t2fs_record record, char * filename, int updatin
 	
 	parseDirectory(actualCluster.at, list_records);
 	
-	//Procura pelo record vazio do CLuster do diretorio
+	//Procura pelo record vazio do Cluster do diretorio
 	for(i = 0; i < constants.RECORD_PER_CLUSTER; i++){
 		if(list_records[i] == NULL && recordIndex < 0) //record vazio
 			recordIndex = i;
@@ -121,7 +128,12 @@ int addRecordToDirectory(struct t2fs_record record, char * filename, int updatin
 	Agora a função funciona somente para diretórios absolutos
 	Estrutura copiada da Lookup
 */
-int findClusterDirectory(char* pathname) {
+int findClusterDirectory(char* pathname, BYTE typeVal) {
+	int type;
+	if(typeVal == TYPEVAL_DIRETORIO)
+		type = 1;
+	else
+		type = 0;
 
 	char ** parsedPath = malloc(sizeof(char) * MAX_FILE_NAME_SIZE);
 	unsigned int parseCount = parsePath(pathname, parsedPath);
@@ -142,9 +154,9 @@ int findClusterDirectory(char* pathname) {
 	parseDirectory(actualCluster.at, list_records);
 
 	unsigned int i = 0, j = 1;
-	int found = FALSE, endReached = FALSE;
+	int found = FALSE;
 	int cluster = 0;
-	while (i < parseCount && endReached){
+	while (i < parseCount - type){
 		
 		//Se chegou no limite ou tipo inválido, o arquivo desejado
 		//não existe.

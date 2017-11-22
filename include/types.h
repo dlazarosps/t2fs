@@ -70,6 +70,8 @@
     unsigned int* indexFAT;
 
     struct descritor LDAA[MAX_FILES_OPEN];
+    
+    DIR2 currentPath;
   };
 
   /*
