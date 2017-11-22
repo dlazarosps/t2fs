@@ -32,7 +32,7 @@ Douglas Lázaro
   #define RECORD_NAME 1
   #define RECORD_BYTES_FILE_SIZE 56
   #define RECORD_FIRST_CLUSTER 60
-  #define RECORD_PER_CLUSTER 16
+  // #define RECORD_PER_CLUSTER 16
 
   /* Arquivo */
   // #define MAX_FILE_NAME_SIZE 55 //t2fs.h

@@ -42,8 +42,6 @@
     unsigned int FAT_SECTOR;
     unsigned int DATA_SECTOR;
 
-    /*FAT*/
-
     /* Records */
     unsigned int RECORD_PER_CLUSTER;
   };
