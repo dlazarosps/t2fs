@@ -2,13 +2,153 @@
   INF01142 - Sistemas Operacionais I
   T2FS - 2017/2
 
-Douglas Lázaro
+  Rodrigo Okido
 */
 
 #include "libs.h"
 
 int writeFile(int handle, struct descritor descritor, char * buffer, unsigned int size) {
-  int return_value = -1;
+  
+  char * tempBuffer;
+  
+  if(descritor.currentPointer < descritor.record.bytesFileSize) {
+	//Le o arquivo até o final antes de escrever novos dados.
+	//Atualiza apenas o current pointer para o final do arquivo do descritor.
+	int readFile = readFile(handle, descritor, buffer, size); 
+  }
+    
+  //Tamanho em bytes do arquivo.
+  unsigned int filesize = descritor.record.bytesFileSize;
+  
+  //Numero do cluster onde se encontra o descritor
+  unsigned int descritorCluster = descritor.record.firstCluster;
+  
+
+  //Procura de novos clusters na FAT caso necessario 
+  //Inicia em 2 pois os indices 0 e 1 sao reservados.
+  unsigned int searchFreeCluster = 2;
+  
+  //Busca na tabela de FAT o próximo cluster do arquivo
+  unsigned int nextCluster = getFAT(descritorCluster);
+  
+  //
+  int rest;
+  unsigned int bytesWritten = 0, bytesLeft = size;
+  unsigned int initialOffset = descritor.currentPointer % constants.CLUSTER_SIZE;
+	
+  CLUSTER_T actualCluster;
+  actualCluster.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);	
+
+  
+  //Se arquivo do descritor ocupa mais de 1 cluster	
+  if(nextCluster > 0){
+	    while (nextCluster > 0){
+		  nextCluster = getFAT(nextCluster);
+		  filesize -= 1024; 
+		  descritorCluster = nextCluster;
+	  }
+	  
+  }
+  
+  if(readCluster(descritorCluster, &actualCluster) != TRUE){
+		return FALSE;
+  }
+	  
+  //verifica o resto do cluster
+  rest = 1024 - filesize;
+
+  //Precisará alocar um novo cluster para escrever tudo que precisa
+  if(rest < size) {
+	  
+	  
+	  //Preenche o que falta de setores no cluster com os novos dados
+	  memcpy(&actualCluster.at[filesize], &buffer[bytesWritten], rest);
+	  writeCluster(descritorCluster, &actualCluster);
+	  // Chegou no final da escrita
+	  bytesWritten += rest;
+	  bytesLeft -= bytesWritten;
+	  
+	  while(bytesLeft > 0){
+		  
+		  while(getFAT(searchFreeCluster) != FAT_LIVRE){
+			if(searchFreeCluster > 8192){
+				return -1; //Não tem como escrever mais. Pois não há cluster livre
+			}
+			searchFreeCluster++;
+		  }
+		  
+		  if(readCluster(searchFreeCluster, &actualCluster) != TRUE){
+			return FALSE;
+		  }	
+		  
+		  if (bytesLeft <= constants.CLUSTER_SIZE) {
+			  // Escreve o resto dos dados do buffer no novo cluster
+			  memcpy(&actualCluster.at[initialOffset], &buffer[bytesWritten], bytesLeft);
+			  writeCluster(searchFreeCluster, &actualCluster);
+			  // Chegou no final da escrita
+			  bytesWritten += bytesLeft;
+			  bytesLeft = 0;
+			  
+			  descritor.record.bytesFileSize += bytesWritten;
+			  descritor.currentPointer += bytesWritten;
+			  descritor.record.clustersFileSize = (descritor.record.bytesFileSize / constants.CLUSTER_SIZE) + 1;
+
+
+			  return_value = bytesWritten;
+			  
+		  } else {
+			// Escreve dados no buffer do bloco, e depois escreve no disco.
+			memcpy(&clusterBuffer.at[initialOffset], &buffer[bytesWritten], constants.CLUSTER_SIZE);
+			writeCluster(cluster, &clusterBuffer);
+
+			bytesWritten += constants.CLUSTER_SIZE;
+			bytesLeft -= constants.CLUSTER_SIZE;
+			
+			 
+			descritor.record.bytesFileSize += bytesWritten;
+			descritor.currentPointer += bytesWritten;
+			descritor.record.clustersFileSize = (descritor.record.bytesFileSize / constants.CLUSTER_SIZE) + 1;
+
+			return_value = bytesWritten;
+		  }
+		  
+		  
+		  initialOffset = 0;
+	  }
+	  
+	  updateLDAA(handle, TYPEVAL_REGULAR, descritor);
+			   
+	  // Atualiza record no diretório
+	  addRecordToDirectory(descritor.record, descritor.name, TRUE);
+	  
+  } else {
+  
+  // Escreve dados no buffer do bloco, e depois escreve no disco.
+  memcpy(&actualCluster.at[rest], &buffer[bytesWritten], bytesLeft);
+  writeCluster(cluster, &actualCluster);
+  // Chegou no final da escrita
+  bytesWritten += bytesLeft;
+  bytesLeft = 0;
+  
+		  
+  descritor.record.bytesFileSize += bytesWritten;
+  descritor.currentPointer += bytesWritten;
+  descritor.record.clustersFileSize = (descritor.record.bytesFileSize / constants.CLUSTER_SIZE) + 1;
+  updateLDAA(handle, TYPEVAL_REGULAR, descritor);
+  
+  // Atualiza record no diretório
+  addRecordToDirectory(descritor.record, descritor.name, TRUE);
+
+  return_value = bytesWritten;
+  }
+  
+  return return_value;
+  
+  
+ } 
+
+
+  
 /*  int registerIndex = descritor.record.MFTNumber;
 
   REGISTER_T reg;
@@ -206,5 +346,5 @@ int writeFile(int handle, struct descritor descritor, char * buffer, unsigned in
     }
   }
 */
-  return return_value;
-}
+ 
+
