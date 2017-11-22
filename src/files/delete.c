@@ -10,7 +10,7 @@ Douglas Lázaro
 int deleteFileFromDisk(struct t2fs_record file, char* filename) {
 	int recordIndex = -1;
 	CLUSTER_T actualCluster; 
-	struct t2fs_record record = malloc(sizeof(t2fs_record));
+	struct t2fs_record record = malloc(sizeof(BYTE) * RECORD_SIZE);
 
 	struct t2fs_record list_records[constants.RECORD_PER_CLUSTER]
 
@@ -35,15 +35,15 @@ int deleteFileFromDisk(struct t2fs_record file, char* filename) {
 			recordIndex = i;
 	}
 
-	//Caso diretório cheio nenhum record vazio
+	//Caso record não encontrado
 	if(recordIndex < 0){
-		printf("Celete file ERROR, record do arquivo não encontrado no diretório\n");
+		printf("Delete file ERROR, record do arquivo não encontrado no diretório\n");
 		return FALSE;
 	}
 
 	//Escreve o record vazio no disco
 	if(writeRecord(clusterDir, recordIndex, record) != TRUE){
-		printf("Delete file ERROR enquanto apagava o record\n");
+		printf("Delete file ERROR enquanto apagava o record do disco\n");
 		return FALSE;
 	}
 
