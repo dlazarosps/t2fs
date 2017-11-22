@@ -17,7 +17,7 @@ SRC_DIR=./src
 TST_DIR=./teste
 
 # GERAÇÂO DO T2FS #
-FILES_OBJECTS=$(LIB_DIR)/files/create.o $(LIB_DIR)/files/delete.o $(LIB_DIR)/files/open.o $(LIB_DIR)/files/close.o $(LIB_DIR)/files/read.o $(LIB_DIR)/files/write.o $(LIB_DIR)/files/truncate.o $(LIB_DIR)/files/readdir.o
+FILES_OBJECTS=$(LIB_DIR)/files/create.o $(LIB_DIR)/files/delete.o $(LIB_DIR)/files/open.o $(LIB_DIR)/files/close.o $(LIB_DIR)/files/read.o $(LIB_DIR)/files/write.o $(LIB_DIR)/files/truncate.o $(LIB_DIR)/files/readdir.o $(LIB_DIR)/files/getcwd.o $(LIB_DIR)/files/chdir.o
 HELPER_OBJECTS=$(LIB_DIR)/helpers/print.o $(LIB_DIR)/helpers/util.o $(LIB_DIR)/helpers/files.o $(LIB_DIR)/helpers/ldaa.o
 SRC_OBJECTS=$(LIB_DIR)/t2fs.o $(LIB_DIR)/disk.o $(LIB_DIR)/parse.o
 
@@ -60,6 +60,12 @@ $(LIB_DIR)/files/truncate.o: $(SRC_DIR)/files/truncate.c
 
 $(LIB_DIR)/files/readdir.o: $(SRC_DIR)/files/readdir.c
 	$(CC) $(CFLAGS) -c -o $(LIB_DIR)/files/readdir.o -I$(INC_DIR) $(SRC_DIR)/files/readdir.c
+
+$(LIB_DIR)/files/chdir.o: $(SRC_DIR)/files/chdir.c
+	$(CC) $(CFLAGS) -c -o $(LIB_DIR)/files/chdir.o -I$(INC_DIR) $(SRC_DIR)/files/chdir.c
+
+$(LIB_DIR)/files/getcwd.o: $(SRC_DIR)/files/getcwd.c
+	$(CC) $(CFLAGS) -c -o $(LIB_DIR)/files/getcwd.o -I$(INC_DIR) $(SRC_DIR)/files/getcwd.c
 
 ## HELPERS ##
 $(LIB_DIR)/helpers/print.o: $(SRC_DIR)/helpers/print.c
@@ -120,7 +126,7 @@ ifeq (api,$(firstword $(MAKECMDGOALS)))
 endif
 
 API=$(BIN_DIR)/api
-API_FILES=$(API)/create $(API)/openclose $(API)/delete $(API)/read $(API)/write $(API)/seek $(API)/readdir $(API)/truncate
+API_FILES=$(API)/create $(API)/openclose $(API)/delete $(API)/read $(API)/write $(API)/seek $(API)/readdir $(API)/truncate $(API)/chdir $(API)/getcwd
 API_SRC=$(TST_DIR)/api
 
 api: $(API_FILES)
@@ -149,6 +155,12 @@ $(API)/readdir: all $(API_SRC)/readdir.c
 
 $(API)/truncate: all $(API_SRC)/truncate.c
 	$(CC) $(CFLAGS) -o $(API)/truncate $(API_SRC)/truncate.c -L$(LIB_DIR) -lt2fs -I$(INC_DIR)
+
+$(API)/chdir: all $(API_SRC)/chdir.c
+	$(CC) $(CFLAGS) -o $(API)/chdir $(API_SRC)/chdir.c -L$(LIB_DIR) -lt2fs -I$(INC_DIR)
+
+$(API)/getcwd: all $(API_SRC)/getcwd.c
+	$(CC) $(CFLAGS) -o $(API)/getcwd $(API_SRC)/getcwd.c -L$(LIB_DIR) -lt2fs -I$(INC_DIR)
 
 # LIMPEZA #
 clean:

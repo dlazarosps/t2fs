@@ -183,6 +183,30 @@ int rmdir2 (char *pathname) {
   return -1;
 };
 
+int chdir2 (char *pathname){
+  if (!config.initiated) {
+    initConfig();
+  }
+  DIR2 newCurrentPath;
+  
+  int check = getcwd2(pathname, sizeof(pathname));
+  if(check!=TRUE) return -1;
+  
+  newCurrentPath = opendir2(pathname);
+  if(newCurrentPath < 0) return -1;
+
+  return 0;  // faltava retorno da função ????
+
+};
+
+int getcwd2 (char *pathname, int size){
+  if (!config.initiated) {
+    initConfig();
+  }
+  
+  return getCurrentDirectory(pathname, size);
+};
+
 DIR2 opendir2 (char *pathname) {
   if (!config.initiated) {
     initConfig();
@@ -217,26 +241,4 @@ int closedir2 (DIR2 handle) {
   }
 
   return closeFile(handle, TYPEVAL_DIRETORIO);
-};
-
-int getcwd2 (char *pathname, int size){
-	if (!config.initiated) {
-		initConfig();
-	}
-	
-	return getCurrentDirectory(pathname, size);
-};
-
-int chdir2 (char *pathname){
-	if (!config.initiated) {
-		initConfig();
-	}
-	DIR2 newCurrentPath;
-	
-	int check = getcwd2(pathname, sizeof(pathname));
-	if(check!=TRUE) return -1;
-	
-	newCurrentPath = opendir2(pathname);
-	if(newCurrentPath < 0) return -1;
-
 };

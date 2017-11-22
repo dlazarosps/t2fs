@@ -193,4 +193,9 @@ Douglas Lázaro
   -----------------------------------------------------------------------------*/
   int readDirectory(DIR2 handle, struct descritor descritor, DIRENT2 *dentry);
 
+
+  int getCurrentDirectory(char *pathname, int size);
+
+
+
 #endif
