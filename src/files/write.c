@@ -21,7 +21,7 @@ int writeFile(int handle, struct descritor descritor, char * buffer, unsigned in
   unsigned int filesize = descritor.record.bytesFileSize;
   
   //Numero do cluster onde se encontra o descritor
-  unsigned int descritorCluster = descritor.record.firstCluster;
+  unsigned int descritorClusterIndex = descritor.record.firstCluster;
   
 
   //Procura de novos clusters na FAT caso necessario 
@@ -29,7 +29,7 @@ int writeFile(int handle, struct descritor descritor, char * buffer, unsigned in
   unsigned int searchFreeCluster = 2;
   
   //Busca na tabela de FAT o próximo cluster do arquivo
-  unsigned int nextCluster = getFAT(descritorCluster);
+  unsigned int nextCluster = getFAT(descritorClusterIndex);
   
   //
   int rest;
@@ -45,31 +45,50 @@ int writeFile(int handle, struct descritor descritor, char * buffer, unsigned in
 	    while (nextCluster > 0){
 		  nextCluster = getFAT(nextCluster);
 		  filesize -= 1024; 
-		  descritorCluster = nextCluster;
+		  descritorClusterIndex = nextCluster;
 	  }
 	  
   }
   
-  if(readCluster(descritorCluster, &actualCluster) != TRUE){
+  if(readCluster(descritorClusterIndex, &actualCluster) != TRUE){
 		return FALSE;
   }
 	  
-  //verifica o resto do cluster
+  unsigned int actualIndexCluster = descritorClusterIndex;
+  
+  
+  //verifica o resto do cluster livre
   rest = 1024 - filesize;
 
   //Precisará alocar um novo cluster para escrever tudo que precisa
   if(rest < size) {
+	  int sector_free = 0;
 	  
+	  if (rest > 768 && rest < 1024) {
+		sector_free = 1;
+	  }
 	  
-	  //Preenche o que falta de setores no cluster com os novos dados
-	  memcpy(&actualCluster.at[filesize], &buffer[bytesWritten], rest);
-	  writeCluster(descritorCluster, &actualCluster);
-	  // Chegou no final da escrita
-	  bytesWritten += rest;
-	  bytesLeft -= bytesWritten;
+	  if (rest > 512 && rest < 768) {
+		sector_free = 2;
+	  }
+	  
+	  if (rest > 256 && rest < 512) {
+		sector_free = 3;
+	  }
+	  
+	  if (sector_free > 0 ){
+		  int bytesToCluster = sector_free*SECTOR_SIZE;
+		  //Preenche o que falta de setores no cluster com os novos dados
+		  memcpy(&actualCluster.at[sector_free*SECTOR_SIZE], &buffer[bytesWritten], bytesToCluster);
+		  writeCluster(descritorClusterIndex, &actualCluster);
+		  // Chegou no final da escrita
+		  bytesWritten += bytesToCluster;
+		  bytesLeft -= bytesWritten;
+	  }
 	  
 	  while(bytesLeft > 0){
 		  
+		  //PROCURA UM NOVO CLUSTER LIVRE
 		  while(getFAT(searchFreeCluster) != FAT_LIVRE){
 			if(searchFreeCluster > 8192){
 				return -1; //Não tem como escrever mais. Pois não há cluster livre
@@ -92,8 +111,11 @@ int writeFile(int handle, struct descritor descritor, char * buffer, unsigned in
 			  descritor.record.bytesFileSize += bytesWritten;
 			  descritor.currentPointer += bytesWritten;
 			  descritor.record.clustersFileSize = (descritor.record.bytesFileSize / constants.CLUSTER_SIZE) + 1;
-
-
+			  
+			  
+			  //Atualiza a tabela de FAT 
+			  setFAT(actualIndexCluster, FAT_EOF);
+			
 			  return_value = bytesWritten;
 			  
 		  } else {
@@ -108,7 +130,13 @@ int writeFile(int handle, struct descritor descritor, char * buffer, unsigned in
 			descritor.record.bytesFileSize += bytesWritten;
 			descritor.currentPointer += bytesWritten;
 			descritor.record.clustersFileSize = (descritor.record.bytesFileSize / constants.CLUSTER_SIZE) + 1;
-
+			
+			
+			//Atualiza a tabela de FAT 
+			setFAT(actualIndexCluster, searchFreeCluster);
+			
+			//Atualiza o indice do cluster atual
+			actualCluster = searchFreeCluster;
 			return_value = bytesWritten;
 		  }
 		  
@@ -134,6 +162,11 @@ int writeFile(int handle, struct descritor descritor, char * buffer, unsigned in
   descritor.record.bytesFileSize += bytesWritten;
   descritor.currentPointer += bytesWritten;
   descritor.record.clustersFileSize = (descritor.record.bytesFileSize / constants.CLUSTER_SIZE) + 1;
+  
+  //Atualiza a tabela de FAT 
+  setFAT(actualIndexCluster, FAT_EOF);
+  
+  
   updateLDAA(handle, TYPEVAL_REGULAR, descritor);
   
   // Atualiza record no diretório
