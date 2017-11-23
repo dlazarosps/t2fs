@@ -22,7 +22,8 @@ struct t2fs_record createRecord(char* pathname, BYTE typeVal) {
 	check = setFAT(fileCluster, FAT_EOF); // Set o cluster como ocupado
 
 	if (check < 0) {
-		return FAT_ERROR;
+		newFile = NULL;
+		return newFile;
 	}
  
 	newFile.firstCluster = fileCluster; // set firtCluster do arquivo para o cluster corespondente
@@ -32,10 +33,10 @@ struct t2fs_record createRecord(char* pathname, BYTE typeVal) {
 
 int createNewFile(char * filename, BYTE typeVal) {
 	struct t2fs_record file;
-	int return_value;
 	int check;
+	int handle;
 
-	int check = getcwd2(filename, sizeof(filename));
+	check = getcwd2(filename, sizeof(filename));
 	if(check!=TRUE) return FALSE;
 
 	check = lookup(filename, &file);
@@ -46,14 +47,17 @@ int createNewFile(char * filename, BYTE typeVal) {
 	
 	if(check == PARSED_PATH_ERROR){
       printf("Path '%s' inválida.\n", filename);
-      return FALSE
+      return FALSE;
     }
 
 	if(canAddToLDAA(filename)) { 
 		
 		//Cria o record para o arquivo e set um index da Fat (cluster) para ele
 		file = createRecord(filename, typeVal);
-
+		if( file == NULL){
+			return -1;
+		}
+		
 		// salvar record no diretório 
 		check = addRecordToDirectory(file, filename, FALSE);
 		if(check < 0) {
@@ -61,7 +65,7 @@ int createNewFile(char * filename, BYTE typeVal) {
 		}
 
 		// adicionar para LDAA, e retornar valor do handle 
-		int handle = insertLDAA(file, filename);
+		handle = insertLDAA(file, filename);
 
 		if(handle < 0){
 			printf("Create file ERROR, não foi possivel adicionar o aquivo a LDAA \n");
@@ -84,7 +88,7 @@ int addRecordToDirectory(struct t2fs_record record, char * filename, int updatin
 	struct t2fs_record list_records[constants.RECORD_PER_CLUSTER];
 	
 	// Encontra o cluster referente ao diretório onde será criado o arquivo
-	if(record->type == TYPEVAL_DIRETORIO)
+	if(record.type == TYPEVAL_DIRETORIO)
 		clusterDir = findClusterDirectory(filename, 1);
 	else
 		clusterDir = findClusterDirectory(filename, 0);
@@ -100,7 +104,7 @@ int addRecordToDirectory(struct t2fs_record record, char * filename, int updatin
 		return FALSE;
 	}
 	
-	parseDirectory(actualCluster.at, list_records);
+	//parseDirectory(actualCluster, list_records);
 	
 	//Procura pelo record vazio do Cluster do diretorio
 	for(i = 0; i < constants.RECORD_PER_CLUSTER; i++){
@@ -147,11 +151,11 @@ int findClusterDirectory(char* pathname, BYTE typeVal) {
 
 	struct t2fs_record list_records[constants.RECORD_PER_CLUSTER];
 
-	if(readCluster(config.RootDirCluster, &actualCluster) != TRUE){
+	if(readCluster(constants.DATA_CLUSTER, &actualCluster) != TRUE){
 		return FALSE;
 	}
 
-	parseDirectory(actualCluster.at, list_records);
+	parseDirectory(actualCluster, list_records);
 
 	unsigned int i = 0, j = 1;
 	int found = FALSE;
@@ -165,7 +169,7 @@ int findClusterDirectory(char* pathname, BYTE typeVal) {
 		}
 		
 		//A partir da lista de records, se verifica o tipo.
-		switch(list_records[j].typeVal){
+		switch(list_records[j].TypeVal){
 			case TYPEVAL_INVALIDO:
 				j = -3;
 				i = parseCount;
@@ -174,7 +178,7 @@ int findClusterDirectory(char* pathname, BYTE typeVal) {
 			case TYPEVAL_DIRETORIO:
 				if(strcmp(list_records[j].name, parsedPath[i]) == 0 && (list_records[j].TypeVal == TYPEVAL_DIRETORIO)) { 
 					readCluster(list_records[i].firstCluster, &actualCluster);
-					parseDirectory(actualCluster.at, list_records);
+					parseDirectory(actualCluster, list_records);
 					cluster = list_records[i].firstCluster;
 					i++;
 					j = 0;
