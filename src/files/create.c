@@ -22,7 +22,7 @@ struct t2fs_record createRecord(char* pathname, BYTE typeVal) {
 	check = setFAT(fileCluster, FAT_EOF); // Set o cluster como ocupado
 
 	if (check < 0) {
-		newFile = NULL;
+		newFile.TypeVal = RECORD_TYPE;
 		return newFile;
 	}
  
@@ -54,7 +54,7 @@ int createNewFile(char * filename, BYTE typeVal) {
 		
 		//Cria o record para o arquivo e set um index da Fat (cluster) para ele
 		file = createRecord(filename, typeVal);
-		if( file == NULL){
+		if( file.TypeVal == RECORD_TYPE){
 			return -1;
 		}
 		
@@ -78,53 +78,6 @@ int createNewFile(char * filename, BYTE typeVal) {
 	}
 
   return handle;
-}
-
-int addRecordToDirectory(struct t2fs_record record, char * filename, int updatingRecord) {
-	int i, clusterDir;
-	int recordIndex = -1;
-	CLUSTER_T actualCluster;
-  
-	struct t2fs_record list_records[constants.RECORD_PER_CLUSTER];
-	
-	// Encontra o cluster referente ao diretório onde será criado o arquivo
-	if(record.type == TYPEVAL_DIRETORIO)
-		clusterDir = findClusterDirectory(filename, 1);
-	else
-		clusterDir = findClusterDirectory(filename, 0);
-	
-	if(clusterDir <= 1){
-		printf("Create file ERROR, diretório não encontrado \n");
-		return FALSE;
-	}
-	
-	// Realiza a leitura do diretorio onde irá ser criado o arquivo
-	if(readCluster(clusterDir, &actualCluster) != TRUE){
-		printf("Create file ERROR, erro durante a leitura do cluster do diretório \n");
-		return FALSE;
-	}
-	
-	//parseDirectory(actualCluster, list_records);
-	
-	//Procura pelo record vazio do Cluster do diretorio
-	for(i = 0; i < constants.RECORD_PER_CLUSTER; i++){
-		if(list_records[i] == NULL && recordIndex < 0) //record vazio
-			recordIndex = i;
-	}
-	
-	//Caso diretório cheio nenhum record vazio
-	if(recordIndex < 0){
-		printf("Create file ERROR, dirertório sem espaço para adicionar arquivo\n");
-		return FALSE;
-	}
-	
-	//Escreve o record no disco
-	if(writeRecord(clusterDir, recordIndex, record) != TRUE){
-		printf("Create file ERROR durante a escrita do record\n");
-		return FALSE;
-	}
-	
-	return TRUE;
 }
 
 /*
@@ -158,7 +111,6 @@ int findClusterDirectory(char* pathname, BYTE typeVal) {
 	parseDirectory(actualCluster, list_records);
 
 	unsigned int i = 0, j = 1;
-	int found = FALSE;
 	int cluster = 0;
 	while (i < parseCount - type){
 		
@@ -199,3 +151,49 @@ int findClusterDirectory(char* pathname, BYTE typeVal) {
 		return cluster;
 }
 
+int addRecordToDirectory(struct t2fs_record record, char * filename, int updatingRecord) {
+	int i, clusterDir;
+	int recordIndex = -1;
+	CLUSTER_T actualCluster;
+  
+	struct t2fs_record list_records[constants.RECORD_PER_CLUSTER];
+	
+	// Encontra o cluster referente ao diretório onde será criado o arquivo
+	if(record.TypeVal == TYPEVAL_DIRETORIO)
+		clusterDir = findClusterDirectory(filename, 1);
+	else
+		clusterDir = findClusterDirectory(filename, 0);
+	
+	if(clusterDir <= 1){
+		printf("Create file ERROR, diretório não encontrado \n");
+		return FALSE;
+	}
+	
+	// Realiza a leitura do diretorio onde irá ser criado o arquivo
+	if(readCluster(clusterDir, &actualCluster) != TRUE){
+		printf("Create file ERROR, erro durante a leitura do cluster do diretório \n");
+		return FALSE;
+	}
+	
+	//parseDirectory(actualCluster, list_records);
+	
+	//Procura pelo record vazio do Cluster do diretorio
+	for(i = 0; i < constants.RECORD_PER_CLUSTER; i++){
+		if(list_records[i].TypeVal == RECORD_TYPE && recordIndex < 0) //record vazio
+			recordIndex = i;
+	}
+	
+	//Caso diretório cheio nenhum record vazio
+	if(recordIndex < 0){
+		printf("Create file ERROR, dirertório sem espaço para adicionar arquivo\n");
+		return FALSE;
+	}
+	
+	//Escreve o record no disco
+	if(writeRecord(clusterDir, recordIndex, record) != TRUE){
+		printf("Create file ERROR durante a escrita do record\n");
+		return FALSE;
+	}
+	
+	return TRUE;
+}

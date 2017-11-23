@@ -9,18 +9,18 @@ Douglas Lázaro
 
 int deleteFileFromDisk(struct t2fs_record file, char* filename) {
 	int recordIndex = -1;
-	int clusterDir;
+	int clusterDir, i;
 	CLUSTER_T actualCluster; 
-	struct t2fs_record record = malloc(sizeof(BYTE) * RECORD_SIZE);
+	struct t2fs_record record;
 
-	struct t2fs_record list_records[constants.RECORD_PER_CLUSTER]
+	struct t2fs_record list_records[constants.RECORD_PER_CLUSTER];
 
 	int check = getcwd2(filename, sizeof(filename));
 	if(check!=TRUE) return FALSE;
 
 	// Encontra o cluster referente ao diretório onde será criado o arquivo
 	// função esta no create.c (LEMBRAR DE REVISAR) e/ou trocar de lugar
-	if(record->type == TYPEVAL_DIRETORIO)
+	if(file.TypeVal == TYPEVAL_DIRETORIO)
 		clusterDir = findClusterDirectory(filename, 1);
 	else
 		clusterDir = findClusterDirectory(filename, 0);
@@ -36,11 +36,11 @@ int deleteFileFromDisk(struct t2fs_record file, char* filename) {
 		return FALSE;
 	}
 	
-	parseDirectory(actualCluster.at, list_records);
+	parseDirectory(actualCluster, list_records);
 
 	//Procura pelo record vazio do CLuster do diretorio
 	for(i = 0; i < constants.RECORD_PER_CLUSTER; i++){
-		if(list_records[i] != NULL && strcmp(list_records[i].name, filename) == 0 && recordIndex < 0) //record vazio
+		if(list_records[i].TypeVal == RECORD_TYPE && recordIndex < 0) //record vazio
 			recordIndex = i;
 	}
 
