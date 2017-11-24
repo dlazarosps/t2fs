@@ -196,6 +196,8 @@ Douglas Lázaro
 
   int getCurrentDirectory(char *pathname, int size);
 
+  int findClusterDirectory(char* pathname, BYTE typeVal);
+
 
 
 #endif
