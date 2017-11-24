@@ -2,7 +2,7 @@
   INF01142 - Sistemas Operacionais I
   T2FS - 2017/2
 
-Douglas Lázaro
+Rodrigo Okido
 */
 
 #include "libs.h"

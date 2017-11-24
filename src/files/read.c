@@ -16,14 +16,18 @@ int readFile(int handle, struct descritor descritor, char * buffer, unsigned int
     return 0;
   }
 
+  //Pega o indice onde inicia o cluster do descritor passado por parâmetro
   unsigned int descritorCluster = descritor.record.firstCluster;
   
+  //aloca memoria definido com o tamanho para um cluster
   CLUSTER_T actualCluster;
   actualCluster.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
   
+  //Le o cluster e testa para ver se houve sucesso
   if(readCluster(descritorCluster, &actualCluster) != TRUE){
 	return FALSE;
   }
+  
   
   unsigned int i = 0, bytesRead = 0, nextCluster;
   unsigned int bytesLeft, cpySize;
@@ -51,14 +55,16 @@ int readFile(int handle, struct descritor descritor, char * buffer, unsigned int
 	  
 	int bytes = bytesLeft;
 
+	//Copia tamanho de "bytes" que há na memoria do cluster atual para o tempBuffer
     memcpy(&tempBuffer[bytesRead], &actualCluster.at[initialOffset], bytes);
-    bytesRead += bytes;
-    descritor.currentPointer += bytesRead;
-    updateLDAA(handle, TYPEVAL_REGULAR, descritor);
+    bytesRead += bytes; //Aumenta o numero de bytes lido
+    descritor.currentPointer += bytesRead; //Aumenta o currentPointer com a quantidade de bytes lida do arquivo
+    updateLDAA(handle, TYPEVAL_REGULAR, descritor); //Atualiza o descritor após o currentPointer aumentar
 
+	//Copia cpySize bytes do tempBuffer para o buffer.
     memcpy(buffer, tempBuffer, sizeof(char) * cpySize);
-    bytesLeft = 0;
-    return_value = bytesRead;
+    bytesLeft = 0; //Como havia um cluster, chegou ao fim do arquivo. Nao ha mais bytes para ler
+    return_value = bytesRead; //Devolve o numero de bytes lido do arquivo.
 
   
   } else {
@@ -67,7 +73,11 @@ int readFile(int handle, struct descritor descritor, char * buffer, unsigned int
 		  
 		  switch(nextCluster){
 			
+			//Chegou no cluster onde termina o arquivo. Pois atingiu FAT_EOF
 			case FAT_EOF:
+			
+				//Executa as mesmas operações explicadas quando o arquivo tem menos de um
+				//cluster (Explicado no 'If' logo acima)
 				int bytes = bytesLeft;
 
 				memcpy(&tempBuffer[bytesRead], &actualCluster.at[initialOffset], bytes);
@@ -82,147 +92,32 @@ int readFile(int handle, struct descritor descritor, char * buffer, unsigned int
 				break;
 			
 			default:
-				memcpy(&tempBuffer[bytesRead], &clusterBuffer.at[initialOffset], constants.CLUSTER_SIZE);
-				bytesRead += constants.CLUSTER_SIZE;
-				bytesLeft -= constants.CLUSTER_SIZE;
-				descritor.currentPointer += bytesRead;
-				updateLDAA(handle, TYPEVAL_REGULAR, descritor);
+			
+				//Caso o arquivo tenha mais de um cluster, todo o cluster é lido e passado ao tempBuffer.
+				memcpy(&tempBuffer[bytesRead], &actualCluster.at[initialOffset], constants.CLUSTER_SIZE);
+				bytesRead += constants.CLUSTER_SIZE; //Todo o cluster foi lido, portanto os bytes lidos será o tamanho do cluster (256 bytes * 4 setores)
+				bytesLeft -= constants.CLUSTER_SIZE; //Bytes que restam será o que falta menos o tamanho do cluster.
+				descritor.currentPointer += bytesRead; //currentPointer atualizado adicionando os bytesRead.
+				updateLDAA(handle, TYPEVAL_REGULAR, descritor); //Atualiza o descritor após o currentPointer aumentar
 
-				memcpy(buffer, tempBuffer, sizeof(char) * cpySize);
+				//memcpy(buffer, tempBuffer, sizeof(char) * cpySize); //ERRADO. Só pode mandar ao buffer após ler todo o arquivo.
 
-				return_value = bytesRead;
+				return_value = bytesRead; //Atualiza a quantidade de bytes lido para devolver ao final
 				
-				nextCluster = getFAT(nextCluster);
-				readCluster(nextCluster, &actualCluster);
+				nextCluster = getFAT(nextCluster); //Verifica o proximo cluster na tabela de FAT
+				
+				if(readCluster(nextCluster, &actualCluster) != TRUE){
+					return FALSE; //Cluster possivelmente defeituoso ou alguma operação errada de leitura do cluster ocorreu
+				}
 
 				break;
 		  }
 		  
+		  initialOffset = 0;
 		  
 	  }
   }
   
   return return_value;
-  
-
-  
- /*FAT*/
- /* int registerIndex = descritor.record.MFTNumber;
-  char * tempBuffer;
-
-  REGISTER_T reg;
-  if(readRegister(registerIndex, &reg) != TRUE) {
-    return FALSE;
-  }
-
-  struct t2fs_4tupla *tuplas = malloc(constants.MAX_TUPLAS_REGISTER * sizeof(struct t2fs_4tupla));
-  parseRegister(reg.at, tuplas);
-
-  CLUSTER_T clusterBuffer;
-  clusterBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
-
-  unsigned int i = 0, bytesRead = 0, cluster;
-  unsigned int bytesLeft, cpySize;
-  unsigned int amountOfClustersRead = 0;
-
-  if(size > descritor.record.bytesFileSize) {
-    bytesLeft = descritor.record.bytesFileSize;
-  } else {
-    bytesLeft = size;
-  }
-  cpySize = bytesLeft;
-  tempBuffer = malloc(sizeof(char) * cpySize);
-
-  // Achar tupla, bloco e offset inicial, de acordo com currentPointer.
-  unsigned int bytesReadFromCluster = 0;
-  unsigned int initialCluster = descritor.currentPointer / constants.CLUSTER_SIZE;
-  unsigned int initialOffset = descritor.currentPointer % constants.CLUSTER_SIZE;
-  i = findOffsetTupla(tuplas, initialCluster, &reg);
-
-  while (i < constants.MAX_TUPLAS_REGISTER && bytesLeft > (unsigned int) 0) {
-    switch(tuplas[i].atributeType) {
-      case REGISTER_MAP:
-        amountOfClustersRead = initialCluster;
-        initialCluster = 0;
-
-        bytesReadFromCluster = initialOffset;
-        while(amountOfClustersRead < tuplas[i].numberOfContiguosClusters && bytesLeft > (unsigned int) 0) {
-          cluster = tuplas[i].logicalBlockNumber + amountOfClustersRead;
-
-          if(readCluster(cluster, &clusterBuffer) == FALSE) {
-            return FALSE;
-          };
-
-          //printf("CP: %d, IB: %d, IO: %d\n", descritor.currentPointer, initialCluster, initialOffset);
-          //printf("BR: %d, Block: %d, BFS: %d\n", bytesRead, cluster, descritor.record.bytesFileSize); getchar();
-          if(bytesLeft <= constants.CLUSTER_SIZE) {
-            int bytes = bytesLeft;
-             // Caso de borda, se leitura vai estrapolar tamanho do arquivo.
-             // Se sim, bytes lidos apenas até o final do arquivo.
-            if(initialOffset + bytesLeft > descritor.record.bytesFileSize) {
-              bytes = bytesLeft - (initialOffset + bytesLeft) % descritor.record.bytesFileSize;
-            }
-
-            memcpy(&tempBuffer[bytesRead], &clusterBuffer.at[initialOffset], bytes);
-            bytesRead += bytes;
-            descritor.currentPointer += bytesRead;
-            updateLDAA(handle, TYPEVAL_REGULAR, descritor);
-
-            memcpy(buffer, tempBuffer, sizeof(char) * cpySize);
-            bytesLeft = 0;
-            return_value = bytesRead;
-          } else {
-            memcpy(&tempBuffer[bytesRead], &clusterBuffer.at[initialOffset], constants.CLUSTER_SIZE);
-            bytesRead += constants.CLUSTER_SIZE;
-            bytesLeft -= constants.CLUSTER_SIZE;
-
-            if(tuplas[i+1].atributeType == REGISTER_FIM) {
-              descritor.currentPointer += bytesRead;
-              updateLDAA(handle, TYPEVAL_REGULAR, descritor);
-
-              memcpy(buffer, tempBuffer, sizeof(char) * cpySize);
-
-              bytesLeft = 0;
-              return_value = bytesRead;
-            }
-          }
-
-          // Verificação se leu até o final do bloco. Se sim, incrementa o contador.
-          bytesReadFromCluster += bytesRead;
-          if(bytesReadFromCluster >= constants.CLUSTER_SIZE ) {
-            bytesReadFromCluster = 0;
-            amountOfClustersRead++;
-          }
-
-          initialOffset = 0;
-        }
-
-        if(bytesLeft > 0) {
-          i++;
-        }
-
-        break;
-      case REGISTER_ADITIONAL:
-        // Ler novo registro e recomeçar a leitura.
-        registerIndex = tuplas[i].virtualBlockNumber;
-
-        if(readRegister(registerIndex, &reg) != TRUE) {
-          return FALSE;
-        }
-        free(tuplas);
-        tuplas = malloc(constants.MAX_TUPLAS_REGISTER * sizeof(struct t2fs_4tupla));
-
-        parseRegister(reg.at, tuplas);
-        i = 0; // reset i para 0, começar a ler tuplas novamente
-
-      case REGISTER_FIM:
-        bytesLeft = 0;
-        return_value = bytesRead;
-        break;
-      default:
-        return_value = bytesRead;
-        break;
-    }
-  }*/
 
 }
