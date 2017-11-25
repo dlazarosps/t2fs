@@ -22,7 +22,7 @@ int getCurrentDirectory(char *pathname, int size){
 		
 	//Busca o diretório que esta aberto
 	for(i = 0; i < MAX_FILES_OPEN; i++){
-		if(config.LDAA[i]->type == TYPEVAL_DIRETORIO){
+		if(config.LDAA[i].record.TypeVal == TYPEVAL_DIRETORIO){
 			indexDir = i;
 		}
 	}
@@ -30,13 +30,13 @@ int getCurrentDirectory(char *pathname, int size){
 	//Define o tipo do se "arq" ou "./arq" ou "../arq"
 	if(pathname[0] == '.'){
 		if(pathname[1] == '.' && pathname[2] == '/')
-			tipo = relativo_dois_ponto_e_barra
+			tipo = relativo_dois_ponto_e_barra;
 		else if(pathname[1] == '/')
-			tipo = relativo_dois_ponto_e_barra
+			tipo = relativo_dois_ponto_e_barra;
 		else
 			tipo = -1;
 	}else
-		tipo = relativo_sem_ponto_e_barra
+		tipo = relativo_sem_ponto_e_barra;
 	
 	//Diretório não é valido
 	if(tipo == -1) return FALSE;
