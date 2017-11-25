@@ -198,6 +198,6 @@ Douglas Lázaro
 
   int findClusterDirectory(char* pathname, BYTE typeVal);
 
-
+  int openRoot(char* filename);
 
 #endif

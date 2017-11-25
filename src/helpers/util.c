@@ -61,13 +61,12 @@ int initConfig() {
   constants = initConstants(boot);
   
   /*FAT*/
-  int * FAT = malloc(sizeof(int) * constants.DISK_CLUSTERS);	
-  config.indexFAT = FAT;
+  config.indexFAT = malloc(sizeof(int) * constants.DISK_CLUSTERS); //????
   initFAT();
 
   initLDAA();
 
-	currentPath = openRoot("/");
+	config.currentPath = openRoot("/");
 
   config.initiated = TRUE;
 
