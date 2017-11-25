@@ -134,13 +134,13 @@ int lookup(char* pathname, struct t2fs_record * fileRecord) {
   
 	struct t2fs_record list_records[constants.RECORD_PER_CLUSTER];
   
-	if(readCluster(config.RootDirCluster, &actualCluster) != TRUE){
+	if(readCluster(config.superbloco.RootDirCluster, &actualCluster) != TRUE){
 		return FALSE;
 	}
   
-	parseDirectory(actualCluster.at, list_records);
+	parseDirectory(actualCluster, list_records);
   
-	unsigned int i = 0, j = 1, k = 1;
+	unsigned int i = 0, j = 1;
 	int found = FALSE, endReached = FALSE;
   
 	//ler FAT diretorio root até chegar diretorio folha
@@ -153,7 +153,7 @@ int lookup(char* pathname, struct t2fs_record * fileRecord) {
 		}
 		
 		//A partir da lista de records, se verifica o tipo.
-		switch(list_records[j].typeVal){
+		switch(list_records[j].TypeVal){
 			case TYPEVAL_INVALIDO:
 				j = -3;
 				i = parseCount;
@@ -162,7 +162,7 @@ int lookup(char* pathname, struct t2fs_record * fileRecord) {
 			case TYPEVAL_DIRETORIO:
 				if(strcmp(list_records[j].name, parsedPath[i]) == 0 && (list_records[j].TypeVal == TYPEVAL_DIRETORIO)) { // FILE NAME FOUND
 					readCluster(list_records[i].firstCluster, &actualCluster);
-					parseDirectory(actualCluster.at, list_records);
+					parseDirectory(actualCluster, list_records);
 					i++;
 					j = 0;
 					break;
