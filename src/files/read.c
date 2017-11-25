@@ -10,6 +10,7 @@
 int readFile(int handle, struct descritor descritor, char * buffer, unsigned int size) {
   
   char * tempBuffer;
+  int return_value, bytes;
   
   if(descritor.currentPointer >= descritor.record.bytesFileSize) {
     // Ponteiro após o final do arquivo.
@@ -29,7 +30,7 @@ int readFile(int handle, struct descritor descritor, char * buffer, unsigned int
   }
   
   
-  unsigned int i = 0, bytesRead = 0, nextCluster;
+  unsigned int bytesRead = 0, nextCluster;
   unsigned int bytesLeft, cpySize;
 
   // Se size for maior que o tamanho do arquivo, atribui 
@@ -53,7 +54,7 @@ int readFile(int handle, struct descritor descritor, char * buffer, unsigned int
   //Arquivo só ocupa um cluster
   if (nextCluster < 0){
 	  
-	int bytes = bytesLeft;
+	bytes = bytesLeft;
 
 	//Copia tamanho de "bytes" que há na memoria do cluster atual para o tempBuffer
     memcpy(&tempBuffer[bytesRead], &actualCluster.at[initialOffset], bytes);
@@ -78,7 +79,7 @@ int readFile(int handle, struct descritor descritor, char * buffer, unsigned int
 			
 				//Executa as mesmas operações explicadas quando o arquivo tem menos de um
 				//cluster (Explicado no 'If' logo acima)
-				int bytes = bytesLeft;
+				bytes = bytesLeft;
 
 				memcpy(&tempBuffer[bytesRead], &actualCluster.at[initialOffset], bytes);
 				bytesRead += bytes;
