@@ -19,12 +19,13 @@ Douglas Lázaro
   #define FAT_ROOT 1
 
   // MUDAR PARA VALORES DA FAT (xEFF , xFFF)
+  /*
   #define REGISTER_FIM 0
   #define REGISTER_MAP 1
   #define REGISTER_ADITIONAL 2
   #define REGISTER_FREE -1
-
   #define REGISTER_READ_ERROR -5
+  */
 
   /* Record */
   #define RECORD_SIZE 64
@@ -38,10 +39,12 @@ Douglas Lázaro
   // #define MAX_FILE_NAME_SIZE 55 //t2fs.h
 
   /* Lookup */
+  /*
   #define FIND_REGISTER_NOTFOUND -1
   #define FIND_REGISTER_FIM -2
   #define FIND_REGISTER_ADITIONAL -3
   #define FIND_REGISTER_FREE -4
+  */
   #define FILE_NOT_FOUND -1
 
   /* LDAA */
@@ -66,10 +69,5 @@ Douglas Lázaro
   #define PARSED_PATH_ERROR -9
   #define RECORD_WRITE_ERROR -10
   #define READDIR_ERROR -11
-
-  /* Add to Directory */
-  #define ADDDIR_CONTIGUOUS 200
-  #define ADDDIR_ADITIONAL 201
-  #define ADDDIR_MAP 202
 
 #endif
