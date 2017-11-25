@@ -132,7 +132,9 @@ int saveFAT(int clusterIndex){
   int setorIndex;
   int i;
   float cluster;
+
   SECTOR_T buffer;
+  strcpy(buffer.at, "");
 
   if(clusterIndex != 0){
     
@@ -146,18 +148,8 @@ int saveFAT(int clusterIndex){
     i =  FAT_PER_SECTOR * setorIndex; 
 
     for (i; i < i + FAT_PER_SECTOR ; ++i){
-      switch(config.indexFAT[i]){
-        case FAT_ERROR:
-          // concatenar 0xFFFFFFFE no buffer
-          break;
-        case FAT_EOF:
-          // concatenar 0xFFFFFFFF no buffer
-          break;
-        default:
-          // converter o valor em little-endian e concaternar no buffer
-          break;
-
-      }    
+      //converte valores para gravar no setor
+      concat_fat(&buffer.at, config.indexFAT[i]);    
     }
 
     writeSector(setorIndex, buffer);
@@ -171,17 +163,9 @@ int saveFAT(int clusterIndex){
     for (j = 1; j <= FAT_SECTORS; ++j)
     {
       for (i; i < FAT_PER_SECTOR*j; ++i){
-        switch(config.indexFAT[i]){
-          case FAT_ERROR:
-            // concatenar 0xFFFFFFFE no buffer
-            break;
-          case FAT_EOF:
-            // concatenar 0xFFFFFFFF no buffer
-            break;
-          default:
-            // converter o valor em little-endian e concaternar no buffer
-            break;
-        }    
+        
+        concat_fat(&buffer.at, config.indexFAT[i]);
+
       }
 
       writeSector(FAT_ROOT+j, buffer);
@@ -191,6 +175,45 @@ int saveFAT(int clusterIndex){
   }
  return 0;
 }
+
+void concat_fat(char * buffer, int value){
+  unsigned char little[32];
+  int aux;
+
+  switch(value){
+    case FAT_ERROR:
+      // concatenar 0xFFFFFFFE no buffer
+      strcat(buffer,"fffffffe");
+      break;
+    case FAT_EOF:
+      // concatenar 0xFFFFFFFF no buffer
+      strcat(buffer,"ffffffff");
+      break;
+    default:
+      // converter o valor em little-endian e concaternar no buffer
+      //GAMBIARRA VIOLENTA
+      aux = changed_endian(value);
+      sprintf(little, "%x", aux);
+      strcat(buffer, little[0]);
+      strcat(buffer, little[1]);
+      strcat(buffer, little[2]);
+      strcat(buffer, little[3]);
+
+      break;
+  }
+}
+
+//swap little <-> big
+int changed_endian(int num){
+ int byte0, byte1, byte2, byte3;
+
+ byte0 = (num & 0x000000FF) >> 0;
+ byte1 = (num & 0x0000FF00) >> 8;
+ byte2 = (num & 0x00FF0000) >> 16;
+ byte3 = (num & 0xFF000000) >> 24;
+ return((byte0 << 24) | (byte1 << 16) | (byte2 << 8) | (byte3 << 0));
+}
+
 
 int ceilnum(float num){
   int inum = (int) num;
