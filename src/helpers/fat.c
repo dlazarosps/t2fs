@@ -198,6 +198,10 @@ void concat_fat(char * buffer, int value){
       strcat(buffer, little[1]);
       strcat(buffer, little[2]);
       strcat(buffer, little[3]);
+      strcat(buffer, little[4]);
+      strcat(buffer, little[5]);
+      strcat(buffer, little[6]);
+      strcat(buffer, little[7]);
 
       break;
   }
