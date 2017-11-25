@@ -89,7 +89,7 @@ Douglas Lázaro
 
   Responsável: Douglas Lázaro
   -----------------------------------------------------------------------------*/
-  struct t2fs_record initRecord(BYTE typeVal, char* name, DWORD clustersFileSize, DWORD bytesFileSize, DWORD MFTNumber);
+  struct t2fs_record initRecord(BYTE typeVal, char* name, DWORD bytesFileSize);
 
 
   DIRENT2 initDentry(struct t2fs_record record);

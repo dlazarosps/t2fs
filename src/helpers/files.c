@@ -197,7 +197,7 @@ int lookup(char* pathname, struct t2fs_record * fileRecord) {
  }
   
 
-struct t2fs_record initRecord(BYTE typeVal, char* name, DWORD clustersFileSize, DWORD bytesFileSize, DWORD MFTNumber) {
+struct t2fs_record initRecord(BYTE typeVal, char* name, DWORD bytesFileSize) {
   struct t2fs_record record;
 
   memset(&record, 0, sizeof(record));

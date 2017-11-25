@@ -13,7 +13,7 @@ struct t2fs_record createRecord(char* pathname, BYTE typeVal) {
 	char ** parsedPath = malloc(sizeof(char) * MAX_FILE_NAME_SIZE);
 	int parseCount = parsePath(pathname, parsedPath);
 
-	newFile = initRecord(typeVal, parsedPath[parseCount], 1, 0, -1);
+	newFile = initRecord(typeVal, parsedPath[parseCount], 0);
 
 	/* Encontrar um cluster Livre na FAT, . */
 	int check;

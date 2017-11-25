@@ -11,7 +11,7 @@ int openRoot(char* filename) {
   int return_value;
   struct t2fs_record root;
 
-  root = initRecord(TYPEVAL_DIRETORIO, filename, -1, -1, FAT_ROOT);
+  root = initRecord(TYPEVAL_DIRETORIO, filename, 0);
   if (isFreeLDAA() == TRUE) {
     return_value = insertLDAA(root, "/");
   } else {
