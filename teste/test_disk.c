@@ -89,79 +89,6 @@ void test_writeCluster() {
   printf("-- ENCERROU WRITE CLUSTER --\n");
 }
 
-void test_readRegister() {
-  printf("-- READ REGISTER --\n");
-
-  REGISTER_T reg;
-  int registerIndex = 0;
-
-  printf("Lendo registro %d\n", registerIndex);
-  if(readRegister(registerIndex, &reg) != TRUE) {
-    printf("Registro %d não existe, logo retorna erro.\n", registerIndex);
-    return;
-  }
-  printRegister(reg.at, registerIndex);
-
-
-  REGISTER_T reg2;
-  int registerIndex2 = 4096;
-
-  printf("\n\nLendo registro %d\n", registerIndex2);
-  if(readRegister(registerIndex2, &reg2) != TRUE) {
-    printf("Registro %d não existe, logo retorna erro.\n", registerIndex2);
-    return;
-  }
-
-  printRegister(reg2.at, registerIndex2);
-
-  printf("-- ENCERROU READ REGISTER --\n");
-}
-
-/* READ REGISTER */
-void test_writeRegister() {
-  printf("-- WRITE REGISTER --\n");
-
-  REGISTER_T reg;
-
-  REGISTER_T registerBefore, registerAfter;
-
-  int registerRead = 5;   // Um dos registros definidos no disco
-  int registerWrite = 20; // Um registro não definido qualquer
-
-  /* SAVE PREVIOUS REGISTER */
-  if(readRegister(registerWrite, &reg) != TRUE) {
-    return;
-  }
-  memcpy((void*) &registerBefore.at, (void*) &reg, sizeof(REGISTER_T)); // Copiando _valor_ para registerBefore
-
-  /* GET REGISTER TO COPY */
-  if(readRegister(registerRead, &reg) != TRUE) {
-    return;
-  }
-
-  /* WRITE NEW REGISTER */
-  if(writeRegister(registerWrite, &reg) != TRUE) {
-    return;
-  };
-
-  /* READ WRITTEN REGISTER */
-  if(readRegister(registerWrite, &registerAfter) != TRUE) {
-    return;
-  }
-  printf("------------------------------\n");
-  printf("--------- Before \n");
-  printRegister(registerBefore.at, registerWrite);
-  printf("--------- After \n");
-  printRegister(registerAfter.at, registerWrite);
-  printf("------------------------------\n");
-
-  /* WRITE OLD VALUE BACK ON REGISTER */
-  if(writeRegister(registerWrite, &registerBefore) != TRUE) {
-    return;
-  };
-
-  printf("-- ENCERROU WRITE REGISTER --\n");
-}
 
 void test_readRecord() {
   printf("-- READ RECORD --\n");
@@ -214,10 +141,10 @@ void test_writeRecord() {
 
   printf("Alterando valores para teste...\n");
   strcpy(record1.name, "file3");
-  record1.MFTNumber = 6;
+  // record1.MFTNumber = 6;
 
   strcpy(record2.name, "file4");
-  record2.MFTNumber = 7;
+  // record2.MFTNumber = 7;
 
   printf("Backup de records...\n");
   struct t2fs_record record1_backup, record2_backup, record3_backup;
@@ -260,22 +187,6 @@ void test_writeRecord() {
   printf("-- ENCERROU WRITE RECORD --\n");
 }
 
-void test_freeRegister() {
-  printf("-- FREE REGISTER --\n");
-
-  REGISTER_T reg;
-  readRegister(FAT_ROOT, &reg);
-  printRegister(reg.at, 0);
-
-  getchar();
-
-  freeRegister(FAT_ROOT);
-  readRegister(FAT_ROOT, &reg);
-  printRegister(reg.at, 0);
-
-  printf("-- ENCERROU FREE REGISTER --\n");
-}
-
 int main(int argc, char const *argv[]) {
   initConfig();
 
@@ -294,20 +205,11 @@ int main(int argc, char const *argv[]) {
   /* WRITE CLUSTER */
   test_writeCluster();
 
-  /* READ REGISTER */
-  test_readRegister();
-
-  /* WRITE REGISTER */
-  test_writeRegister();
-
   /* READ RECORD */
   test_readRecord();
 
   /* WRITE RECORD */
   test_writeRecord();
-
-  /* FREE REGISTER */
-  test_freeRegister();
 
   return 0;
 }
