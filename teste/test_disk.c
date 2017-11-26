@@ -188,6 +188,7 @@ void test_writeRecord() {
 }
 
 int main(int argc, char const *argv[]) {
+	printf("\n\n---- Inciando testes do Test_disk.c ----\n-- INIT CONFIG --\n");
   initConfig();
 
   /* READ SECTOR */

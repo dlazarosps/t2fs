@@ -38,14 +38,14 @@ DWORD parseDiskSectorSize(unsigned char* DiskSectorSize) {
 
 DWORD parseFourBytesStructure(unsigned char* structure) {
   /* 00 00 00 08 => 0x08000000 => 134217728 */
-  char temp[4] = "";
+  char temp[8] = "";
 
   return convertFourBytes(structure, 0, temp);
 }
 
-WORD parseTwoBytesStructure(unsigned char* structure) {
+int parseTwoBytesStructure(unsigned char* structure) {
   /* 01 00 => 0x0001 => 1 */
-  char temp[2] = "";
+  char temp[4] = "";
 
   return convertTwoBytes(structure, 0, temp);
 }
@@ -63,55 +63,55 @@ void parseVersion(char* version, char* str) {
 }*/
 
 struct t2fs_superbloco parseSuperBlock(unsigned char* superbloco) {
-  struct t2fs_superbloco config;
+  struct t2fs_superbloco configAux;
 
-  unsigned char version[2] = "";
-  unsigned char superBlockSize[2] = "";
-  unsigned char diskSize[4] = "";
-  unsigned char nofSectors[4] = "";
-  unsigned char sectorsPerCluster[4] = "";
-  unsigned char pFatSectorStart[4] = "";
-  unsigned char rootDirCluster[4] = "";
-  unsigned char dataSectorStart[4] = "";
+  unsigned char version[4] = "";
+  unsigned char superBlockSize[4] = "";
+  unsigned char diskSize[8] = "";
+  unsigned char nofSectors[8] = "";
+  unsigned char sectorsPerCluster[8] = "";
+  unsigned char pFatSectorStart[8] = "";
+  unsigned char rootDirCluster[8] = "";
+  unsigned char dataSectorStart[8] = "";
 
   // ID
-  memcpy(config.id, superbloco, 4 * sizeof(BYTE));
-  config.id[4] = '\0';
+  memcpy(configAux.id, superbloco, 4 * sizeof(BYTE));
+  configAux.id[4] = '\0';
 
   // VERSION
   memcpy(version, superbloco + 4, 2 * sizeof(BYTE));
-  config.version = parseTwoBytesStructure(version);
+  configAux.version = parseTwoBytesStructure(version);
   // parseVersion(version, config.version);
 
   // SUPER CLUSTER SIZE
   memcpy(superBlockSize, superbloco + 6, 2 * sizeof(BYTE));
-  config.SuperBlockSize = parseTwoBytesStructure(superBlockSize);
+  configAux.SuperBlockSize = parseTwoBytesStructure(superBlockSize);
 
   // DISK SIZE
   memcpy(diskSize, superbloco + 8, 4 * sizeof(BYTE));
-  config.DiskSize = parseFourBytesStructure(diskSize);
+  configAux.DiskSize = parseFourBytesStructure(diskSize);
 
   // NOF SECTORS
   memcpy(nofSectors, superbloco + 12, 4 * sizeof(BYTE));
-  config.NofSectors = parseFourBytesStructure(nofSectors);
+  configAux.NofSectors = parseFourBytesStructure(nofSectors);
   
   // SECTORS PER CLUSTER
   memcpy(sectorsPerCluster, superbloco + 16, 4 * sizeof(BYTE));
-  config.SectorsPerCluster = parseFourBytesStructure(sectorsPerCluster);
+  configAux.SectorsPerCluster = parseFourBytesStructure(sectorsPerCluster);
   
   // PFAT SECTOR START
   memcpy(pFatSectorStart, superbloco + 20, 4 * sizeof(BYTE));
-  config.pFATSectorStart = parseFourBytesStructure(pFatSectorStart);
+  configAux.pFATSectorStart = parseFourBytesStructure(pFatSectorStart);
   
   // ROOT DIR CLUSTER
   memcpy(rootDirCluster, superbloco + 24, 4 * sizeof(BYTE));
-  config.RootDirCluster = parseFourBytesStructure(rootDirCluster);
+  configAux.RootDirCluster = parseFourBytesStructure(rootDirCluster);
   
   // DATA SECTOR START
   memcpy(dataSectorStart, superbloco + 28, 4 * sizeof(BYTE));
-  config.DataSectorStart = parseFourBytesStructure(dataSectorStart);
+  configAux.DataSectorStart = parseFourBytesStructure(dataSectorStart);
 
-  return config;
+  return configAux;
 }
 
 int parseRecord(CLUSTER_T clusterBuffer, struct t2fs_record * record, int offset) {
