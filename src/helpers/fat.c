@@ -29,16 +29,16 @@ void initFAT() {
     }
 	
 	//"caminha" de 4 em 4 bytes pelo setor e salva o valor de acordo com o indice na FAT
-  	for(j = 0; j <= FAT_SECTOR_SIZE-4; j += 4){
+  	for(j = 0; j <= constants.FAT_SECTOR_SIZE-4; j += 4){
   		// 4 bytes = 8 nº Hexas
-  		aux[0] = sec->at[j];
-  		aux[1] = sec->at[j+1];
-  		aux[2] = sec->at[j+2];
-  		aux[3] = sec->at[j+3];
-  		aux[4] = sec->at[j+4];
-  		aux[5] = sec->at[j+5];
-  		aux[6] = sec->at[j+6];
-  		aux[7] = sec->at[j+7];
+  		aux[0] = sec.at[j];
+  		aux[1] = sec.at[j+1];
+  		aux[2] = sec.at[j+2];
+  		aux[3] = sec.at[j+3];
+  		aux[4] = sec.at[j+4];
+  		aux[5] = sec.at[j+5];
+  		aux[6] = sec.at[j+6];
+  		aux[7] = sec.at[j+7];
   		
   		int num = convertFourBytes(aux, 0, str); 
   		
@@ -47,10 +47,10 @@ void initFAT() {
   			de exatamente qual valor é retornado pelo convertFourBytes()
   		*/
   		int op;
-		if(aux[0] = 'F' && aux[1] = 'F' && aux[2] = 'F' && aux[3] = 'F' && aux[4] = 'F' && aux[5] = 'F' && aux[6] = 'F'){
-			if(aux[7] = 'F')
+		if((aux[0] == 'F') && (aux[1] == 'F') && (aux[2] == 'F') && (aux[3] == 'F') && (aux[4] == 'F') && (aux[5] == 'F') && (aux[6] == 'F')){
+			if(aux[7] == 'F')
 				op = FAT_EOF;
-			else if(aux[7] = 'E')
+			else if(aux[7] =='E')
 				op = FAT_ERROR;
 			else
 				op = 0;
@@ -58,12 +58,10 @@ void initFAT() {
 		
 		switch(op){
 			case FAT_ERROR:
-				config.indexFAT[index] = FAT_ERROR;
-				// concatenar 0xFFFFFFFE no buffer
+        config.indexFAT[index] = FAT_ERROR;
 				break;
 			case FAT_EOF:
-				config.indexFAT[index] = FAT_EOF;
-				// concatenar 0xFFFFFFFF no buffer
+        config.indexFAT[index] = FAT_EOF;
 				break;
 			default:
 				if(num != 1)		
@@ -131,80 +129,117 @@ int searchFAT(int allocated){
 int saveFAT(int clusterIndex){
   int setorIndex;
   int i;
+  int j;
   float cluster;
-
   SECTOR_T buffer;
-  strcpy(buffer.at, "");
+
+
+  // inicializa buffer vazio e variaveis de conversão;
+  char temp[1] = "\0";
+  char little[32] = {0};
+  int aux;
+  
+  memcpy(&buffer.at, &temp, 1);
 
   if(clusterIndex != 0){
     
     //Grava um unico setor da FAT no disco
     
-
+    /* Calcula qual setor da área de FAT sera gravado o buffer */
+    //número do cluster onde está o valor do vetor FAT
     cluster = clusterIndex / FAT_PER_SECTOR;
+    //arredondamento para descobrir qual setor na area de FAT 
     setorIndex = ceilnum(cluster);
-    setorIndex = (clusterIndex % FAT_PER_SECTOR == 0) ?  setorIndex + 1 : sector;
+    //ajuste para multiplos da FAT 
+    setorIndex = (clusterIndex % FAT_PER_SECTOR == 0) ?  setorIndex + 1 : setorIndex; 
 
-    i =  FAT_PER_SECTOR * setorIndex; 
+    //posição inicial no vetor FAT
+    i =  FAT_PER_SECTOR * setorIndex;
+    //quantidade de vetores FAT por setor
+    j = i + FAT_PER_SECTOR;
 
-    for (i; i < i + FAT_PER_SECTOR ; ++i){
+    //varre o vetor de FAT para concatenar no buffer os valores
+    for (i =  FAT_PER_SECTOR * setorIndex; i < j ; ++i){
       //converte valores para gravar no setor
-      concat_fat(&buffer.at, config.indexFAT[i]);    
+        switch(config.indexFAT[i]){
+          case FAT_ERROR:
+            // concatenar 0xFFFFFFFE no buffer
+            strcat((char *)buffer.at,"fffffffe");
+            break;
+          case FAT_EOF:
+            // concatenar 0xFFFFFFFF no buffer
+            strcat((char *)buffer.at,"ffffffff");
+            break;
+          default:
+            /* GAMBIARRA VIOLENTA */
+            // converter o valor em little-endian e concaternar no buffer
+            aux = changed_endian(config.indexFAT[i]);
+
+            //int to string 
+            sprintf(little, "%x", aux); 
+
+            //copia os bytes
+            strcat((char *) buffer.at, &little[0]); 
+            strcat((char *) buffer.at, &little[1]);
+            strcat((char *) buffer.at, &little[2]);
+            strcat((char *) buffer.at, &little[3]);
+            strcat((char *) buffer.at, &little[4]);
+            strcat((char *) buffer.at, &little[5]);
+            strcat((char *) buffer.at, &little[6]);
+            strcat((char *) buffer.at, &little[7]);
+            break;
+        }   
     }
 
-    writeSector(setorIndex, buffer);
+    writeSector(setorIndex, &buffer);
 
   }
   else{
 
     //Grava toda a FAT no disco
-    i = 0;
-    int j;
+    
     for (j = 1; j <= FAT_SECTORS; ++j)
     {
-      for (i; i < FAT_PER_SECTOR*j; ++i){
+      for (i = 0; i < FAT_PER_SECTOR*j; ++i){
         
-        concat_fat(&buffer.at, config.indexFAT[i]);
+        //converte valores para gravar no setor
+        switch(config.indexFAT[i]){
+          case FAT_ERROR:
+            // concatenar 0xFFFFFFFE no buffer
+            strcat((char *)buffer.at,"fffffffe");
+            break;
+          case FAT_EOF:
+            // concatenar 0xFFFFFFFF no buffer
+            strcat((char *)buffer.at,"ffffffff");
+            break;
+          default:
+            /* GAMBIARRA VIOLENTA */
+            // converter o valor em little-endian e concaternar no buffer
+            aux = changed_endian(config.indexFAT[i]);
+
+            //int to string 
+            sprintf(little, "%x", aux); 
+
+            //copia os bytes
+            strcat((char *) buffer.at, &little[0]); 
+            strcat((char *) buffer.at, &little[1]);
+            strcat((char *) buffer.at, &little[2]);
+            strcat((char *) buffer.at, &little[3]);
+            strcat((char *) buffer.at, &little[4]);
+            strcat((char *) buffer.at, &little[5]);
+            strcat((char *) buffer.at, &little[6]);
+            strcat((char *) buffer.at, &little[7]);
+            break;
+        }
 
       }
 
-      writeSector(FAT_ROOT+j, buffer);
+      writeSector(FAT_ROOT+j, &buffer);
 
     }
 
   }
  return 0;
-}
-
-void concat_fat(char * buffer, int value){
-  unsigned char little[32];
-  int aux;
-
-  switch(value){
-    case FAT_ERROR:
-      // concatenar 0xFFFFFFFE no buffer
-      strcat(buffer,"fffffffe");
-      break;
-    case FAT_EOF:
-      // concatenar 0xFFFFFFFF no buffer
-      strcat(buffer,"ffffffff");
-      break;
-    default:
-      // converter o valor em little-endian e concaternar no buffer
-      //GAMBIARRA VIOLENTA
-      aux = changed_endian(value);
-      sprintf(little, "%x", aux);
-      strcat(buffer, little[0]);
-      strcat(buffer, little[1]);
-      strcat(buffer, little[2]);
-      strcat(buffer, little[3]);
-      strcat(buffer, little[4]);
-      strcat(buffer, little[5]);
-      strcat(buffer, little[6]);
-      strcat(buffer, little[7]);
-
-      break;
-  }
 }
 
 //swap little <-> big

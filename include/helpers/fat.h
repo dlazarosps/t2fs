@@ -9,6 +9,7 @@
 
 #ifndef __helperfat__
 #define	__helperfat__
+	#include "declarations.h"
 
 /*-----------------------------------------------------------------------------
 Função: Usada para iniciar a FAT
@@ -93,5 +94,10 @@ Retorna
 ------------------------------------------------------------------------*/
   int deleteIndexFAT(int clusterIndex);
 
+  // -------------- //
+
+  int changed_endian(int num);
+
+  int ceilnum(float num);
 
 #endif
