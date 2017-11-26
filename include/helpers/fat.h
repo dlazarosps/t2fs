@@ -83,6 +83,12 @@ Retorna
 ------------------------------------------------------------------------*/
   int saveFAT(int clusterIndex);
   
+  void concat_fat(char * buffer, int value);
+  
+  int changed_endian(int num);
+  
+  int ceilnum(float num);
+  
 /*------------------------------------------------------------------------
 	Apaga todos os registros do (arquivo/diretório) iniciado pelo clusterIndex
 Entra:

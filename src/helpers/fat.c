@@ -45,6 +45,7 @@ void initFAT() {
   		/*
   			Função "temporária" com alguns testes aqui fiquei meio na duvida
   			de exatamente qual valor é retornado pelo convertFourBytes()
+  			que pode ser utilizado diretamente para os testes do valor
   		*/
   		int op;
 		if((aux[0] == 'F') && (aux[1] == 'F') && (aux[2] == 'F') && (aux[3] == 'F') && (aux[4] == 'F') && (aux[5] == 'F') && (aux[6] == 'F')){
@@ -64,7 +65,7 @@ void initFAT() {
         config.indexFAT[index] = FAT_EOF;
 				break;
 			default:
-				if(num != 1)		
+				if(num > 1)		
 		  			config.indexFAT[index] = num;
 		  		else
 					config.indexFAT[index] = FAT_ERROR;
@@ -72,7 +73,7 @@ void initFAT() {
 		}
 	
   		index++;
-  		//Garantia para não ocorrer Segmataton Fault no IndexFat
+  		//Garantia para não ocorrer Segmentation Fault no IndexFat
   		if(index > constants.DISK_CLUSTERS)
   			return;
   	}//End FOR 2
@@ -152,6 +153,7 @@ int saveFAT(int clusterIndex){
     setorIndex = ceilnum(cluster);
     //ajuste para multiplos da FAT 
     setorIndex = (clusterIndex % FAT_PER_SECTOR == 0) ?  setorIndex + 1 : setorIndex; 
+
 
     //posição inicial no vetor FAT
     i =  FAT_PER_SECTOR * setorIndex;
@@ -287,17 +289,3 @@ int deleteIndexFAT(int clusterIndex){
 	return TRUE;
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
