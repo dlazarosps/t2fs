@@ -15,40 +15,22 @@ void test_parseSuperblock() {
   printf("\n--- Teste de parsing do bloco de boot ---\n\n");
 
   SECTOR_T Superblock;
-  struct Superblock config;
+  struct t2fs_superbloco config;
 
   readSector(0, &Superblock);
 
-  config = parseSuperblock(Superblock.at);
+  config = parseSuperBlock(Superblock.at);
 
   printf("ID: %s\n", config.id);
-  printf("Version: %s\n", config.version);
-  printf("Block Size: %d\n", config.clusterSize);
-  printf("Disk Sector Size: %d\n", config.diskSectorSize);
+  printf("Version: %d\n", config.version);
+  printf("SuperBlock Size: %d\n", config.SuperBlockSize);
+  printf("Num of Sector: %d\n", config.NofSectors);
+  printf("Sector Per Cluster: %d\n", config.SectorsPerCluster);
+  printf("FAT start: %d\n", config.pFATSectorStart);
+  printf("ROOT dir Cluster: %d\n", config.RootDirCluster);
+  printf("DATA Sector: %d\n", config.DataSectorStart);
 
   printf("\n--- Encerrou parsing do bloco de boot ---\n\n");
-}
-
-void test_parseRegister() {
-  printf("\n--- Teste de parsing de registro ---\n\n");
-
-  int registerIndex = 0;
-  REGISTER_T reg;
-
-  if(readRegister(registerIndex, &reg) != TRUE) {
-    return;
-  }
-
-  struct t2fs_4tupla *tuplas = malloc(constants.MAX_TUPLAS_REGISTER * sizeof(struct t2fs_4tupla));
-  parseRegister(reg.at, tuplas);
-
-  int i;
-  for (i = 0; i < constants.MAX_TUPLAS_REGISTER; i++) {
-    printf("\n");
-    printTupla(tuplas[i]);
-  }
-
-  printf("\n--- Encerrou parsing de registro ---\n\n");
 }
 
 void test_parseDirectory() {
@@ -75,13 +57,10 @@ int main(int argc, char const *argv[]) {
   initConfig();
 
   // PARSE BOOT BLOCK
-  //test_parseSuperblock();
-
-  /* Parse Register */
-  test_parseRegister();
+  test_parseSuperblock();
 
   /* Parse Directory */
-  //test_parseDirectory();
+  test_parseDirectory();
 
   return 0;
 }

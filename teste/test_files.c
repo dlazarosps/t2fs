@@ -118,16 +118,8 @@ void return_lookup(int value, struct t2fs_record record, char* pathname) {
     case PARSED_PATH_ERROR:
       printf("Path inválido.\n");
       break;
-    case REGISTER_READ_ERROR:
-      printf("Erro crítico na leitura de um registro.\n");
-      break;
-    case FIND_REGISTER_ADITIONAL:
-      printf("ERRO! Valor de retorno de lookup nunca deve ser FIND_REGISTER_ADITIONAL.\n");
-      break;
-    case FIND_REGISTER_NOTFOUND:
-    case FIND_REGISTER_FIM:
-    case FIND_REGISTER_FREE:
-      printf("Arquivo '%s' não encontrado.\n", pathname);
+    case FILE_NOT_FOUND:
+      printf("Arquivo não encontrado.\n");
       break;
     default:
       printf("Record do arquivo '%s' encontrado!\n", pathname);

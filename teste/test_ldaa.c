@@ -37,11 +37,11 @@ void test_findByName() {
   char path4[30] = "/directory4/filename4";
 
   struct t2fs_record record0, record1, record2, record3, record4;
-  record0 = initRecord(TYPEVAL_REGULAR, path0, 1, 0, -1);
-  record1 = initRecord(TYPEVAL_REGULAR, path1, 1, 0, -1);
-  record2 = initRecord(TYPEVAL_DIRETORIO, path2, 1, 0, -1);
-  record3 = initRecord(TYPEVAL_REGULAR, path3, 1, 0, -1);
-  record4 = initRecord(TYPEVAL_REGULAR, path4, 1, 0, -1);
+  record0 = initRecord(TYPEVAL_REGULAR, path0, 0);
+  record1 = initRecord(TYPEVAL_REGULAR, path1, 0);
+  record2 = initRecord(TYPEVAL_DIRETORIO, path2, 0);
+  record3 = initRecord(TYPEVAL_REGULAR, path3, 0);
+  record4 = initRecord(TYPEVAL_REGULAR, path4, 0);
 
   // Inserindo na LDAA
   insertLDAA(record0, path0);
@@ -64,7 +64,7 @@ void test_insertSearch() {
 
   printf("\t Inserindo no LDAA \n");
 
-  struct t2fs_record record = {1, "Teste", 1, 1, 10 };
+  struct t2fs_record record = {1, "Teste", 0, 2};
 
   if(insertLDAA(record, "Teste") != -1)
   printf("Inserido com sucesso \n");
@@ -78,10 +78,10 @@ void test_insertSearch() {
     printf("Encontrado Handle %d \n", i);
 
     printf("\t Printando: \n");
-    printf("typeVal = %d \n name = %s \n MFT = %d \n", result.record.TypeVal, result.record.name, result.record.MFTNumber);
+    printf("typeVal = %d \n name = %s \n firstCluster = %d \n", result.record.TypeVal, result.record.name, result.record.firstCluster);
 
     printf("\t Original: \n");
-    printf("typeVal = %d \n name = %s \n MFT = %d \n", config.LDAA[i].record.TypeVal, config.LDAA[i].record.name, config.LDAA[i].record.MFTNumber);
+    printf("typeVal = %d \n name = %s \n firstCluster = %d \n", config.LDAA[i].record.TypeVal, config.LDAA[i].record.name, config.LDAA[i].record.firstCluster);
   }
   else
   printf("Erro ao encontrar \n");
@@ -89,7 +89,7 @@ void test_insertSearch() {
 
 void test_insertUpdate() {
   int i = getFreeLDAA();
-  struct t2fs_record record = {1, "Teste", 1, 1, 10 };
+  struct t2fs_record record = {1, "Teste", 0, 3};
 
 
   printf("Inserindo no LDAA \n");
@@ -99,14 +99,14 @@ void test_insertUpdate() {
     printf("\t Erro ao inserir \n");
 
   printf("\t Original: \n");
-  printf("typeVal = %d \n name = %s \n MFT = %d \n", config.LDAA[i].record.TypeVal, config.LDAA[i].record.name, config.LDAA[i].record.MFTNumber);
+  printf("typeVal = %d \n name = %s \n firstCluster = %d \n", config.LDAA[i].record.TypeVal, config.LDAA[i].record.name, config.LDAA[i].record.firstCluster);
   
-  struct descritor update = {1, 5, "Teste", {1, "TesteEDIT", 1, 1, 10 }};
+  struct descritor update = {1, 5, "Teste", {1, "TesteEDIT", 1, 10}};
   printf("UPDATE no LDAA \n");
 
   if(updateLDAA(i, 1, update) != -1){
     printf("\t Atualizado: \n");
-    printf("typeVal = %d \n name = %s \n MFT = %d \n", config.LDAA[i].record.TypeVal, config.LDAA[i].record.name, config.LDAA[i].record.MFTNumber);  
+    printf("typeVal = %d \n name = %s \n firstCluster = %d \n", config.LDAA[i].record.TypeVal, config.LDAA[i].record.name, config.LDAA[i].record.firstCluster); 
   }
   else
     printf("\t Erro ao atualizar \n");

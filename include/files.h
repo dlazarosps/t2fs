@@ -200,4 +200,6 @@ Douglas Lázaro
 
   int openRoot(char* filename);
 
+  int isFileName(char* filename);
+
 #endif
