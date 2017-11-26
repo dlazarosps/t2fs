@@ -29,16 +29,16 @@ void initFAT() {
     }
 	
 	//"caminha" de 4 em 4 bytes pelo setor e salva o valor de acordo com o indice na FAT
-  	for(j = 0; j <= FAT_SECTOR_SIZE-4; j += 4){
+  	for(j = 0; j <= constants.FAT_SECTOR_SIZE-4; j += 4){
   		// 4 bytes = 8 nº Hexas
-  		aux[0] = sec->at[j];
-  		aux[1] = sec->at[j+1];
-  		aux[2] = sec->at[j+2];
-  		aux[3] = sec->at[j+3];
-  		aux[4] = sec->at[j+4];
-  		aux[5] = sec->at[j+5];
-  		aux[6] = sec->at[j+6];
-  		aux[7] = sec->at[j+7];
+  		aux[0] = sec.at[j];
+  		aux[1] = sec.at[j+1];
+  		aux[2] = sec.at[j+2];
+  		aux[3] = sec.at[j+3];
+  		aux[4] = sec.at[j+4];
+  		aux[5] = sec.at[j+5];
+  		aux[6] = sec.at[j+6];
+  		aux[7] = sec.at[j+7];
   		
   		int num = convertFourBytes(aux, 0, str); 
   		
@@ -47,10 +47,10 @@ void initFAT() {
   			de exatamente qual valor é retornado pelo convertFourBytes()
   		*/
   		int op;
-		if(aux[0] = 'F' && aux[1] = 'F' && aux[2] = 'F' && aux[3] = 'F' && aux[4] = 'F' && aux[5] = 'F' && aux[6] = 'F'){
-			if(aux[7] = 'F')
+		if(aux[0] == 'F' && aux[1] == 'F' && aux[2] == 'F' && aux[3] == 'F' && aux[4] == 'F' && aux[5] == 'F' && aux[6] == 'F'){
+			if(aux[7] == 'F')
 				op = FAT_EOF;
-			else if(aux[7] = 'E')
+			else if(aux[7] == 'E')
 				op = FAT_ERROR;
 			else
 				op = 0;
