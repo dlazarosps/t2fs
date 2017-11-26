@@ -10,4 +10,5 @@
 #include "t2fs.h"
 #include "constants.h"
 #include "helpers/ldaa.h"
+#include "helpers/fat.h"
 #include "types.h"

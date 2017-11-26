@@ -18,7 +18,7 @@ TST_DIR=./teste
 
 # GERAÇÂO DO T2FS #
 FILES_OBJECTS=$(LIB_DIR)/files/create.o $(LIB_DIR)/files/delete.o $(LIB_DIR)/files/open.o $(LIB_DIR)/files/close.o $(LIB_DIR)/files/read.o $(LIB_DIR)/files/write.o $(LIB_DIR)/files/truncate.o $(LIB_DIR)/files/readdir.o $(LIB_DIR)/files/getcwd.o $(LIB_DIR)/files/chdir.o
-HELPER_OBJECTS=$(LIB_DIR)/helpers/print.o $(LIB_DIR)/helpers/util.o $(LIB_DIR)/helpers/files.o $(LIB_DIR)/helpers/ldaa.o
+HELPER_OBJECTS=$(LIB_DIR)/helpers/print.o $(LIB_DIR)/helpers/util.o $(LIB_DIR)/helpers/files.o $(LIB_DIR)/helpers/ldaa.o $(LIB_DIR)/helpers/fat.o
 SRC_OBJECTS=$(LIB_DIR)/t2fs.o $(LIB_DIR)/disk.o $(LIB_DIR)/parse.o
 
 LIB_GENERATED_OBJECTS=$(SRC_OBJECTS) $(FILES_OBJECTS) $(HELPER_OBJECTS)
@@ -79,6 +79,9 @@ $(LIB_DIR)/helpers/files.o: $(SRC_DIR)/helpers/files.c
 
 $(LIB_DIR)/helpers/ldaa.o: $(SRC_DIR)/helpers/ldaa.c
 	$(CC) $(CFLAGS) -c -o $(LIB_DIR)/helpers/ldaa.o -I$(INC_DIR) $(SRC_DIR)/helpers/ldaa.c
+
+$(LIB_DIR)/helpers/fat.o: $(SRC_DIR)/helpers/fat.c
+	$(CC) $(CFLAGS) -c -o $(LIB_DIR)/helpers/fat.o -I$(INC_DIR) $(SRC_DIR)/helpers/fat.c
 
 # COMANDOS DE TESTE #
 ## código de avaliação testing program
