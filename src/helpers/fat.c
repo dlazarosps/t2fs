@@ -17,10 +17,10 @@ void initFAT() {
   SECTOR_T sec;
   unsigned int i, j, index = 0;
   unsigned char aux[8];
-  char str[4];
+  char str[8];
 	
 	// Ler todos os setores do cluster 1
-  for (i = 0; i < constants.SECTOR_PER_CLUSTER; i++) {
+  for (i = FAT_ROOT; i < FAT_SECTORS; i++) {
 	
 	//Caso erro na leitura do de algum setor do cluster da fat
     if(readSector(i, &sec) != TRUE) {
@@ -29,7 +29,7 @@ void initFAT() {
     }
 	
 	//"caminha" de 4 em 4 bytes pelo setor e salva o valor de acordo com o indice na FAT
-  	for(j = 0; j <= constants.FAT_SECTOR_SIZE-4; j += 4){
+  	for(j = 0; j <= SECTOR_SIZE-8; j += 8){
   		// 4 bytes = 8 nº Hexas
   		aux[0] = sec.at[j];
   		aux[1] = sec.at[j+1];
@@ -47,25 +47,16 @@ void initFAT() {
   			de exatamente qual valor é retornado pelo convertFourBytes()
   			que pode ser utilizado diretamente para os testes do valor
   		*/
-  		int op;
-		if((aux[0] == 'F') && (aux[1] == 'F') && (aux[2] == 'F') && (aux[3] == 'F') && (aux[4] == 'F') && (aux[5] == 'F') && (aux[6] == 'F')){
-			if(aux[7] == 'F')
-				op = FAT_EOF;
-			else if(aux[7] =='E')
-				op = FAT_ERROR;
-			else
-				op = 0;
-		}
 		
-		switch(op){
+		switch(num){
 			case FAT_ERROR:
-        config.indexFAT[index] = FAT_ERROR;
+				config.indexFAT[index] = FAT_ERROR;
 				break;
 			case FAT_EOF:
-        config.indexFAT[index] = FAT_EOF;
+				config.indexFAT[index] = FAT_EOF;
 				break;
 			default:
-				if(num > 1)		
+				if(num > constants.DATA_SECTOR)		
 		  			config.indexFAT[index] = num;
 		  		else
 					config.indexFAT[index] = FAT_ERROR;
@@ -77,6 +68,7 @@ void initFAT() {
   		if(index > constants.DISK_CLUSTERS)
   			return;
   	}//End FOR 2
+	
   }//End FOR 1
 }
 

@@ -61,7 +61,7 @@ int initConfig() {
   constants = initConstants(boot);
   
   /*FAT*/
-  config.indexFAT = malloc(sizeof(int) * constants.DISK_CLUSTERS); //????
+  config.indexFAT = malloc(sizeof(WORD) * FAT_SECTORS); //????
   initFAT();
 
   initLDAA();
