@@ -9,13 +9,11 @@
 
 #include "libs.h"
 
-/*
-	ARQUIVO NÃO FINALIZADO - Apenas copiado do MFT
-*/
 
 void initFAT() {
   SECTOR_T sec;
-  unsigned int i, j, index = 0;
+  unsigned int i, j;
+  int index = 0;
   unsigned char aux[8];
   char str[8];
 	
@@ -55,11 +53,8 @@ void initFAT() {
 			case FAT_EOF:
 				config.indexFAT[index] = FAT_EOF;
 				break;
-			default:
-				if(num > constants.DATA_SECTOR)		
-		  			config.indexFAT[index] = num;
-		  		else
-					config.indexFAT[index] = FAT_ERROR;
+			default:	
+		  		config.indexFAT[index] = num;
 			break;
 		}
 	
