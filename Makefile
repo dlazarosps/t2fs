@@ -100,7 +100,7 @@ ifeq (teste,$(firstword $(MAKECMDGOALS)))
   $(eval $(RUN_ARGS):;@:)
 endif
 
-TEST_FILES=$(BIN_DIR)/test_display $(BIN_DIR)/test_disk $(BIN_DIR)/test_parse $(BIN_DIR)/test_util  $(BIN_DIR)/test_files $(BIN_DIR)/test_ldaa
+TEST_FILES=$(BIN_DIR)/test_display $(BIN_DIR)/test_disk $(BIN_DIR)/test_parse $(BIN_DIR)/test_util  $(BIN_DIR)/test_files $(BIN_DIR)/test_ldaa $(BIN_DIR)/test_fat
 teste: $(TEST_FILES)
 	$(BIN_DIR)/$(RUN_ARGS)
 
@@ -121,6 +121,9 @@ $(BIN_DIR)/test_files: all $(TST_DIR)/test_files.c
 
 $(BIN_DIR)/test_ldaa: all $(TST_DIR)/test_ldaa.c
 	$(CC) $(CFLAGS) -o $(BIN_DIR)/test_ldaa $(TST_DIR)/test_ldaa.c -L$(LIB_DIR) -lt2fs -I$(INC_DIR)
+	
+$(BIN_DIR)/test_fat: all $(TST_DIR)/test_fat.c
+	$(CC) $(CFLAGS) -o $(BIN_DIR)/test_fat $(TST_DIR)/test_fat.c -L$(LIB_DIR) -lt2fs -I$(INC_DIR)
 
 ## API ##
 ifeq (api,$(firstword $(MAKECMDGOALS)))

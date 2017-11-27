@@ -65,7 +65,7 @@
 	*/
 
     //Lista de clusters representados na FAT
-    WORD* indexFAT;
+    DWORD* indexFAT;
 
     struct descritor LDAA[MAX_FILES_OPEN];
     
