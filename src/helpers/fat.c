@@ -72,11 +72,11 @@ void printFAT(int begin, int end){
   for (i = begin; i < end; ++i)
   {
     if (config.indexFAT[i] == FAT_LIVRE)
-      printf("Index FAT [%d] =  LIVRE \n",i);
+      printf("Index FAT [%d] =  LIVRE -> %d\n",i, getFAT(i));
 	else if (config.indexFAT[i] == FAT_ERROR)
-      printf("Index FAT [%d] =  Cluster com ERRO \n",i);
+      printf("Index FAT [%d] =  Cluster com ERRO -> %d\n",i, getFAT(i));
     else
-      printf("Index FAT [%d] =  OCUPADO \n",i);
+      printf("Index FAT [%d] =  OCUPADO -> %d\n",i, getFAT(i));
   }
 
 }
@@ -86,7 +86,7 @@ int getFAT(int clusterIndex){
 }
 
 int setFAT(int clusterIndex, int allocated){
-	if(clusterIndex == SUPERBLOCK || clusterIndex == FAT_ROOT){
+	if(clusterIndex <= constants.FAT_CLUSTER){
 		printf("Acesso a index FAT [%d] negado, indice reservado\n", clusterIndex);
 		return -1;
 	}	
