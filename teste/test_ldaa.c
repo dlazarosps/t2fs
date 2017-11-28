@@ -116,9 +116,15 @@ void test_insertUpdate() {
 int main(int argc, char const *argv[]) {
   initConfig();
 
-  // test_insertSearch();
+  printf(" ---------- TESTE test_insertSearch ---------- \n\n");
 
-  // test_findByName();
+  test_insertSearch();
+
+  printf("\n\n ---------- TESTE test_findByName ---------- \n\n");
+
+  test_findByName();
+
+  printf("\n\n ---------- TESTE test_insertUpdate ---------- \n\n");
 
   test_insertUpdate();
 
