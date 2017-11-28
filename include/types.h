@@ -16,34 +16,29 @@
 
 
   struct Constants {
-    unsigned int SECTOR_PER_CLUSTER;
-    unsigned int CLUSTER_SIZE;
 
-    unsigned int DISK_SECTORS;
-    unsigned int DISK_CLUSTERS;
+    /* superbloco infos */
+    unsigned int SUPERBLOCK_SIZE; //tamanho do superbloco em setores
+    unsigned int SECTOR_PER_CLUSTER; //quantidade de setores por cluster
 
-    /* Partições do disco */
-    unsigned int SUPERBLOCK_CLUSTER_SIZE;
-    unsigned int SUPERBLOCK_SECTOR_SIZE;
+    unsigned int FAT_SECTOR; //primeiro setor de FAT
+    unsigned int DATA_SECTOR; //setor onde começa a area de dados
+    unsigned int SUPERBLOCK_CLUSTER; //número do cluster do root
+    unsigned int DISK_SECTORS; //quantidade de setores
+    
+    /* infos calculadas */
+    unsigned int DISK_CLUSTERS; //quantidade de clusters no disco
 
-    unsigned int FAT_CLUSTER_SIZE;
-    unsigned int FAT_SECTOR_SIZE;
+    unsigned int FAT_SECTORS; //quantidade de setores da área de FAT
+    unsigned int DATA_SECTORS; //quantidade de setores da área de Dados
+    
+    unsigned int ROOT_SECTOR; //setor onde começa o cluster do root
 
-    unsigned int DATA_CLUSTER_SIZE;
-    unsigned int DATA_SECTOR_SIZE;
+    unsigned int CLUSTER_SIZE; //tamanho em bytes de um cluster
+    unsigned int RECORD_PER_CLUSTER; //quantidade de records de um cluster
 
-    /* Cluster (Blocos) do disco */
-    unsigned int SUPERBLOCK_CLUSTER;
-    unsigned int FAT_CLUSTER;
-    unsigned int DATA_CLUSTER;
-
-    /* Setores de início do disco */
-    unsigned int SUPERBLOCK_SECTOR;
-    unsigned int FAT_SECTOR;
-    unsigned int DATA_SECTOR;
-
-    /* Records */
-    unsigned int RECORD_PER_CLUSTER;
+    unsigned int DATA_CLUSTER; //clusters reservados
+    unsigned int FAT_CLUSTER; //clusters 1 reservados
   };
 
 

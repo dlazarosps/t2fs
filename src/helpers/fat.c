@@ -18,7 +18,7 @@ void initFAT() {
   char str[8];
 	
 	// Ler todos os setores do cluster 1
-  for (i = FAT_ROOT; i < FAT_SECTORS; i++) {
+  for (i = FAT_ROOT; i < constants.FAT_SECTORS; i++) {
 	
 	//Caso erro na leitura do de algum setor do cluster da fat
     if(readSector(i, &sec) != TRUE) {
@@ -187,7 +187,7 @@ int saveFAT(int clusterIndex){
 
     //Grava toda a FAT no disco
     
-    for (j = 1; j <= FAT_SECTORS; ++j)
+    for (j = 1; j <= constants.FAT_SECTORS; ++j)
     {
       for (i = 0; i < FAT_PER_SECTOR*j; ++i){
         

@@ -13,36 +13,29 @@
 struct Constants initConstants(struct t2fs_superbloco supercluster) {
   struct Constants k;
 
-  /* Disco */
+  /*superbloco*/
+  k.SUPERBLOCK_SIZE = supercluster.SuperBlockSize;
   k.SECTOR_PER_CLUSTER = supercluster.SectorsPerCluster;
-  k.CLUSTER_SIZE = k.SECTOR_PER_CLUSTER * SECTOR_SIZE; // SECTOR_SIZE IS A DEFINED CONSTANT
-
-  k.DISK_SECTORS = supercluster.NofSectors;
-  k.DISK_CLUSTERS = k.DISK_SECTORS / k.SECTOR_PER_CLUSTER;
-
   
-  /* Partições do disco (Quantidade total de Cluster de cada partição) */
-  k.SUPERBLOCK_CLUSTER_SIZE = 1;
-  k.SUPERBLOCK_SECTOR_SIZE = SECTOR_SIZE;
-
-  k.FAT_CLUSTER_SIZE = (supercluster.DataSectorStart - supercluster.pFATSectorStart)/ k.SECTOR_PER_CLUSTER;
-  k.FAT_SECTOR_SIZE = k.FAT_CLUSTER_SIZE * k.SECTOR_PER_CLUSTER;
-
-  k.DATA_CLUSTER_SIZE = k.DISK_CLUSTERS - (k.SUPERBLOCK_CLUSTER_SIZE + k.FAT_CLUSTER_SIZE);
-  k.DATA_SECTOR_SIZE = k.DISK_SECTORS - (k.SUPERBLOCK_SECTOR_SIZE + k.FAT_SECTOR_SIZE);
-
-  /* Cluster (Blocos) de inicio do disco */
-  k.SUPERBLOCK_CLUSTER = 0;
-  k.FAT_CLUSTER = k.SUPERBLOCK_CLUSTER + 1;
-  k.DATA_CLUSTER = k.FAT_CLUSTER_SIZE + 1;
-  
-  /* Setores de inicio do disco */
-  k.SUPERBLOCK_SECTOR = 0;
   k.FAT_SECTOR = supercluster.pFATSectorStart;
   k.DATA_SECTOR = supercluster.DataSectorStart;
+  k.SUPERBLOCK_CLUSTER = supercluster.RootDirCluster;
+  k.DISK_SECTORS = supercluster.NofSectors;
 
-  /* Records */
+  /* calculadas */
+  k.DISK_CLUSTERS = k.DISK_SECTORS / k.SECTOR_PER_CLUSTER;
+
+  k.FAT_SECTORS = k.DATA_SECTOR - k.FAT_SECTOR;
+  k.DATA_SECTORS = k.DISK_SECTORS - k.FAT_SECTORS - k.SUPERBLOCK_SIZE;
+
+  k.ROOT_SECTOR = k.DATA_SECTOR + (k.SUPERBLOCK_CLUSTER * k.SECTOR_PER_CLUSTER);
+
+  k.CLUSTER_SIZE = SECTOR_SIZE * k.SECTOR_PER_CLUSTER;
   k.RECORD_PER_CLUSTER = k.CLUSTER_SIZE / RECORD_SIZE;
+
+  /* pog */
+  k.DATA_CLUSTER = k.SUPERBLOCK_CLUSTER - 1; // cluster 0 e 1
+  k.FAT_CLUSTER = k.DATA_CLUSTER; // cluster 0 e 1
 
   return k;
 }
