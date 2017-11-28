@@ -24,7 +24,7 @@ void test_readCluster() {
   CLUSTER_T clusterBuffer;
   clusterBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
 
-  readCluster(1, &clusterBuffer);
+  readCluster(2, &clusterBuffer);
   printCluster(clusterBuffer.at);
 
   printf("-- ENCERROU READ CLUSTER --\n");
@@ -36,10 +36,10 @@ void test_showCluster() {
   /* Mostrar blocos de importância */
   printf("-- BOOT CLUSTER --\n");
   showCluster(constants.SUPERBLOCK_CLUSTER);
-  printf("-- MFT CLUSTER --\n");
-  showCluster(constants.FAT_CLUSTER);
-  printf("-- DATA CLUSTER --\n");
-  showCluster(constants.DATA_CLUSTER);
+  printf("-- ARQUIVO CLUSTER --\n");
+  showCluster(4);
+  /*printf("-- DATA CLUSTER --\n");
+  showCluster(constants.DATA_CLUSTER);*/
 
   printf("-- ENCERROU SHOW CLUSTER --\n");
 }
@@ -95,8 +95,8 @@ void test_readRecord() {
 
   struct t2fs_record record1, record2;
 
-  readRecord(2050, 0, &record1);
-  readRecord(2050, 1, &record2);
+  readRecord(2, 3, &record1); // cluster  | indice do record | struct record
+  readRecord(2, 4, &record2);
 
   printRecord(record1);
   printf("\n");
@@ -201,16 +201,16 @@ int main(int argc, char const *argv[]) {
   test_showCluster();
 
   /* WRITE SECTOR */
-  test_writeSector();
+  // test_writeSector();
 
   /* WRITE CLUSTER */
-  test_writeCluster();
+  // test_writeCluster();
 
   /* READ RECORD */
   test_readRecord();
 
   /* WRITE RECORD */
-  test_writeRecord();
+  // test_writeRecord();
 
   return 0;
 }
