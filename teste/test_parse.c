@@ -40,7 +40,7 @@ void test_parseDirectory() {
   clusterBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
   struct t2fs_record records[constants.RECORD_PER_CLUSTER];
 
-  if(readCluster(2050, &clusterBuffer) == FALSE) {
+  if(readCluster(2, &clusterBuffer) == FALSE) {
     return;
   };
 
