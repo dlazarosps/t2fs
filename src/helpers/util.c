@@ -51,14 +51,14 @@ struct Constants initConstants(struct t2fs_superbloco supercluster) {
 int initConfig() {
   printf("Inicializando file system..."); fflush(stdout);
 
-  SECTOR_T superBlock;
+  SECTOR_T SuperBlock;
 
-  if(readSuperblock(&superBlock) == FALSE) {
+  if(readSuperblock(&SuperBlock) == FALSE) {
     return FALSE;
   };
 
-  struct t2fs_superbloco boot = parseSuperBlock(superBlock.at);
-  constants = initConstants(boot);
+  config.superbloco = parseSuperBlock(SuperBlock.at);
+  constants = initConstants(config.superbloco);
   
   /*FAT*/
   config.indexFAT = malloc(sizeof(DWORD) * constants.DISK_CLUSTERS); //????
