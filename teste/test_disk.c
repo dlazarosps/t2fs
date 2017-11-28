@@ -34,10 +34,10 @@ void test_showCluster() {
   printf("-- SHOW CLUSTER --\n");
 
   /* Mostrar blocos de importância */
-  printf("-- BOOT CLUSTER --\n");
-  showCluster(constants.SUPERBLOCK_CLUSTER);
+  printf("-- ROOT CLUSTER --\n");
+  showCluster(2);
   printf("-- ARQUIVO CLUSTER --\n");
-  showCluster(4);
+  showCluster(3);
   /*printf("-- DATA CLUSTER --\n");
   showCluster(constants.DATA_CLUSTER);*/
 
