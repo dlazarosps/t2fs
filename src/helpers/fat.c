@@ -27,7 +27,7 @@ void initFAT() {
     }
 	
 	//"caminha" de 4 em 4 bytes pelo setor e salva o valor de acordo com o indice na FAT
-  	for(j = 0; j <= SECTOR_SIZE-8; j += 8){
+  	for(j = 0; j <= SECTOR_SIZE-4; j += 4){
   		// 4 bytes = 8 nº Hexas
   		aux[0] = sec.at[j];
   		aux[1] = sec.at[j+1];
