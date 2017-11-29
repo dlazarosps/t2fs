@@ -14,7 +14,7 @@ int validPath(char* path) {
   int length = strlen(path);
 
   // Min Size || Path não começa no root ou diretorio corrente
-  if(length == 0 || path[0] != '/' || path[0] != '.') {
+  if(length == 0) {
     return FALSE;
   }
 
