@@ -72,24 +72,34 @@ void test_writeSector() {
 }
 
 void test_writeCluster() {
+	int cluster1 = 3;
+	int cluster2 = 4;
+	
   printf("-- WRITE CLUSTER --\n");
 
   CLUSTER_T clusterBuffer, clusterBufferBackup;
   clusterBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
   clusterBufferBackup.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
 
-  readCluster(0, &clusterBuffer);
-  readCluster(1, &clusterBufferBackup);
-
-  writeCluster(1, &clusterBuffer);
-
+  printf("-- CLUSTER Inicialmente--\n");
   // Mostra bloco modificado
-  readCluster(1, &clusterBuffer);
+  readCluster(cluster2, &clusterBuffer);
+  printCluster(clusterBuffer.at);
+  
+  readCluster(cluster1, &clusterBuffer);
+  readCluster(cluster2, &clusterBufferBackup);
+
+  writeCluster(cluster2, &clusterBuffer);
+
+   printf("-- CLUSTER Modificado--\n");
+  // Mostra bloco modificado
+  readCluster(cluster2, &clusterBuffer);
   printCluster(clusterBuffer.at);
 
+  printf("-- CLUSTER Restaurado--\n");
   // Restaura bloco modificado
-  writeCluster(1, &clusterBufferBackup);
-  readCluster(1, &clusterBuffer);
+  writeCluster(cluster2, &clusterBufferBackup);
+  readCluster(cluster2, &clusterBuffer);
   printCluster(clusterBuffer.at);
 
   printf("-- ENCERROU WRITE CLUSTER --\n");
@@ -215,13 +225,13 @@ int main(int argc, char const *argv[]) {
   //test_writeSector();
 
   /* WRITE CLUSTER */
-  // test_writeCluster();
+  test_writeCluster();
 
   /* READ RECORD */
   //test_readRecord();
 
   /* WRITE RECORD */
-  test_writeRecord();
+  //test_writeRecord();
 
   return 0;
 }

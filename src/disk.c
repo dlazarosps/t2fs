@@ -84,7 +84,7 @@ int writeCluster(int cluster, CLUSTER_T* buffer) {
     return FALSE;
   }
 
-  sector = cluster * constants.SECTOR_PER_CLUSTER;
+  sector = constants.DATA_SECTOR + (cluster * constants.SECTOR_PER_CLUSTER);
 
   for(i = 0; i < constants.SECTOR_PER_CLUSTER; i++){
     if (writeSector(sector++, (SECTOR_T*) &buffer->at[i*SECTOR_SIZE]) == FALSE) {
