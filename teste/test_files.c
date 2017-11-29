@@ -127,8 +127,6 @@ void return_lookup(int value, struct t2fs_record record, char* pathname) {
       printf("\n");
       break;
   }
-
-  getchar();
 }
 
 void test_lookup() {
@@ -177,7 +175,7 @@ void test_getFileDirectory() {
 }
 
 int main(int argc, char const *argv[]) {
-  //initConfig();
+  initConfig();
 
   /* Valid Path */
   //test_validPath();
@@ -189,10 +187,10 @@ int main(int argc, char const *argv[]) {
   //test_isFileName();
 
   /* Lookup File */
-  //test_lookup();
+  test_lookup();
 
   /* getFileDirectory */
-  test_getFileDirectory();
+  //test_getFileDirectory();
 
   return 0;
 }

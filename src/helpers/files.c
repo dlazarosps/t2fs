@@ -16,7 +16,7 @@ int validPath(char* path) {
   int length = strlen(path);
 
   // Min Size || Path não começa no root ou diretorio corrente
-  if(length == 0 || path[0] != '/' || path[0] != '.') {
+  if(length == 0) {
     return FALSE;
   }
   
@@ -119,7 +119,7 @@ int parsePath(char* path, char ** elements) {
 
 int lookup(char* pathname, struct t2fs_record * fileRecord) {
 	int check = getcwd2(pathname, sizeof(pathname));
-	if(check!=TRUE) return FALSE;
+	if(check!=TRUE){ printf("ERRO getcwd2()\n"); return FALSE;}
   
 	char ** parsedPath = malloc(sizeof(char) * MAX_FILE_NAME_SIZE);
 	unsigned int parseCount = parsePath(pathname, parsedPath);
