@@ -100,7 +100,7 @@ int writeRecord(int cluster, int index, struct t2fs_record record) {
     return FALSE;
   }
 
-  int sector_offset = index / constants.SECTOR_PER_CLUSTER;
+  int sector_offset = constants.DATA_SECTOR + (index / constants.SECTOR_PER_CLUSTER);
   int record_offset = index % constants.SECTOR_PER_CLUSTER;
   int sector = cluster * constants.SECTOR_PER_CLUSTER + sector_offset;
   SECTOR_T sectorBuffer;

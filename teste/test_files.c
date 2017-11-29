@@ -219,22 +219,22 @@ int main(int argc, char const *argv[]) {
   initConfig();
 
   /* Valid Path */
-  //test_validPath();
+  test_validPath();
 
   /* Parse Path */
-  //test_parsePath();
+  test_parsePath();
 
   /* Valid File Name */
-  //test_isFileName();
+  test_isFileName();
 
   /* Lookup File */
   test_lookup();
 
   /* getFileDirectory */
-  //test_getFileDirectory();
+  test_getFileDirectory();
   
   /* getcwd */
-  //test_getcwd();
+  test_getcwd();
 
   return 0;
 }
