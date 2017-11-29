@@ -87,7 +87,7 @@ int parsePath(char* path, char ** elements) {
     return FALSE;
   }
 
-  char opPath[MAX_FILE_NAME_SIZE];
+  char opPath[30*MAX_FILE_NAME_SIZE];
   strcpy(opPath, path);
 
   char * pch = strtok(opPath, "/");

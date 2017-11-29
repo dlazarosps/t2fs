@@ -81,7 +81,7 @@ void test_parseIsFileName(char * path) {
   } else {
     // Path válida, verifica se o último elemento é um nome de arquivo normal ou diretório.
     printf("\"%s\":\n\t", path);
-    printf("%s\n\n", isFileName(elements[count - 1]) ? "é um nome de diretório." : "é um nome de arquivo.");
+    printf("%s\n\n", isFileName(elements[count]) ? "é um nome de diretório." : "é um nome de arquivo.");
   }
 }
 
@@ -178,19 +178,19 @@ int main(int argc, char const *argv[]) {
   initConfig();
 
   /* Valid Path */
-  //test_validPath();
+  test_validPath();
 
   /* Parse Path */
-  //test_parsePath();
+  test_parsePath();
 
   /* Valid File Name */
-  //test_isFileName();
+  test_isFileName();
 
   /* Lookup File */
   test_lookup();
 
   /* getFileDirectory */
-  //test_getFileDirectory();
+  test_getFileDirectory();
 
   return 0;
 }
