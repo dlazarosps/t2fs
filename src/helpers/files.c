@@ -116,7 +116,7 @@ int lookup(char* pathname, struct t2fs_record * fileRecord) {
 	if(check!=TRUE) return FALSE;
   
 	char ** parsedPath = malloc(sizeof(char) * MAX_FILE_NAME_SIZE);
-	unsigned int parseCount = parsePath(pathname, parsedPath);
+	int parseCount = parsePath(pathname, parsedPath);
 
   
 	if(parseCount == FALSE) {
@@ -124,7 +124,7 @@ int lookup(char* pathname, struct t2fs_record * fileRecord) {
 	}
   
 	CLUSTER_T actualCluster;
-	actualCluster.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
+	actualCluster.at = malloc(sizeof(BYTE) * constants.CLUSTER_SIZE);
   
 	struct t2fs_record list_records[constants.RECORD_PER_CLUSTER];
   
@@ -134,11 +134,11 @@ int lookup(char* pathname, struct t2fs_record * fileRecord) {
   
 	parseDirectory(actualCluster, list_records);
   
-	unsigned int i = 0, j = 0;
+	int i = 1, j = 0;
 	int found = FALSE, endReached = FALSE;
   
 	//ler FAT diretorio root até chegar diretorio folha
-	while (i < parseCount && endReached){
+	while (i <= parseCount && endReached != TRUE){
 		
 		//Se chegou no limite ou tipo inválido, o arquivo desejado
 		//não existe.
@@ -151,6 +151,7 @@ int lookup(char* pathname, struct t2fs_record * fileRecord) {
 			case TYPEVAL_INVALIDO:
 				j = -3;
 				i = parseCount;
+				endReached = TRUE;
 				break;
 			
 			case TYPEVAL_DIRETORIO:
@@ -169,6 +170,7 @@ int lookup(char* pathname, struct t2fs_record * fileRecord) {
 					memcpy((void*) fileRecord, (void*) &list_records[j], RECORD_SIZE);
 					found = TRUE;
 					i++;
+					endReached = TRUE;
 					break;
 				} else {
 					j++;

@@ -57,7 +57,7 @@ int main(int argc, char const *argv[]) {
   initConfig();
 
   // PARSE BOOT BLOCK
-  test_parseSuperblock();
+  //test_parseSuperblock();
 
   /* Parse Directory */
   test_parseDirectory();

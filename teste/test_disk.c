@@ -22,7 +22,7 @@ void test_readSector() {
 void test_readCluster() {
   printf("-- READ CLUSTER --\n");
   CLUSTER_T clusterBuffer;
-  clusterBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
+  clusterBuffer.at = malloc(sizeof(BYTE) * constants.CLUSTER_SIZE);
 
   readCluster(2, &clusterBuffer);
   printCluster(clusterBuffer.at);
@@ -192,13 +192,13 @@ int main(int argc, char const *argv[]) {
   initConfig();
 
   /* READ SECTOR */
-  test_readSector();
+  //test_readSector();
 
   /* READ CLUSTER */
   test_readCluster();
 
   /* SHOW CLUSTER */
-  test_showCluster();
+  //test_showCluster();
 
   /* WRITE SECTOR */
   // test_writeSector();
@@ -207,7 +207,7 @@ int main(int argc, char const *argv[]) {
   // test_writeCluster();
 
   /* READ RECORD */
-  test_readRecord();
+  //test_readRecord();
 
   /* WRITE RECORD */
   // test_writeRecord();

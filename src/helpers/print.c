@@ -82,6 +82,7 @@ void printRecord(struct t2fs_record record) {
   printf("TypeVal: %d\n", record.TypeVal);
   printf("Name: %s\n", record.name);
   printf("Bytes: %d\n", record.bytesFileSize);
+  printf("FirstCluster: %d\n", record.firstCluster);
 }
 
 void printDescritor(struct descritor file) {

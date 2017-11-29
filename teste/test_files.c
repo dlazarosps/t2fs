@@ -135,20 +135,28 @@ void return_lookup(int value, struct t2fs_record record, char* pathname) {
 
 void test_lookup() {
   printf("\n--- Teste de Lookup ---\n\n");
-  struct t2fs_record record1, record2, record3, record4, record5;
-  int return_record1, return_record2, return_record3, return_record4, return_record5;
+  struct t2fs_record record1, record2, record3, record4, record5, record6, record7, record8, record9;
+  int return_record1, return_record2, return_record3, return_record4, return_record5, return_record6, return_record7, return_record8, return_record9;
 
   char path1[30] = "/file1.txt";
-  char path2[30] = "/file2/file";
-  char path3[30] = "/file1";
-  char path4[30] = "/file/file/file";
-  char path5[30] = "/file1/file";
+  char path2[30] = "/file2.txt";
+  char path3[30] = "/dir1/file1.txt";
+  char path4[30] = "/dir1/file2.txt";
+  char path5[30] = "./dir1/file2.txt";
+  char path6[30] = "dir1/file2.txt";
+  char path7[30] = "file1.txt";
+  char path8[30] = "../file1.txt";
+  char path9[30] = "/file1/file";
 
   return_record1 = lookup(path1, &record1);
   return_record2 = lookup(path2, &record2);
   return_record3 = lookup(path3, &record3);
   return_record4 = lookup(path4, &record4);
   return_record5 = lookup(path5, &record5);
+  return_record6 = lookup(path6, &record6);
+  return_record7 = lookup(path7, &record7);
+  return_record8 = lookup(path8, &record8);
+  return_record9 = lookup(path9, &record9);
 	
   if(return_record1 < 0) printf("Erro lookUp record1\n");
   else return_lookup(return_record1, record1, path1);
@@ -160,6 +168,14 @@ void test_lookup() {
   else return_lookup(return_record4, record4, path4);
   if(return_record5 < 0) printf("Erro lookUp record5\n");
   else return_lookup(return_record5, record5, path5);
+  if(return_record6 < 0) printf("Erro lookUp record6\n");
+  else return_lookup(return_record6, record6, path6);
+  if(return_record7 < 0) printf("Erro lookUp record7\n");
+  else return_lookup(return_record7, record7, path7);
+  if(return_record8 < 0) printf("Erro lookUp record8\n");
+  else return_lookup(return_record8, record8, path8);
+  if(return_record9 < 0) printf("Erro lookUp record9\n");
+  else return_lookup(return_record9, record9, path9);
 
   printf("--- Encerrando teste de Lookup ---\n");
 }
@@ -212,13 +228,13 @@ int main(int argc, char const *argv[]) {
   //test_isFileName();
 
   /* Lookup File */
-  //test_lookup();
+  test_lookup();
 
   /* getFileDirectory */
   //test_getFileDirectory();
   
   /* getcwd */
-  test_getcwd();
+  //test_getcwd();
 
   return 0;
 }
