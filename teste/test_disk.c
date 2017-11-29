@@ -45,21 +45,27 @@ void test_showCluster() {
 }
 
 void test_writeSector() {
+  int sector1 = 137;
+  int sector2 = 138;
+  
   printf("-- WRITE SECTOR --\n");
 
   SECTOR_T sectorBuffer2, sectorBufferBackup;
-  readSector(0, &sectorBuffer2);
-  readSector(1, &sectorBufferBackup);
-
-  writeSector(1, &sectorBuffer2);
-
+  readSector(sector1, &sectorBuffer2);
+  readSector(sector2, &sectorBufferBackup);
+	printf("\n-- PRINT SECTOR INICIALMENTE --\n");
+	printSector(sectorBufferBackup.at);
+  
+  writeSector(sector2, &sectorBuffer2);
+	printf("\n-- PRINT SECTOR MODIFICADO --\n");
   // Mostra setor modificado
-  readSector(1, &sectorBuffer2);
+  readSector(sector2, &sectorBuffer2);
   printSector(sectorBuffer2.at);
 
+	printf("\n-- PRINT SECTOR RESTAURADO --\n");
   // Restaura setor modificado
-  writeSector(1, &sectorBufferBackup);
-  readSector(1, &sectorBuffer2);
+  writeSector(sector2, &sectorBufferBackup);
+  readSector(sector2, &sectorBuffer2);
   printSector(sectorBuffer2.at);
 
   printf("-- ENCERROU WRITE SECTOR --\n");
@@ -136,39 +142,35 @@ void test_writeRecord() {
 
   printf("Lendo records...\n");
   struct t2fs_record record1, record2;
-  readRecord(2050, 0, &record1);
-  readRecord(2050, 1, &record2);
+  readRecord(2, 2, &record1); // file1.txt
+  readRecord(2, 3, &record2); // file2.txt
 
   printf("Alterando valores para teste...\n");
-  strcpy(record1.name, "file3");
-  // record1.MFTNumber = 6;
+  strcpy(record1.name, "file3.txt");
 
-  strcpy(record2.name, "file4");
-  // record2.MFTNumber = 7;
+  strcpy(record2.name, "file4.txt");
 
   printf("Backup de records...\n");
   struct t2fs_record record1_backup, record2_backup, record3_backup;
-  readRecord(3000, 5, &record1_backup);
-  readRecord(3000, 11, &record2_backup);
-  readRecord(3000, 15, &record3_backup);
+  readRecord(2, 2, &record1_backup);
+  readRecord(2, 3, &record2_backup);
 
   printf("Escrevendo records modificados...\n");
-  test_executeWriteRecord(3000, 5, record1);
-  test_executeWriteRecord(3000, 11, record2);
-  test_executeWriteRecord(3000, 15, record2);
+  test_executeWriteRecord(2, 2, record2);
+  test_executeWriteRecord(2, 3, record1);
 
-  /* Erros */
+  /* Erros 
   test_executeWriteRecord(3000, 16, record2);
   test_executeWriteRecord(3000, -1, record2);
   test_executeWriteRecord(constants.DATA_CLUSTER -1, 15, record2);
   test_executeWriteRecord(constants.DISK_CLUSTERS, 15, record2);
-
-  printf("\nImprimindo diretório alterado...\n");
+	*/
+  printf("\nImprimindo diretório ALTERADO...\n");
   CLUSTER_T clusterBuffer;
   clusterBuffer.at = malloc(sizeof(unsigned char) * constants.CLUSTER_SIZE);
   struct t2fs_record records[constants.RECORD_PER_CLUSTER];
 
-  if(readCluster(3000, &clusterBuffer) == FALSE) {
+  if(readCluster(2, &clusterBuffer) == FALSE) {
     return;
   };
   parseDirectory(clusterBuffer, records);
@@ -180,10 +182,19 @@ void test_writeRecord() {
   }
 
   printf("Restaurando valores antigos...\n");
-  writeRecord(3000, 5, record1_backup);
-  writeRecord(3000, 11, record2_backup);
-  writeRecord(3000, 15, record3_backup);
+  writeRecord(2, 2, record1_backup);
+  writeRecord(2, 3, record2_backup);
 
+  printf("\nImprimindo diretório RESTAURADO...\n");
+  if(readCluster(2, &clusterBuffer) == FALSE) {
+    return;
+  };
+  parseDirectory(clusterBuffer, records);
+
+  for (i = 0; i < constants.RECORD_PER_CLUSTER; i++) {
+    printRecord(records[i]);
+    printf("\n");
+  }
   printf("-- ENCERROU WRITE RECORD --\n");
 }
 
@@ -195,13 +206,13 @@ int main(int argc, char const *argv[]) {
   //test_readSector();
 
   /* READ CLUSTER */
-  test_readCluster();
+  //test_readCluster();
 
   /* SHOW CLUSTER */
   //test_showCluster();
 
   /* WRITE SECTOR */
-  // test_writeSector();
+  //test_writeSector();
 
   /* WRITE CLUSTER */
   // test_writeCluster();
@@ -210,7 +221,7 @@ int main(int argc, char const *argv[]) {
   //test_readRecord();
 
   /* WRITE RECORD */
-  // test_writeRecord();
+  test_writeRecord();
 
   return 0;
 }
