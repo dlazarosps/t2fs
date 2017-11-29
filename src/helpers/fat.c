@@ -179,8 +179,9 @@ int saveFAT(int clusterIndex){
             break;
         }   
     }
-
-    writeSector(setorIndex, &buffer);
+    // writeSector(setorIndex, &buffer);
+    printf("\n BUFFER SETOR \n");
+    printSector(buffer.at); //debug
 
   }
   else{
@@ -223,7 +224,9 @@ int saveFAT(int clusterIndex){
 
       }
 
-      writeSector(FAT_ROOT+j, &buffer);
+      // writeSector(setorIndex, &buffer);
+      printf("\n BUFFER SETOR \n");
+      printSector(buffer.at); //debug
 
     }
 
