@@ -114,6 +114,9 @@ void test_isFileName() {
 }
 
 void return_lookup(int value, struct t2fs_record record, char* pathname) {
+  if(value == 0){
+	   printf("Arquivo não encontrado.\n");
+  } else{
   switch (value) {
     case PARSED_PATH_ERROR:
       printf("Path inválido.\n");
@@ -126,6 +129,7 @@ void return_lookup(int value, struct t2fs_record record, char* pathname) {
       printRecord(record);
       printf("\n");
       break;
+  }
   }
 }
 
