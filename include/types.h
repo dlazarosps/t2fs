@@ -64,7 +64,7 @@
 
     struct descritor LDAA[MAX_FILES_OPEN];
     
-    char * currentPath;
+    char currentPath[MAX_FILE_NAME_SIZE * MAX_FILES_OPEN];
   };
 
   /*

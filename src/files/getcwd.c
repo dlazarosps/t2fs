@@ -11,8 +11,8 @@ int getCurrentDirectory(char *pathname, int size){
 	if(pathname[0] == '/')	//pathname é absoluto não necssita mais nada
 		return TRUE;
 
-	int i, tipo;
-	int indexDir = -1;
+	int tipo;
+	// int indexDir = -1;
 	int relativo_sem_ponto_e_barra = 0;
 	int relativo_um_ponto_e_barra = 1;
 	int relativo_dois_ponto_e_barra = 2;

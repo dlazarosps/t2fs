@@ -211,11 +211,18 @@ DIR2 opendir2 (char *pathname) {
   if (!config.initiated) {
     initConfig();
   }
-	DIR2 aux = openFile(pathname);
+	int aux = openFile(pathname);
 	if(aux < 0 ) return -1;
+
+  char absolutDir[MAX_FILE_NAME_SIZE * MAX_FILES_OPEN];
+
+  strcpy(absolutDir, pathname);
 	
-	config.currentPath = aux;
-  return config.currentPath;
+	getCurrentDirectory(absolutDir, 0);
+
+  strcpy(config.currentPath, absolutDir);
+
+  return aux;
 };
 
 int readdir2 (DIR2 handle, DIRENT2 *dentry) {
