@@ -64,7 +64,7 @@
 
     struct descritor LDAA[MAX_FILES_OPEN];
     
-    DIR2 currentPath;
+    char * currentPath;
   };
 
   /*

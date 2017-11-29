@@ -39,7 +39,7 @@ int test_printPath(char * pathname, char ** elements) {
   count = parsePath(pathname, elements);
 
   printf("\"%s\"\n\t", pathname);
-  for (i = 0; i < count; i++) {
+  for (i = 0; i <= count; i++) {
     printf("'%s' ", elements[i]);
   }
   printf("\n\n");
@@ -138,7 +138,7 @@ void test_lookup() {
   struct t2fs_record record1, record2, record3, record4, record5;
   int return_record1, return_record2, return_record3, return_record4, return_record5;
 
-  char path1[30] = "/file2";
+  char path1[30] = "/file1.txt";
   char path2[30] = "/file2/file";
   char path3[30] = "/file1";
   char path4[30] = "/file/file/file";
@@ -149,12 +149,17 @@ void test_lookup() {
   return_record3 = lookup(path3, &record3);
   return_record4 = lookup(path4, &record4);
   return_record5 = lookup(path5, &record5);
-
-  return_lookup(return_record1, record1, path1);
-  return_lookup(return_record2, record2, path2);
-  return_lookup(return_record3, record3, path3);
-  return_lookup(return_record4, record4, path4);
-  return_lookup(return_record5, record5, path5);
+	
+  if(return_record1 < 0) printf("Erro lookUp record1\n");
+  else return_lookup(return_record1, record1, path1);
+  if(return_record2 < 0) printf("Erro lookUp record2\n");
+  else return_lookup(return_record2, record2, path2);
+  if(return_record3 < 0) printf("Erro lookUp record3\n");
+  else return_lookup(return_record3, record3, path3);
+  if(return_record4 < 0) printf("Erro lookUp record5\n");
+  else return_lookup(return_record4, record4, path4);
+  if(return_record5 < 0) printf("Erro lookUp record5\n");
+  else return_lookup(return_record5, record5, path5);
 
   printf("--- Encerrando teste de Lookup ---\n");
 }
@@ -178,23 +183,42 @@ void test_getFileDirectory() {
   test_execGetFileDirectory(path4);
 }
 
+void test_getcwd(){
+	char path1[50] = "bin/file1.txt";
+	char path2[50] = "./1/2/3/4/5/NAME";
+	char path3[50] = "../1/NAME/";
+	char path4[50] = "/NAME";
+	
+	getcwd2(path1, sizeof(path1));
+	printf("Path1: %s\n",path1);
+	getcwd2(path2, sizeof(path2));
+	printf("Path2: %s\n",path2);
+	getcwd2(path3, sizeof(path3));
+	printf("Path3: %s\n",path3);
+	getcwd2(path4, sizeof(path4));
+	printf("Path4: %s\n",path4);
+}
+
 int main(int argc, char const *argv[]) {
   initConfig();
 
   /* Valid Path */
-  test_validPath();
+  //test_validPath();
 
   /* Parse Path */
-  test_parsePath();
+  //test_parsePath();
 
   /* Valid File Name */
-  test_isFileName();
+  //test_isFileName();
 
   /* Lookup File */
-  test_lookup();
+  //test_lookup();
 
   /* getFileDirectory */
-  test_getFileDirectory();
+  //test_getFileDirectory();
+  
+  /* getcwd */
+  test_getcwd();
 
   return 0;
 }

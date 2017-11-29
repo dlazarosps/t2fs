@@ -59,7 +59,8 @@ int initConfig() {
 
   initLDAA();
 
-	config.currentPath = openRoot("/");
+	config.currentPath = "/";
+	openRoot("/");
 
   config.initiated = TRUE;
 

@@ -8,24 +8,16 @@
 
 int getCurrentDirectory(char *pathname, int size){
 	
-	// Lembrar de Verificar MAX_FILE_NAME_SIZE
-	
 	if(pathname[0] == '/')	//pathname é absoluto não necssita mais nada
 		return TRUE;
 
-	int i, tipo, indexDir;
+	int i, tipo;
+	int indexDir = -1;
 	int relativo_sem_ponto_e_barra = 0;
 	int relativo_um_ponto_e_barra = 1;
 	int relativo_dois_ponto_e_barra = 2;
 	
 	char absolutDir[MAX_FILE_NAME_SIZE * MAX_FILES_OPEN];
-		
-	//Busca o diretório que esta aberto
-	for(i = 0; i < MAX_FILES_OPEN; i++){
-		if(config.LDAA[i].record.TypeVal == TYPEVAL_DIRETORIO){
-			indexDir = i;
-		}
-	}
 	
 	//Define o tipo do se "arq" ou "./arq" ou "../arq"
 	if(pathname[0] == '.'){
@@ -43,21 +35,22 @@ int getCurrentDirectory(char *pathname, int size){
 	
 	//Caso caminho relativo exemplo: "arquivo"
 	if(tipo == relativo_sem_ponto_e_barra){
-		strcpy(absolutDir, config.LDAA[indexDir].name);
+		strcpy(absolutDir, config.currentPath);
 		strcat(absolutDir, pathname);
 		strcpy(pathname, absolutDir);
 	}
 	
-	//Caso caminho relativo exemplo: "../arquivo"
+	//Caso caminho relativo exemplo: "./arquivo"
 	else if(tipo == relativo_um_ponto_e_barra){
-		strcpy(absolutDir, config.LDAA[indexDir].name);
+		strcpy(absolutDir, config.currentPath);
 
 		// Concatena a o caminho relativo com o absoluto do diretório
 		char * token = strtok(pathname, "/");
 	  	token = strtok(NULL, "/");
 		while (token != NULL){
-			strcat(absolutDir, "/");
+			
 			strcat(absolutDir, token);
+			strcat(absolutDir, "/");
 			token = strtok(NULL, "/");
 		}
 		strcpy(pathname, absolutDir);
@@ -65,11 +58,11 @@ int getCurrentDirectory(char *pathname, int size){
 	
 	//Caso caminho relativo exemplo: "../arquivo"
 	else if(tipo == relativo_dois_ponto_e_barra){
-		strcpy(absolutDir, config.LDAA[indexDir].name);
+		strcpy(absolutDir, config.currentPath);
 	
 		// tratamento para voltar um diretório acima
 		char ** parsedPath = malloc(sizeof(char) * MAX_FILE_NAME_SIZE);
-		unsigned int parseCount = parsePath(absolutDir, parsedPath);
+		int parseCount = parsePath(absolutDir, parsedPath);
 		int i;
 		while (i < parseCount -1){
 			strcat(absolutDir, "/");
@@ -81,8 +74,8 @@ int getCurrentDirectory(char *pathname, int size){
 		char * token = strtok(pathname, "/");
 	  	token = strtok(NULL, "/");
 		while (token != NULL){
-			strcat(absolutDir, "/");
 			strcat(absolutDir, token);
+			strcat(absolutDir, "/");
 			token = strtok(NULL, "/");
 		}
 		
