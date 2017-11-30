@@ -118,16 +118,19 @@ int saveFAT(int clusterIndex){
   int setorIndex;
   int i;
   int j;
+  int index = 0;
   float cluster;
   SECTOR_T buffer;
-
-
+	  memset(buffer.at,'\0',SECTOR_SIZE);
+	  
   // inicializa buffer vazio e variaveis de conversão;
   char temp[1] = "\0";
-  char little[32] = {0};
+  char little[8];
+  char str[8];
   int aux;
+  memset(str,'\0',8);
   
-  memcpy(&buffer.at, &temp, 1);
+
 
   if(clusterIndex != 0){
     
@@ -148,34 +151,64 @@ int saveFAT(int clusterIndex){
     j = i + FAT_PER_SECTOR;
 
     //varre o vetor de FAT para concatenar no buffer os valores
-    for (i =  FAT_PER_SECTOR * setorIndex; i < j ; ++i){
+    for (i =  clusterIndex ; i < 64 +clusterIndex; i++){
       //converte valores para gravar no setor
         switch(config.indexFAT[i]){
           case FAT_ERROR:
             // concatenar 0xFFFFFFFE no buffer
-            strcat((char *)buffer.at,"fffffffe");
+            //strcat((char *)buffer.at,"fffffffe");
+			memset(&buffer.at[index],'F',1);
+			memset(&buffer.at[index+1],'E',1);
+			memset(&buffer.at[index+2],'F',1);
+			memset(&buffer.at[index+3],'F',1);
+			memset(&buffer.at[index+4],'F',1);
+			memset(&buffer.at[index+5],'F',1);
+			memset(&buffer.at[index+6],'F',1);
+			memset(&buffer.at[index+7],'F',1);
+			index += 4;
             break;
           case FAT_EOF:
             // concatenar 0xFFFFFFFF no buffer
-            strcat((char *)buffer.at,"ffffffff");
+            //strcat((char *)buffer.at,"ffffffff");
+			memset(&buffer.at[index],'F',1);
+			memset(&buffer.at[index+1],'F',1);
+			memset(&buffer.at[index+2],'F',1);
+			memset(&buffer.at[index+3],'F',1);
+			memset(&buffer.at[index+4],'F',1);
+			memset(&buffer.at[index+5],'F',1);
+			memset(&buffer.at[index+6],'F',1);
+			memset(&buffer.at[index+7],'F',1);
+			index += 4;
+            break;
+		  case 0:
+            // concatenar 0x0 no buffer
+            //strcat((char *)buffer.at,"00000000");
+			memset(&buffer.at[index],'\0',1);
+			memset(&buffer.at[index+1],'\0',1);
+			memset(&buffer.at[index+2],'\0',1);
+			memset(&buffer.at[index+3],'\0',1);
+			memset(&buffer.at[index+4],'\0',1);
+			memset(&buffer.at[index+5],'\0',1);
+			memset(&buffer.at[index+6],'\0',1);
+			memset(&buffer.at[index+7],'\0',1);
+			index += 4;
             break;
           default:
             /* GAMBIARRA VIOLENTA */
             // converter o valor em little-endian e concaternar no buffer
-            aux = changed_endian(config.indexFAT[i]);
-
-            //int to string 
-            sprintf(little, "%x", aux); 
+			sprintf(str, "%x", config.indexFAT[i]); 
+ 
 
             //copia os bytes
-            strcat((char *) buffer.at, &little[0]); 
-            strcat((char *) buffer.at, &little[1]);
-            strcat((char *) buffer.at, &little[2]);
-            strcat((char *) buffer.at, &little[3]);
-            strcat((char *) buffer.at, &little[4]);
-            strcat((char *) buffer.at, &little[5]);
-            strcat((char *) buffer.at, &little[6]);
-            strcat((char *) buffer.at, &little[7]);
+            memset(&buffer.at[index],str[0],1);
+			memset(&buffer.at[index+1],str[1],1);
+			memset(&buffer.at[index+2],str[2],1);
+			memset(&buffer.at[index+3],str[3],1);
+			memset(&buffer.at[index+4],str[4],1);
+			memset(&buffer.at[index+5],str[5],1);
+			memset(&buffer.at[index+6],str[6],1);
+			memset(&buffer.at[index+7],str[7],1);
+			index += 4;
             break;
         }   
     }
