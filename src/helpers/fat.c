@@ -126,7 +126,7 @@ int saveFAT(int clusterIndex){
   // inicializa buffer vazio e variaveis de conversão;
   char temp[1] = "\0";
   char little[8];
-  char str[8];
+  unsigned char str[8];
   int aux;
   memset(str,'\0',8);
   
@@ -150,47 +150,37 @@ int saveFAT(int clusterIndex){
     //quantidade de vetores FAT por setor
     j = i + FAT_PER_SECTOR;
 
+	aux = readSector(setorIndex, &buffer);
+	
     //varre o vetor de FAT para concatenar no buffer os valores
-    for (i =  clusterIndex ; i < 64 +clusterIndex; i++){
+    for (i =  clusterIndex ; i < FAT_PER_SECTOR +clusterIndex; i++){
       //converte valores para gravar no setor
         switch(config.indexFAT[i]){
           case FAT_ERROR:
             // concatenar 0xFFFFFFFE no buffer
             //strcat((char *)buffer.at,"fffffffe");
-			memset(&buffer.at[index],'F',1);
-			memset(&buffer.at[index+1],'E',1);
-			memset(&buffer.at[index+2],'F',1);
-			memset(&buffer.at[index+3],'F',1);
-			memset(&buffer.at[index+4],'F',1);
-			memset(&buffer.at[index+5],'F',1);
-			memset(&buffer.at[index+6],'F',1);
-			memset(&buffer.at[index+7],'F',1);
+			memset(&buffer.at[index],0xFE,1);
+			memset(&buffer.at[index+1],0xFF,1);
+			memset(&buffer.at[index+2],0xFF,1);
+			memset(&buffer.at[index+3],0xFF,1);
 			index += 4;
             break;
           case FAT_EOF:
             // concatenar 0xFFFFFFFF no buffer
             //strcat((char *)buffer.at,"ffffffff");
-			memset(&buffer.at[index],'F',1);
-			memset(&buffer.at[index+1],'F',1);
-			memset(&buffer.at[index+2],'F',1);
-			memset(&buffer.at[index+3],'F',1);
-			memset(&buffer.at[index+4],'F',1);
-			memset(&buffer.at[index+5],'F',1);
-			memset(&buffer.at[index+6],'F',1);
-			memset(&buffer.at[index+7],'F',1);
+			memset(&buffer.at[index],0xFF,1);
+			memset(&buffer.at[index+1],0xFF,1);
+			memset(&buffer.at[index+2],0xFF,1);
+			memset(&buffer.at[index+3],0xFF,1);
 			index += 4;
             break;
 		  case 0:
             // concatenar 0x0 no buffer
             //strcat((char *)buffer.at,"00000000");
-			memset(&buffer.at[index],'\0',1);
-			memset(&buffer.at[index+1],'\0',1);
-			memset(&buffer.at[index+2],'\0',1);
-			memset(&buffer.at[index+3],'\0',1);
-			memset(&buffer.at[index+4],'\0',1);
-			memset(&buffer.at[index+5],'\0',1);
-			memset(&buffer.at[index+6],'\0',1);
-			memset(&buffer.at[index+7],'\0',1);
+			memset(&buffer.at[index],0x00,1);
+			memset(&buffer.at[index+1],0x00,1);
+			memset(&buffer.at[index+2],0x00,1);
+			memset(&buffer.at[index+3],0x00,1);
 			index += 4;
             break;
           default:
@@ -200,14 +190,8 @@ int saveFAT(int clusterIndex){
  
 
             //copia os bytes
-            memset(&buffer.at[index],str[0],1);
-			memset(&buffer.at[index+1],str[1],1);
-			memset(&buffer.at[index+2],str[2],1);
-			memset(&buffer.at[index+3],str[3],1);
-			memset(&buffer.at[index+4],str[4],1);
-			memset(&buffer.at[index+5],str[5],1);
-			memset(&buffer.at[index+6],str[6],1);
-			memset(&buffer.at[index+7],str[7],1);
+            memset(&buffer.at[index],(unsigned char)strtol(str, NULL, 16),1);
+
 			index += 4;
             break;
         }   

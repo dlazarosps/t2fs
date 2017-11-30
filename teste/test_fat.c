@@ -19,11 +19,6 @@ int test_fat() {
 	if(status != 10){ printf("\nERRO setFAT(64)\n"); return -1; }
 	printf("---TEST setFAT(64, 10)---\n indexFAT[64] = %d\n\n",status);
 	
-	status = setFAT(127, 10);
-	status = getFAT(127);
-	if(status != 10){ printf("\nERRO setFAT(64)\n"); return -1; }
-	printf("---TEST setFAT(64, 10)---\n indexFAT[64] = %d\n\n",status);
-	
 	printf("---TEST setFAT(0, 10)---\n\n");
 	status = setFAT(0, 10);
 	if(status >= 0){ printf("\nERRO setFAT(0,10)\n"); return -1; }
